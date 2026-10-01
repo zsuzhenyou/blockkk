@@ -36,7 +36,7 @@
           <h1 id="authTitle">登入，<br /><em>加入戰局。</em></h1>
           <p>建立免費帳號，使用快速配對尋找線上玩家，或建立私人房間邀請朋友。</p>
           <ul>
-            <li>跨裝置保留玩家身分</li>
+            <li>角色帳號＋密碼，免 Email</li>
             <li>公開配對與私人房間</li>
             <li>即時點對點遊戲連線</li>
           </ul>
@@ -47,13 +47,11 @@
             <button id="signupTab" role="tab" aria-selected="false">創建帳號</button>
           </div>
           <form id="authForm">
-            <label id="usernameField" class="hidden">玩家名稱<input id="usernameInput" maxlength="18" autocomplete="nickname" placeholder="2–18 個字元" /></label>
-            <label>電子郵件<input id="emailInput" type="email" autocomplete="email" required placeholder="player@example.com" /></label>
+            <label>角色帳號<input id="accountInput" minlength="2" maxlength="18" autocomplete="username" required placeholder="2–18 個字元" /></label>
             <label>密碼<input id="passwordInput" type="password" minlength="8" autocomplete="current-password" required placeholder="至少 8 個字元" /></label>
             <button id="authSubmit" class="btn btn-primary" type="submit"><span>登入</span><kbd>ENTER</kbd></button>
           </form>
           <p id="authMessage" class="auth-message" role="status" aria-live="polite"></p>
-          <button id="resendVerificationBtn" class="text-button hidden" type="button">重新寄送驗證信</button>
           <button id="guestPracticeBtn" class="text-button">不登入，先進入離線練習</button>
         </div>
       </section>
