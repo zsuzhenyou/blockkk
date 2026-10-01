@@ -13,7 +13,7 @@
 ## 功能
 
 - 1 對 1 即時對戰與房間碼
-- 電子郵件帳號註冊與登入
+- 角色帳號＋密碼註冊與登入（玩家不需提供 Email）
 - 公開快速配對佇列
 - 消行攻擊、垃圾行、勝負判定
 - 單人練習模式
@@ -52,7 +52,7 @@ GitHub Pages 只負責網站檔案；帳號、房間及配對資料由 Supabase 
 3. 到 **Project Settings → API**，複製 Project URL 與 publishable/anon key。
 4. 將兩個值填入 `config.js`。請勿把 `service_role` key 放進網頁。
 5. 到 **Authentication → URL Configuration**，把本機網址及 GitHub Pages 網址加入允許清單。
-6. 若不希望測試帳號驗證信，可在開發期間關閉 Confirm email；正式公開時建議啟用並設定 SMTP。
+6. 在 Authentication → Sign In / Providers → Email 關閉 Confirm email。本專案會在瀏覽器中把角色帳號轉成 Supabase 使用的內部識別碼，不寄送驗證信。
 
 資料表已啟用 Row Level Security，配對與房間寫入只能透過已授權的資料庫函式進行。
 
