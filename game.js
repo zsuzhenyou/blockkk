@@ -12,7 +12,7 @@ const SHAPES = {
 };
 const PIECES = Object.keys(SHAPES);
 const $ = (id) => document.getElementById(id);
-const ui = Object.fromEntries(['auth','lobby','waiting','arena','hostBtn','joinBtn','matchBtn','practiceBtn','guestPracticeBtn','roomInput','lobbyMessage','roomCode','copyCode','waitingTitle','waitingText','cancelWait','backBtn','pauseBtn','matchMode','matchRoom','networkStatus','userMenu','userName','signOutBtn','loginTab','signupTab','authForm','usernameField','usernameInput','emailInput','passwordInput','authSubmit','authMessage','gameCanvas','holdCanvas','nextCanvas','rivalCanvas','score','lines','rivalScore','rivalLines','rivalName','rivalBadge','localBadge','attackMeter','gameOverlay','overlayTitle','overlayText','countdown','resultModal','resultTitle','resultText','resultScore','resultLines','againBtn','lobbyBtn','toast'].map(k => [k, $(k)]));
+const ui = Object.fromEntries(['auth','lobby','waiting','arena','hostBtn','joinBtn','matchBtn','practiceBtn','guestPracticeBtn','resendVerificationBtn','roomInput','lobbyMessage','roomCode','copyCode','waitingTitle','waitingText','cancelWait','backBtn','pauseBtn','matchMode','matchRoom','networkStatus','userMenu','userName','signOutBtn','loginTab','signupTab','authForm','usernameField','usernameInput','emailInput','passwordInput','authSubmit','authMessage','gameCanvas','holdCanvas','nextCanvas','rivalCanvas','score','lines','rivalScore','rivalLines','rivalName','rivalBadge','localBadge','attackMeter','gameOverlay','overlayTitle','overlayText','countdown','resultModal','resultTitle','resultText','resultScore','resultLines','againBtn','lobbyBtn','toast'].map(k => [k, $(k)]));
 const ctx = ui.gameCanvas.getContext('2d');
 const holdCtx = ui.holdCanvas.getContext('2d');
 const nextCtx = ui.nextCanvas.getContext('2d');
@@ -241,7 +241,10 @@ function backToLobby(){ disconnect(); ui.resultModal.classList.add('hidden'); sh
 function toast(message){ ui.toast.textContent=message; ui.toast.classList.add('show'); clearTimeout(toast.timer); toast.timer=setTimeout(()=>ui.toast.classList.remove('show'),1800); }
 
 function selectAuthMode(mode) {
-  authMode=mode; const signup=mode==='signup'; ui.loginTab.classList.toggle('active',!signup); ui.signupTab.classList.toggle('active',signup); ui.loginTab.setAttribute('aria-selected',String(!signup)); ui.signupTab.setAttribute('aria-selected',String(signup)); ui.usernameField.classList.toggle('hidden',!signup); ui.usernameInput.required=signup; ui.passwordInput.autocomplete=signup?'new-password':'current-password'; ui.authSubmit.firstElementChild.textContent=signup?'創建帳號':'登入'; ui.authMessage.textContent='';
+  authMode=mode; const signup=mode==='signup'; ui.loginTab.classList.toggle('active',!signup); ui.signupTab.classList.toggle('active',signup); ui.loginTab.setAttribute('aria-selected',String(!signup)); ui.signupTab.setAttribute('aria-selected',String(signup)); ui.usernameField.classList.toggle('hidden',!signup); ui.resendVerificationBtn.classList.toggle('hidden',!signup); ui.usernameInput.required=signup; ui.passwordInput.autocomplete=signup?'new-password':'current-password'; ui.authSubmit.firstElementChild.textContent=signup?'創建帳號':'登入'; ui.authMessage.textContent='';
+}
+function authRedirectUrl() {
+  return new URL('./', window.location.href).href.split('#')[0].split('?')[0];
 }
 async function submitAuth(event) {
   event.preventDefault(); if(!db){ui.authMessage.textContent='線上服務尚未設定，請完成 README 的 Supabase 設定。';return;}
@@ -249,10 +252,20 @@ async function submitAuth(event) {
   try {
     if(authMode==='signup'){
       const username=ui.usernameInput.value.trim(); if(username.length<2)throw new Error('玩家名稱至少需要 2 個字元。');
-      const {data,error}=await db.auth.signUp({email,password,options:{data:{username}}}); if(error)throw error;
+      const {data,error}=await db.auth.signUp({email,password,options:{data:{username},emailRedirectTo:authRedirectUrl()}}); if(error)throw error;
       ui.authMessage.textContent=data.session?'帳號建立完成。':'帳號已建立，請到信箱完成驗證後登入。';
     } else { const {error}=await db.auth.signInWithPassword({email,password}); if(error)throw error; }
   } catch(error){ui.authMessage.textContent=translateAuthError(error.message);} finally {ui.authSubmit.disabled=false;}
+}
+async function resendVerification() {
+  const email=ui.emailInput.value.trim();
+  if(!db){ui.authMessage.textContent='線上服務暫時無法使用。';return;}
+  if(!email){ui.authMessage.textContent='請先輸入註冊用的電子郵件。';ui.emailInput.focus();return;}
+  ui.resendVerificationBtn.disabled=true; ui.authMessage.textContent='正在重新寄送驗證信…';
+  try {
+    const {error}=await db.auth.resend({type:'signup',email,options:{emailRedirectTo:authRedirectUrl()}}); if(error)throw error;
+    ui.authMessage.textContent='新的驗證信已寄出；請使用最新一封郵件中的連結。';
+  } catch(error){ui.authMessage.textContent=translateAuthError(error.message);} finally {ui.resendVerificationBtn.disabled=false;}
 }
 function translateAuthError(message='') {
   if(/invalid login credentials/i.test(message))return '電子郵件或密碼不正確。'; if(/already registered/i.test(message))return '這個電子郵件已註冊。'; if(/password/i.test(message)&&/characters/i.test(message))return '密碼至少需要 8 個字元。'; return message;
@@ -271,7 +284,7 @@ ui.roomInput.addEventListener('input',e=>e.target.value=e.target.value.toUpperCa
 ui.copyCode.addEventListener('click',async()=>{try{await navigator.clipboard.writeText(activeRoom);toast('房間碼已複製');}catch{toast(`房間碼：${activeRoom}`);}});
 ui.cancelWait.addEventListener('click',backToLobby); ui.backBtn.addEventListener('click',backToLobby); ui.pauseBtn.addEventListener('click',togglePause); ui.lobbyBtn.addEventListener('click',backToLobby);
 ui.againBtn.addEventListener('click',()=>{ ui.resultModal.classList.add('hidden'); if(roomMode==='practice')countdownAndStart(); else {rematchRequested=true;send({type:'rematch'});toast('等待對手準備…');} });
-ui.loginTab.addEventListener('click',()=>selectAuthMode('login')); ui.signupTab.addEventListener('click',()=>selectAuthMode('signup')); ui.authForm.addEventListener('submit',submitAuth); ui.signOutBtn.addEventListener('click',async()=>{disconnect();await db?.auth.signOut();});
+ui.loginTab.addEventListener('click',()=>selectAuthMode('login')); ui.signupTab.addEventListener('click',()=>selectAuthMode('signup')); ui.authForm.addEventListener('submit',submitAuth); ui.resendVerificationBtn.addEventListener('click',resendVerification); ui.signOutBtn.addEventListener('click',async()=>{disconnect();await db?.auth.signOut();});
 
 const actions={left:()=>move(-1,0),right:()=>move(1,0),down:()=>move(0,1),rotate,drop:hardDrop,hold};
 document.querySelectorAll('.mobile-controls button').forEach(btn=>btn.addEventListener('pointerdown',e=>{e.preventDefault();actions[btn.dataset.action]?.();}));
