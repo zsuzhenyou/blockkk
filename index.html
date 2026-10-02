@@ -182,9 +182,23 @@
         <p class="eyebrow">MATCH RESULT</p>
         <h2 id="resultTitle">勝利</h2>
         <p id="resultText">漂亮的四行連消。</p>
-        <div class="result-stats"><span><small>分數</small><b id="resultScore">0</b></span><span><small>消除行數</small><b id="resultLines">0</b></span></div>
+        <div class="result-stats"><span><small>本局分數</small><b id="resultScore">0</b></span><span><small>消除行數</small><b id="resultLines">0</b></span><span id="resultRatingBox"><small>牌位積分</small><b id="resultRating">—</b></span></div>
+        <p id="resultSettlement" class="result-settlement"></p>
         <button id="againBtn" class="btn btn-primary">再來一場</button>
         <button id="lobbyBtn" class="text-button">回到大廳</button>
+      </div>
+    </div>
+
+    <div id="playerModal" class="modal hidden" role="dialog" aria-modal="true" aria-labelledby="playerModalTitle">
+      <div class="modal-card public-player-card">
+        <button id="closePlayerBtn" class="modal-close" aria-label="關閉玩家資料">×</button>
+        <p class="eyebrow">PUBLIC PLAYER PROFILE</p>
+        <span id="viewPlayerAvatar" class="public-player-avatar">⚡</span>
+        <h2 id="playerModalTitle"><span id="viewPlayerName">PLAYER</span></h2>
+        <div class="public-rank"><strong id="viewPlayerRank">青銅</strong><span id="viewPlayerRating">1000 RP</span></div>
+        <div class="result-stats player-detail-stats"><span><small>總勝場</small><b id="viewPlayerWins">0</b></span><span><small>總敗場</small><b id="viewPlayerLosses">0</b></span><span><small>勝率</small><b id="viewPlayerWinrate">0%</b></span></div>
+        <p id="viewPlayerExtra" class="setting-note"></p>
+        <button id="addPlayerFriendBtn" class="btn btn-primary">加入好友</button>
       </div>
     </div>
 
