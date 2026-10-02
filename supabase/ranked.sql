@@ -99,10 +99,10 @@ declare v_global jsonb; v_friends jsonb;
 begin
   if auth.uid() is null then raise exception 'Authentication required'; end if;
   select coalesce(jsonb_agg(to_jsonb(x)),'[]'::jsonb) into v_global from (
-    select username,avatar,rating,wins,losses,ranked_wins,ranked_losses from public.profiles order by rating desc,ranked_wins desc,created_at limit 50
+    select id,username,avatar,block_theme,rating,wins,losses,ranked_wins,ranked_losses from public.profiles order by rating desc,ranked_wins desc,created_at limit 50
   ) x;
   select coalesce(jsonb_agg(to_jsonb(x)),'[]'::jsonb) into v_friends from (
-    select p.username,p.avatar,p.rating,p.wins,p.losses,p.ranked_wins,p.ranked_losses
+    select p.id,p.username,p.avatar,p.block_theme,p.rating,p.wins,p.losses,p.ranked_wins,p.ranked_losses
     from public.profiles p where p.id=auth.uid() or exists(
       select 1 from public.friendships f where f.status='accepted' and auth.uid() in(f.user_a,f.user_b) and p.id in(f.user_a,f.user_b)
     ) order by p.rating desc,p.ranked_wins desc limit 50
