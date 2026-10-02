@@ -162,7 +162,7 @@ function togglePause() {
   paused = !paused; ui.gameOverlay.classList.toggle('hidden', !paused); ui.overlayTitle.textContent = paused ? '暫停' : ''; ui.overlayText.textContent = '按 P 繼續';
 }
 function endGame(won, reason) {
-  if (gameEnded) return; gameEnded = true; running = false; cancelAnimationFrame(raf); clearInterval(aiTimer); aiTimer=null; ui.localBadge.textContent = won ? 'WIN' : 'KO';
+  if (gameEnded) return; gameEnded = true; running = false; stopAllHeld(); cancelAnimationFrame(raf); clearInterval(aiTimer); aiTimer=null; ui.localBadge.textContent = won ? 'WIN' : 'KO';
   if (!won && roomMode === 'online') send({type:'gameover'});
   showResult(won, reason);
   if (roomMode === 'online' && db && session) {
@@ -295,7 +295,7 @@ function handleData(data) {
 function send(data){ if(connection?.open) connection.send(data); }
 function sendState(force=false){ const now=performance.now(); if(!force && now-lastStateSent<170)return; lastStateSent=now; send({type:'state',board,score,lines}); }
 function handlePeerError(error){ const known={'unavailable-id':'這個房間碼已被使用，請重新建立。','peer-unavailable':'找不到房間，請確認代碼是否正確。',network:'連線服務暫時無法使用。'}; setLobbyMessage(known[error.type]||'無法建立連線，請稍後再試。'); setNetwork('連線失敗',false); showSection('lobby'); }
-function disconnect(notifyBackend=true){ clearInterval(matchPoll); clearInterval(aiTimer); matchPoll=null; aiTimer=null; if(notifyBackend&&db&&session)callRpc('leave_online',{p_room_id:currentRoomId}).catch(()=>{}); if(connection){connection.close();connection=null;} if(peer){peer.destroy();peer=null;} peerReady=false; activeRoom=''; currentRoomId=null; cancelAnimationFrame(raf); running=false; }
+function disconnect(notifyBackend=true){ stopAllHeld();clearInterval(matchPoll); clearInterval(aiTimer); matchPoll=null; aiTimer=null; if(notifyBackend&&db&&session)callRpc('leave_online',{p_room_id:currentRoomId}).catch(()=>{}); if(connection){connection.close();connection=null;} if(peer){peer.destroy();peer=null;} peerReady=false; activeRoom=''; currentRoomId=null; cancelAnimationFrame(raf); running=false; }
 function backToLobby(){ disconnect(); ui.resultModal.classList.add('hidden'); showSection(session?'lobby':'auth'); ui.roomInput.value=''; setLobbyMessage(); setNetwork('連線服務待命'); }
 function toast(message){ ui.toast.textContent=message; ui.toast.classList.add('show'); clearTimeout(toast.timer); toast.timer=setTimeout(()=>ui.toast.classList.remove('show'),1800); }
 
@@ -429,12 +429,28 @@ document.querySelector('.panel-tabs').addEventListener('click',event=>{const but
 ui.closePlayerBtn.addEventListener('click',()=>ui.playerModal.classList.add('hidden'));ui.addPlayerFriendBtn.addEventListener('click',addViewedPlayerFriend);
 
 const actions={left:()=>move(-1,0),right:()=>move(1,0),down:()=>move(0,1),rotate,drop:hardDrop,hold};
-document.querySelectorAll('.mobile-controls button').forEach(btn=>btn.addEventListener('pointerdown',e=>{e.preventDefault();actions[btn.dataset.action]?.();}));
-document.addEventListener('keydown',e=>{
-  if(['ArrowLeft','ArrowRight','ArrowDown','ArrowUp','Space'].includes(e.code))e.preventDefault();
-  const map={ArrowLeft:()=>move(-1,0),ArrowRight:()=>move(1,0),ArrowDown:()=>move(0,1),ArrowUp:rotate,Space:hardDrop,KeyC:hold,KeyP:togglePause}; map[e.code]?.();
+const heldControls=new Map();
+function stopHeld(id) { const state=heldControls.get(id);if(!state)return;clearTimeout(state.delay);clearInterval(state.repeat);heldControls.delete(id); }
+function stopAllHeld() { [...heldControls.keys()].forEach(stopHeld); }
+function startHeld(id,action,delay=120,rate=38) {
+  if(heldControls.has(id))return;
+  action();const state={delay:null,repeat:null};heldControls.set(id,state);
+  state.delay=setTimeout(()=>{action();state.repeat=setInterval(action,rate);},delay);
+}
+document.querySelectorAll('.mobile-controls button').forEach(btn=>{
+  const action=btn.dataset.action,isRepeatable=['left','right','down'].includes(action),id=`touch-${action}`;
+  btn.addEventListener('pointerdown',event=>{event.preventDefault();if(isRepeatable)startHeld(id,actions[action],110,action==='down'?55:42);else actions[action]?.();});
+  ['pointerup','pointercancel','pointerleave'].forEach(type=>btn.addEventListener(type,()=>stopHeld(id)));
 });
-window.addEventListener('beforeunload',disconnect);
+document.addEventListener('keydown',e=>{
+  if(e.target.closest('input,select,textarea,[contenteditable="true"]'))return;
+  if(['ArrowLeft','ArrowRight','ArrowDown','ArrowUp','Space'].includes(e.code))e.preventDefault();
+  const held={ArrowLeft:{id:'key-left',opposite:'key-right',action:actions.left,delay:120,rate:38},ArrowRight:{id:'key-right',opposite:'key-left',action:actions.right,delay:120,rate:38},ArrowDown:{id:'key-down',action:actions.down,delay:80,rate:45}};
+  if(held[e.code]){if(e.repeat)return;const control=held[e.code];if(control.opposite)stopHeld(control.opposite);startHeld(control.id,control.action,control.delay,control.rate);return;}
+  if(e.repeat)return;const once={ArrowUp:rotate,Space:hardDrop,KeyC:hold,KeyP:togglePause};once[e.code]?.();
+});
+document.addEventListener('keyup',e=>{const ids={ArrowLeft:'key-left',ArrowRight:'key-right',ArrowDown:'key-down'};if(ids[e.code])stopHeld(ids[e.code]);});
+window.addEventListener('blur',stopAllHeld);window.addEventListener('beforeunload',disconnect);
 
 board=emptyBoard(); queue=[]; fillQueue(); current={type:'T',shape:cloneShape('T'),x:3,y:3}; draw(); drawRival(); drawSidePanels();
 selectAuthMode('login');
