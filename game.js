@@ -18,7 +18,7 @@ const SHAPES = {
 };
 const PIECES = Object.keys(SHAPES);
 const $ = (id) => document.getElementById(id);
-const ui = Object.fromEntries(['auth','lobby','waiting','arena','hostBtn','joinBtn','matchBtn','practiceBtn','guestPracticeBtn','roomInput','lobbyMessage','roomCode','copyCode','waitingTitle','waitingText','cancelWait','backBtn','pauseBtn','matchMode','matchRoom','networkStatus','userMenu','userAvatar','userName','settingsBtn','signOutBtn','loginTab','signupTab','authForm','accountInput','passwordInput','authSubmit','authMessage','profileAvatar','profileName','profileWins','profileLosses','profileWinrate','profileThemeName','profileEditBtn','profileModal','avatarOptions','themeSelect','saveProfileBtn','closeProfileBtn','friendCount','friendSearchInput','friendSearchBtn','friendMessage','requestSection','incomingList','friendsList','inviteBanner','inviteAvatar','inviteName','acceptInviteBtn','declineInviteBtn','localAvatar','rivalAvatar','gameCanvas','holdCanvas','nextCanvas','rivalCanvas','score','lines','rivalScore','rivalLines','rivalName','rivalBadge','localBadge','attackMeter','gameOverlay','overlayTitle','overlayText','countdown','resultModal','resultTitle','resultText','resultScore','resultLines','againBtn','lobbyBtn','toast'].map(k => [k, $(k)]));
+const ui = Object.fromEntries(['auth','lobby','waiting','arena','hostBtn','joinBtn','matchBtn','rankedMatchBtn','practiceBtn','guestPracticeBtn','aiDifficulty','roomInput','lobbyMessage','roomCode','copyCode','waitingTitle','waitingText','cancelWait','backBtn','pauseBtn','matchMode','matchRoom','networkStatus','userMenu','userAvatar','userName','settingsBtn','signOutBtn','loginTab','signupTab','authForm','accountInput','passwordInput','authSubmit','authMessage','profileAvatar','profileName','profileWins','profileLosses','profileWinrate','profileThemeName','profileRank','profileRating','profileEditBtn','profileModal','avatarOptions','themeSelect','saveProfileBtn','closeProfileBtn','friendCount','friendNotice','friendSearchInput','friendSearchBtn','friendMessage','requestSection','incomingList','friendsList','lobbyHome','leaderboardPanel','friendsPanel','globalLeaderboard','friendLeaderboard','inviteBanner','inviteAvatar','inviteName','acceptInviteBtn','declineInviteBtn','localAvatar','rivalAvatar','gameCanvas','holdCanvas','nextCanvas','rivalCanvas','score','lines','rivalScore','rivalLines','rivalName','rivalBadge','localBadge','attackMeter','gameOverlay','overlayTitle','overlayText','countdown','resultModal','resultTitle','resultText','resultScore','resultLines','againBtn','lobbyBtn','toast'].map(k => [k, $(k)]));
 const ctx = ui.gameCanvas.getContext('2d');
 const holdCtx = ui.holdCanvas.getContext('2d');
 const nextCtx = ui.nextCanvas.getContext('2d');
@@ -29,8 +29,11 @@ let running = false, paused = false, gameEnded = false, pendingGarbage = 0, room
 let peer = null, connection = null, isHost = false, activeRoom = '', lastStateSent = 0;
 let peerReady = false, remoteReady = false, rematchRequested = false;
 let db = null, session = null, playerName = 'PLAYER', authMode = 'login';
-let currentRoomId = null, matchPoll = null, matchmaking = false;
-let playerProfile = {avatar:'⚡',block_theme:'neon',wins:0,losses:0}, rivalTheme='neon', socialPoll=null, pendingInvite=null, selectedAvatar='⚡';
+let currentRoomId = null, matchPoll = null, matchmaking = false, matchmakingMode = 'normal';
+let playerProfile = {avatar:'⚡',block_theme:'neon',wins:0,losses:0,rating:1000,ranked_wins:0,ranked_losses:0}, rivalTheme='neon', socialPoll=null, pendingInvite=null, selectedAvatar='⚡';
+let aiBoard = null, aiTimer = null, aiTicks = 0, aiDifficulty = 'normal';
+const AI_LEVELS = {easy:{name:'簡單',tick:1450,attack:.11,max:1},normal:{name:'普通',tick:1050,attack:.2,max:2},hard:{name:'困難',tick:720,attack:.32,max:3},expert:{name:'專家',tick:470,attack:.46,max:4}};
+const RANKS = [{min:0,name:'新星'},{min:900,name:'青銅'},{min:1100,name:'白銀'},{min:1300,name:'黃金'},{min:1500,name:'白金'},{min:1750,name:'鑽石'},{min:2000,name:'大師'}];
 
 function emptyBoard() { return Array.from({length: ROWS}, () => Array(COLS).fill(null)); }
 function shuffledBag() {
@@ -91,6 +94,7 @@ function clearLines() {
   score += [0, 100, 300, 500, 800][n] * level;
   const attack = [0, 0, 1, 2, 4][n];
   if (attack && roomMode === 'online') send({type: 'attack', lines: attack});
+  if (attack && roomMode === 'ai') attackAi(attack);
   if (attack) toast(`${n} 行連消 · 攻擊 ${attack}`);
 }
 function addGarbage(amount) {
@@ -135,13 +139,15 @@ function drawRival(remoteBoard) { drawGrid(rivalCtx, remoteBoard || emptyBoard()
 function updateStats() { ui.score.textContent = score.toLocaleString(); ui.lines.textContent = lines; }
 
 function resetGame() {
-  cancelAnimationFrame(raf); board = emptyBoard(); queue = []; holdPiece = null; score = 0; lines = 0; level = 1; dropMs = 820; lastDrop = performance.now(); pendingGarbage = 0; gameEnded = false; paused = false; running = false; canHold = true;
+  cancelAnimationFrame(raf); clearInterval(aiTimer); aiTimer=null; board = emptyBoard(); queue = []; holdPiece = null; score = 0; lines = 0; level = 1; dropMs = 820; lastDrop = performance.now(); pendingGarbage = 0; gameEnded = false; paused = false; running = false; canHold = true;
+  if(roomMode==='ai'){aiBoard=emptyBoard();aiTicks=0;ui.rivalScore.textContent='0';ui.rivalLines.textContent='0';drawRival(aiBoard);}
   fillQueue(); spawn(); updateStats(); updateAttackMeter(); ui.gameOverlay.classList.add('hidden'); ui.resultModal.classList.add('hidden'); ui.localBadge.textContent = 'READY'; draw(); drawRival();
 }
 async function countdownAndStart() {
   resetGame(); ui.countdown.classList.remove('hidden');
   for (const value of ['3','2','1','GO']) { ui.countdown.textContent = value; await new Promise(r=>setTimeout(r, value==='GO'?500:700)); }
   ui.countdown.classList.add('hidden'); running = true; ui.localBadge.textContent = 'LIVE'; lastDrop = performance.now(); raf = requestAnimationFrame(loop); sendState(true);
+  if(roomMode==='ai') startAiLoop();
 }
 function loop(now) {
   if (!running) return;
@@ -155,9 +161,9 @@ function togglePause() {
   paused = !paused; ui.gameOverlay.classList.toggle('hidden', !paused); ui.overlayTitle.textContent = paused ? '暫停' : ''; ui.overlayText.textContent = '按 P 繼續';
 }
 function endGame(won, reason) {
-  if (gameEnded) return; gameEnded = true; running = false; cancelAnimationFrame(raf); ui.localBadge.textContent = won ? 'WIN' : 'KO';
+  if (gameEnded) return; gameEnded = true; running = false; cancelAnimationFrame(raf); clearInterval(aiTimer); aiTimer=null; ui.localBadge.textContent = won ? 'WIN' : 'KO';
   if (!won && roomMode === 'online') send({type:'gameover'});
-  if (roomMode === 'online' && db && session) callRpc('record_match',{p_won:won}).then(refreshSocial).catch(()=>{});
+  if (roomMode === 'online' && db && session) callRpc('record_match_result',{p_won:won,p_ranked:matchmakingMode==='ranked'}).then(()=>{refreshSocial();refreshLeaderboards();}).catch(()=>{});
   setTimeout(()=>showResult(won, reason), 350);
 }
 function showResult(won, reason) {
@@ -168,6 +174,24 @@ function showResult(won, reason) {
 
 function showSection(section) { ['auth','lobby','waiting','arena'].forEach(k=>ui[k].classList.toggle('hidden', k!==section)); }
 function startPractice() { disconnect(false); roomMode='practice'; ui.matchMode.textContent='單人練習'; ui.matchRoom.textContent=''; ui.rivalName.textContent='你的紀錄'; ui.rivalBadge.textContent='SOLO'; ui.rivalBadge.classList.add('muted'); showSection('arena'); countdownAndStart(); }
+function startAiBattle() {
+  disconnect(false); roomMode='ai'; aiDifficulty=ui.aiDifficulty?.value||'normal'; aiBoard=emptyBoard(); aiTicks=0;
+  ui.matchMode.textContent=`AI 對戰 · ${AI_LEVELS[aiDifficulty].name}`; ui.matchRoom.textContent='SOLO BATTLE'; ui.rivalName.textContent=`${AI_LEVELS[aiDifficulty].name} AI`; ui.rivalAvatar.textContent='🤖'; ui.rivalBadge.textContent=aiDifficulty.toUpperCase(); ui.rivalBadge.classList.remove('muted'); ui.rivalScore.textContent='0'; ui.rivalLines.textContent='0';
+  showSection('arena'); drawRival(aiBoard); countdownAndStart();
+}
+function startAiLoop() { clearInterval(aiTimer); aiTimer=setInterval(aiTurn,AI_LEVELS[aiDifficulty].tick); }
+function aiTurn() {
+  if(!running||paused||gameEnded||roomMode!=='ai')return;
+  aiTicks++; const config=AI_LEVELS[aiDifficulty]; const count=aiDifficulty==='expert'?5:4;
+  for(let n=0;n<count;n++) { const x=Math.floor(Math.random()*COLS); let y=ROWS-1; while(y>=0&&aiBoard[y][x])y--; if(y<0){endGame(true,'AI 的方塊已經堆到頂端。');return;} aiBoard[y][x]=PIECES[Math.floor(Math.random()*PIECES.length)]; }
+  const cleared=[]; aiBoard.forEach((row,index)=>{if(row.every(Boolean))cleared.push(index);}); cleared.forEach(index=>aiBoard.splice(index,1)); while(aiBoard.length<ROWS)aiBoard.unshift(Array(COLS).fill(null));
+  const aiLines=Number(ui.rivalLines.textContent||0)+cleared.length; ui.rivalLines.textContent=aiLines; ui.rivalScore.textContent=(aiLines*700+aiTicks*35).toLocaleString();
+  if(Math.random()<config.attack) receiveAttack(1+Math.floor(Math.random()*config.max));
+  drawRival(aiBoard);
+}
+function attackAi(amount) {
+  if(!aiBoard)return; for(let n=0;n<amount;n++){aiBoard.shift();const gap=Math.floor(Math.random()*COLS);aiBoard.push(Array.from({length:COLS},(_,i)=>i===gap?null:'G'));} drawRival(aiBoard);
+}
 function setLobbyMessage(message='') { ui.lobbyMessage.textContent=message; }
 function setNetwork(message, ok=true) { ui.networkStatus.textContent=message; document.querySelector('.status-dot').style.background=ok?'var(--cyan)':'var(--pink)'; }
 
@@ -189,8 +213,8 @@ async function callRpc(name, params={}) {
   const {data,error}=await db.rpc(name,params); if(error)throw error; return data;
 }
 function showWaiting(type, code='') {
-  matchmaking=type==='match'; ui.waitingTitle.textContent=matchmaking?'正在尋找對手':'等待對手加入';
-  ui.waitingText.textContent=matchmaking?'系統正在配對另一位線上玩家':'把這組代碼傳給朋友';
+  matchmaking=type==='match'; ui.waitingTitle.textContent=matchmaking?(matchmakingMode==='ranked'?'正在尋找牌位對手':'正在尋找對手'):'等待對手加入';
+  ui.waitingText.textContent=matchmaking?(matchmakingMode==='ranked'?`目前 ${rankFor(playerProfile.rating).name} · 系統優先配對相近 RP`:'系統正在配對另一位線上玩家'):'把這組代碼傳給朋友';
   ui.copyCode.classList.toggle('hidden',matchmaking); ui.roomCode.textContent=code||'------'; showSection('waiting');
 }
 function beginPolling() {
@@ -203,9 +227,10 @@ async function hostRoom() {
   if(!requireLogin())return; setLobbyMessage('正在建立私人房間…');
   preparePeer(async peerId=>{ try { const room=await callRpc('create_private_room',{p_peer_id:peerId}); isHost=true; currentRoomId=room.room_id; activeRoom=room.code; showWaiting('private',activeRoom); setNetwork('私人房間上線'); beginPolling(); } catch(error){ onlineError(error); } });
 }
-async function findOpponent() {
+async function findOpponent(mode='normal') {
   if(!requireLogin())return; setLobbyMessage('正在加入配對佇列…');
-  preparePeer(async peerId=>{ try { const room=await callRpc('find_match',{p_peer_id:peerId}); showWaiting('match'); setNetwork('正在搜尋玩家'); if(room?.state==='matched') handleMatchedRoom(room); else beginPolling(); } catch(error){ onlineError(error); } });
+  matchmakingMode=mode;
+  preparePeer(async peerId=>{ try { const room=await callRpc('find_match_mode',{p_peer_id:peerId,p_mode:mode}); showWaiting('match'); setNetwork(mode==='ranked'?'正在搜尋牌位對手':'正在搜尋玩家'); if(room?.state==='matched') handleMatchedRoom(room); else beginPolling(); } catch(error){ onlineError(error); } });
 }
 async function joinRoom() {
   if(!requireLogin())return; const code=ui.roomInput.value.trim().toUpperCase(); if(code.length!==6){setLobbyMessage('請輸入 6 位房間碼。');return;}
@@ -214,7 +239,7 @@ async function joinRoom() {
 }
 function handleMatchedRoom(room) {
   if(currentRoomId===room.room_id && (connection?.open || roomMode==='online'))return;
-  clearInterval(matchPoll); currentRoomId=room.room_id; activeRoom=room.code; isHost=room.host_id===session.user.id; matchmaking=!room.is_private;
+  clearInterval(matchPoll); currentRoomId=room.room_id; activeRoom=room.code; isHost=room.host_id===session.user.id; matchmaking=!room.is_private; matchmakingMode=room.is_private?'normal':(room.match_mode||matchmakingMode||'normal');
   if(room.opponent_name) ui.rivalName.textContent=room.opponent_name;
   setNetwork('找到對手，正在連線');
   if(!isHost && !connection) setupConnection(peer.connect(room.host_peer_id,{reliable:true}));
@@ -225,17 +250,17 @@ function onlineError(error) {
 }
 function setupConnection(conn) {
   connection=conn;
-  conn.on('open',()=>{ peerReady=true; setNetwork('對手已連線'); beginOnlineMatch(); send({type:'hello',username:playerName,avatar:playerProfile.avatar,theme:playerProfile.block_theme,wins:playerProfile.wins,losses:playerProfile.losses}); });
+  conn.on('open',()=>{ peerReady=true; setNetwork('對手已連線'); beginOnlineMatch(); send({type:'hello',username:playerName,avatar:playerProfile.avatar,theme:playerProfile.block_theme,wins:playerProfile.wins,losses:playerProfile.losses,rating:playerProfile.rating}); });
   conn.on('data',handleData);
   conn.on('close',()=>{ peerReady=false; setNetwork('對手已離線',false); if(running) endGame(true,'對手離開了房間。'); });
   conn.on('error',()=>toast('連線發生問題'));
 }
 function beginOnlineMatch() {
-  roomMode='online'; ui.matchMode.textContent=matchmaking?'快速配對':'私人對戰'; ui.matchRoom.textContent=`ROOM ${activeRoom}`; if(ui.rivalName.textContent==='等待中')ui.rivalName.textContent='對手'; ui.rivalBadge.textContent='ONLINE'; ui.rivalBadge.classList.remove('muted'); showSection('arena'); countdownAndStart();
+  roomMode='online'; ui.matchMode.textContent=matchmaking?(matchmakingMode==='ranked'?'牌位競技':'一般配對'):'私人對戰'; ui.matchRoom.textContent=`ROOM ${activeRoom}`; if(ui.rivalName.textContent==='等待中')ui.rivalName.textContent='對手'; ui.rivalBadge.textContent=matchmakingMode==='ranked'?'RANKED':'ONLINE'; ui.rivalBadge.classList.remove('muted'); showSection('arena'); countdownAndStart();
 }
 function handleData(data) {
   if(!data || !data.type)return;
-  if(data.type==='hello' && data.username){ ui.rivalName.textContent=data.username; ui.rivalAvatar.textContent=data.avatar||'?'; rivalTheme=data.theme||'neon'; ui.rivalBadge.textContent=`${winrate(data.wins,data.losses)}% WIN`; drawRival(); }
+  if(data.type==='hello' && data.username){ ui.rivalName.textContent=data.username; ui.rivalAvatar.textContent=data.avatar||'?'; rivalTheme=data.theme||'neon'; ui.rivalBadge.textContent=matchmakingMode==='ranked'?rankFor(data.rating).name:`${winrate(data.wins,data.losses)}% WIN`; drawRival(); }
   if(data.type==='state'){ drawRival(data.board); ui.rivalScore.textContent=(data.score||0).toLocaleString(); ui.rivalLines.textContent=data.lines||0; }
   if(data.type==='attack') receiveAttack(data.lines||0);
   if(data.type==='gameover') endGame(true,'對手已經到達極限。');
@@ -245,17 +270,33 @@ function handleData(data) {
 function send(data){ if(connection?.open) connection.send(data); }
 function sendState(force=false){ const now=performance.now(); if(!force && now-lastStateSent<170)return; lastStateSent=now; send({type:'state',board,score,lines}); }
 function handlePeerError(error){ const known={'unavailable-id':'這個房間碼已被使用，請重新建立。','peer-unavailable':'找不到房間，請確認代碼是否正確。',network:'連線服務暫時無法使用。'}; setLobbyMessage(known[error.type]||'無法建立連線，請稍後再試。'); setNetwork('連線失敗',false); showSection('lobby'); }
-function disconnect(notifyBackend=true){ clearInterval(matchPoll); matchPoll=null; if(notifyBackend&&db&&session)callRpc('leave_online',{p_room_id:currentRoomId}).catch(()=>{}); if(connection){connection.close();connection=null;} if(peer){peer.destroy();peer=null;} peerReady=false; activeRoom=''; currentRoomId=null; cancelAnimationFrame(raf); running=false; }
+function disconnect(notifyBackend=true){ clearInterval(matchPoll); clearInterval(aiTimer); matchPoll=null; aiTimer=null; if(notifyBackend&&db&&session)callRpc('leave_online',{p_room_id:currentRoomId}).catch(()=>{}); if(connection){connection.close();connection=null;} if(peer){peer.destroy();peer=null;} peerReady=false; activeRoom=''; currentRoomId=null; cancelAnimationFrame(raf); running=false; }
 function backToLobby(){ disconnect(); ui.resultModal.classList.add('hidden'); showSection(session?'lobby':'auth'); ui.roomInput.value=''; setLobbyMessage(); setNetwork('連線服務待命'); }
 function toast(message){ ui.toast.textContent=message; ui.toast.classList.add('show'); clearTimeout(toast.timer); toast.timer=setTimeout(()=>ui.toast.classList.remove('show'),1800); }
 
 function escapeHtml(value='') { return String(value).replace(/[&<>'"]/g,char=>({'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','"':'&quot;'}[char])); }
 function winrate(wins=0,losses=0) { const total=wins+losses; return total?Math.round(wins/total*100):0; }
+function rankFor(rating=1000) { return [...RANKS].reverse().find(rank=>Number(rating||1000)>=rank.min)||RANKS[0]; }
 function renderProfile() {
   const p=playerProfile, rate=winrate(p.wins,p.losses);
   ui.userAvatar.textContent=p.avatar; ui.localAvatar.textContent=p.avatar; ui.profileAvatar.textContent=p.avatar; ui.profileName.textContent=playerName;
   ui.profileWins.textContent=p.wins||0; ui.profileLosses.textContent=p.losses||0; ui.profileWinrate.textContent=`${rate}%`; ui.profileThemeName.textContent=(THEMES[p.block_theme]||THEMES.neon).name;
+  ui.profileRank.textContent=rankFor(p.rating).name; ui.profileRating.textContent=`${p.rating||1000} RP`;
   document.documentElement.dataset.blockTheme=p.block_theme; draw(); drawSidePanels();
+}
+function leaderboardMarkup(players=[]) {
+  if(!players.length)return '<p class="empty-state">目前還沒有排行資料。</p>';
+  return players.map((p,index)=>`<div class="leaderboard-row ${p.username===playerName?'me':''}"><span class="leaderboard-pos">${String(index+1).padStart(2,'0')}</span><span class="leaderboard-avatar">${escapeHtml(p.avatar||'⚡')}</span><span class="leaderboard-player"><strong>${escapeHtml(p.username)}</strong><small>${winrate(p.wins,p.losses)}% 勝率 · ${p.wins||0} 勝</small></span><span class="leaderboard-rank">${rankFor(p.rating).name}</span><span class="leaderboard-rating">${p.rating||1000} RP</span></div>`).join('');
+}
+async function refreshLeaderboards() {
+  if(!db||!session)return;
+  try { const data=await callRpc('get_leaderboards'); ui.globalLeaderboard.innerHTML=leaderboardMarkup(data.global||[]); ui.friendLeaderboard.innerHTML=leaderboardMarkup(data.friends||[]); }
+  catch(error){ui.globalLeaderboard.innerHTML='<p class="empty-state">排行榜暫時無法載入。</p>';console.warn('Leaderboard unavailable',error.message);}
+}
+function switchLobbyView(view) {
+  ui.lobbyHome.classList.toggle('hidden',view!=='home'); ui.leaderboardPanel.classList.toggle('hidden',view!=='leaderboard'); ui.friendsPanel.classList.toggle('hidden',view!=='friends');
+  document.querySelectorAll('[data-lobby-view]').forEach(button=>button.classList.toggle('active',button.dataset.lobbyView===view));
+  if(view==='leaderboard')refreshLeaderboards(); if(view==='profile')openProfileSettings();
 }
 function openProfileSettings() {
   selectedAvatar=playerProfile.avatar; ui.themeSelect.value=playerProfile.block_theme;
@@ -271,9 +312,10 @@ function renderSocial(state) {
   if(state.profile){ playerProfile={...playerProfile,...state.profile}; playerName=state.profile.username||playerName; ui.userName.textContent=playerName; renderProfile(); }
   const friends=state.friends||[], requests=state.requests||[];
   ui.friendCount.textContent=`${friends.length} 位好友`;
+  ui.friendNotice.classList.toggle('hidden',!requests.length&&!(state.invites||[]).length);
   ui.requestSection.classList.toggle('hidden',!requests.length);
   ui.incomingList.innerHTML=requests.map(item=>`<div class="player-row"><span class="row-avatar">${escapeHtml(item.avatar||'⚡')}</span><div><strong>${escapeHtml(item.username)}</strong><small>想加你為好友</small></div><div class="row-actions"><button data-action="accept-friend" data-id="${item.friendship_id}">接受</button><button class="danger" data-action="decline-friend" data-id="${item.friendship_id}">略過</button></div></div>`).join('');
-  ui.friendsList.innerHTML=friends.length?friends.map(friend=>`<div class="player-row"><span class="row-avatar">${escapeHtml(friend.avatar||'⚡')}</span><div><strong>${escapeHtml(friend.username)}</strong><small class="${friend.online?'online-dot':''}">${friend.online?'● 線上':'勝率 '+winrate(friend.wins,friend.losses)+'%'}</small></div><div class="row-actions"><button data-action="invite-friend" data-id="${friend.id}">邀請對戰</button></div></div>`).join(''):'<p class="empty-state">還沒有好友，搜尋角色帳號加入。</p>';
+  ui.friendsList.innerHTML=friends.length?friends.map(friend=>`<div class="player-row"><span class="row-avatar">${escapeHtml(friend.avatar||'⚡')}</span><div><strong>${escapeHtml(friend.username)}</strong><small class="${friend.online?'online-dot':''}">${friend.online?'● 線上 · ':''}${rankFor(friend.rating).name} · ${winrate(friend.wins,friend.losses)}% 勝率</small></div><div class="row-actions"><button data-action="invite-friend" data-id="${friend.id}">邀請對戰</button></div></div>`).join(''):'<p class="empty-state">還沒有好友，搜尋角色帳號加入。</p>';
   const invite=(state.invites||[])[0];
   if(invite && invite.id!==pendingInvite?.id){pendingInvite=invite;ui.inviteAvatar.textContent=invite.avatar||'⚡';ui.inviteName.textContent=invite.username;ui.inviteBanner.classList.remove('hidden');}
 }
@@ -325,18 +367,18 @@ function translateAuthError(message='') {
 }
 async function applySession(nextSession) {
   session=nextSession; clearInterval(socialPoll); socialPoll=null; if(!session){ui.userMenu.classList.add('hidden');ui.inviteBanner.classList.add('hidden');showSection('auth');return;}
-  const {data}=await db.from('profiles').select('username,avatar,block_theme,wins,losses').eq('id',session.user.id).single(); playerName=data?.username||session.user.user_metadata?.username||'PLAYER'; playerProfile={...playerProfile,...data}; ui.userName.textContent=playerName; ui.userMenu.classList.remove('hidden'); ui.rivalName.textContent='等待中'; showSection('lobby'); setNetwork('玩家大廳已連線'); renderProfile(); await refreshSocial(); socialPoll=setInterval(refreshSocial,4000);
+  const {data}=await db.from('profiles').select('username,avatar,block_theme,wins,losses,rating,ranked_wins,ranked_losses').eq('id',session.user.id).single(); playerName=data?.username||session.user.user_metadata?.username||'PLAYER'; playerProfile={...playerProfile,...data}; ui.userName.textContent=playerName; ui.userMenu.classList.remove('hidden'); ui.rivalName.textContent='等待中'; showSection('lobby'); switchLobbyView('home'); setNetwork('玩家大廳已連線'); renderProfile(); await refreshSocial(); socialPoll=setInterval(refreshSocial,4000);
 }
 async function initOnlineServices() {
   const config=window.BLOCKSTORM_CONFIG||{}; if(!config.supabaseUrl||!config.supabaseAnonKey||!window.supabase){showSection('auth');ui.authMessage.textContent='尚未連接線上服務；目前仍可使用離線練習。';setNetwork('等待後端設定',false);return;}
   db=window.supabase.createClient(config.supabaseUrl,config.supabaseAnonKey); const {data}=await db.auth.getSession(); await applySession(data.session); db.auth.onAuthStateChange((_event,next)=>setTimeout(()=>applySession(next),0));
 }
 
-ui.hostBtn.addEventListener('click',hostRoom); ui.joinBtn.addEventListener('click',joinRoom); ui.matchBtn.addEventListener('click',findOpponent); ui.practiceBtn.addEventListener('click',startPractice); ui.guestPracticeBtn.addEventListener('click',startPractice);
+ui.hostBtn.addEventListener('click',hostRoom); ui.joinBtn.addEventListener('click',joinRoom); ui.matchBtn.addEventListener('click',()=>findOpponent('normal')); ui.rankedMatchBtn.addEventListener('click',()=>findOpponent('ranked')); ui.practiceBtn.addEventListener('click',startAiBattle); ui.guestPracticeBtn.addEventListener('click',startPractice);
 ui.roomInput.addEventListener('input',e=>e.target.value=e.target.value.toUpperCase().replace(/[^A-Z2-9]/g,'')); ui.roomInput.addEventListener('keydown',e=>{if(e.key==='Enter')joinRoom();});
 ui.copyCode.addEventListener('click',async()=>{try{await navigator.clipboard.writeText(activeRoom);toast('房間碼已複製');}catch{toast(`房間碼：${activeRoom}`);}});
 ui.cancelWait.addEventListener('click',backToLobby); ui.backBtn.addEventListener('click',backToLobby); ui.pauseBtn.addEventListener('click',togglePause); ui.lobbyBtn.addEventListener('click',backToLobby);
-ui.againBtn.addEventListener('click',()=>{ ui.resultModal.classList.add('hidden'); if(roomMode==='practice')countdownAndStart(); else {rematchRequested=true;send({type:'rematch'});toast('等待對手準備…');} });
+ui.againBtn.addEventListener('click',()=>{ ui.resultModal.classList.add('hidden'); if(roomMode==='practice'||roomMode==='ai')countdownAndStart(); else {rematchRequested=true;send({type:'rematch'});toast('等待對手準備…');} });
 ui.loginTab.addEventListener('click',()=>selectAuthMode('login')); ui.signupTab.addEventListener('click',()=>selectAuthMode('signup')); ui.authForm.addEventListener('submit',submitAuth); ui.signOutBtn.addEventListener('click',async()=>{disconnect();await db?.auth.signOut();});
 ui.settingsBtn.addEventListener('click',openProfileSettings); ui.profileEditBtn.addEventListener('click',openProfileSettings); ui.closeProfileBtn.addEventListener('click',()=>ui.profileModal.classList.add('hidden')); ui.saveProfileBtn.addEventListener('click',saveProfileSettings);
 ui.avatarOptions.addEventListener('click',event=>{const button=event.target.closest('button[data-avatar]');if(!button)return;selectedAvatar=button.dataset.avatar;ui.avatarOptions.querySelectorAll('button').forEach(item=>item.classList.toggle('selected',item===button));});
@@ -344,6 +386,8 @@ ui.friendSearchBtn.addEventListener('click',sendFriendRequest); ui.friendSearchI
 ui.incomingList.addEventListener('click',event=>{const button=event.target.closest('button[data-action]');if(!button)return;respondFriend(button.dataset.id,button.dataset.action==='accept-friend');});
 ui.friendsList.addEventListener('click',event=>{const button=event.target.closest('button[data-action="invite-friend"]');if(button)inviteFriend(button.dataset.id);});
 ui.acceptInviteBtn.addEventListener('click',()=>respondBattleInvite(true)); ui.declineInviteBtn.addEventListener('click',()=>respondBattleInvite(false));
+document.querySelector('.lobby-dock').addEventListener('click',event=>{const button=event.target.closest('[data-lobby-view]');if(button)switchLobbyView(button.dataset.lobbyView);});
+document.querySelector('.panel-tabs').addEventListener('click',event=>{const button=event.target.closest('[data-rank-tab]');if(!button)return;document.querySelectorAll('[data-rank-tab]').forEach(item=>item.classList.toggle('active',item===button));ui.globalLeaderboard.classList.toggle('hidden',button.dataset.rankTab!=='global');ui.friendLeaderboard.classList.toggle('hidden',button.dataset.rankTab!=='friends');});
 
 const actions={left:()=>move(-1,0),right:()=>move(1,0),down:()=>move(0,1),rotate,drop:hardDrop,hold};
 document.querySelectorAll('.mobile-controls button').forEach(btn=>btn.addEventListener('pointerdown',e=>{e.preventDefault();actions[btn.dataset.action]?.();}));

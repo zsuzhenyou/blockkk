@@ -59,42 +59,48 @@
       </section>
 
       <section id="lobby" class="lobby hidden" aria-labelledby="lobbyTitle">
-        <div class="lobby-copy">
-          <p class="eyebrow">BLOCKSTORM LOBBY · 玩家大廳</p>
-          <h1 id="lobbyTitle">準備好了，<br /><em>就加入戰局。</em></h1>
-          <p class="intro">快速配對線上玩家、建立私人房間，或直接邀請好友對戰。</p>
-          <div class="mode-actions">
-            <button id="matchBtn" class="btn btn-match"><span>尋找玩家對戰</span><b>QUICK MATCH</b></button>
-            <button id="hostBtn" class="btn btn-primary"><span>建立私人房間</span><kbd>HOST</kbd></button>
-            <div class="join-row">
-              <label for="roomInput" class="sr-only">房間代碼</label>
-              <input id="roomInput" maxlength="6" autocomplete="off" spellcheck="false" placeholder="輸入房間碼" />
-              <button id="joinBtn" class="btn btn-secondary">加入</button>
+        <div class="lobby-shell">
+          <header class="player-bar">
+            <div class="player-bar-main">
+              <span id="profileAvatar" class="profile-avatar">⚡</span>
+              <div><small>WELCOME BACK</small><h1 id="lobbyTitle"><span id="profileName">PLAYER</span> 的大廳</h1></div>
             </div>
-            <button id="practiceBtn" class="text-button">先進入單人練習</button>
-          </div>
-          <p id="lobbyMessage" class="lobby-message" role="status" aria-live="polite"></p>
-        </div>
-
-        <div class="lobby-rail">
-          <aside class="profile-card" aria-label="個人公開資料">
-            <div class="profile-identity"><span id="profileAvatar" class="profile-avatar">⚡</span><div><small>PUBLIC PROFILE</small><strong id="profileName">PLAYER</strong></div><button id="profileEditBtn" class="mini-action">編輯</button></div>
+            <div class="rank-chip"><small>目前牌位</small><strong id="profileRank">新星</strong><span id="profileRating">1000 RP</span></div>
             <div class="profile-stats"><span><b id="profileWins">0</b><small>勝場</small></span><span><b id="profileLosses">0</b><small>敗場</small></span><span><b id="profileWinrate">0%</b><small>勝率</small></span></div>
-            <div class="theme-preview"><i></i><i></i><i></i><i></i><span id="profileThemeName">霓虹經典</span></div>
-          </aside>
+            <div class="profile-tools"><span id="profileThemeName">霓虹經典</span><button id="profileEditBtn" class="mini-action">編輯個人資料</button></div>
+          </header>
 
-          <aside class="social-card" aria-label="好友系統">
-            <div class="social-head"><div><small>SOCIAL</small><strong>好友與邀請</strong></div><span id="friendCount">0 位好友</span></div>
+          <div id="lobbyHome" class="lobby-view">
+            <div class="lobby-section-head"><div><p class="eyebrow">SELECT GAME MODE</p><h2>選擇遊戲模式</h2></div><p>選一種玩法，立即開始下一場方塊對決。</p></div>
+            <div class="game-mode-grid">
+              <article class="game-mode-card normal-mode"><span class="mode-icon">VS</span><div><small>CASUAL</small><h3>一般配對</h3><p>輕鬆與線上玩家對戰，不影響牌位積分。</p></div><button id="matchBtn" class="mode-play">開始配對 <b>→</b></button></article>
+              <article class="game-mode-card ranked-mode"><span class="mode-icon">◆</span><div><small>RANKED</small><h3>牌位競技</h3><p>與相近牌位玩家對戰，勝負會改變 RP。</p></div><button id="rankedMatchBtn" class="mode-play">牌位配對 <b>→</b></button></article>
+              <article class="game-mode-card ai-mode"><span class="mode-icon">AI</span><div><small>SOLO BATTLE</small><h3>AI 對手</h3><p>挑戰電腦對手，練習攻擊與防守節奏。</p><label class="difficulty-label">難度<select id="aiDifficulty"><option value="easy">簡單</option><option value="normal" selected>普通</option><option value="hard">困難</option><option value="expert">專家</option></select></label></div><button id="practiceBtn" class="mode-play">挑戰 AI <b>→</b></button></article>
+              <article class="game-mode-card private-mode"><span class="mode-icon">#</span><div><small>PRIVATE ROOM</small><h3>好友房間</h3><p>建立房間邀請好友，或輸入六位代碼加入。</p></div><button id="hostBtn" class="mode-play">建立房間 <b>＋</b></button><div class="join-row"><label for="roomInput" class="sr-only">房間代碼</label><input id="roomInput" maxlength="6" autocomplete="off" spellcheck="false" placeholder="輸入房間碼" /><button id="joinBtn">加入</button></div></article>
+            </div>
+            <p id="lobbyMessage" class="lobby-message" role="status" aria-live="polite"></p>
+          </div>
+
+          <div id="leaderboardPanel" class="lobby-view lobby-panel hidden">
+            <div class="panel-heading"><div><p class="eyebrow">LEADERBOARD</p><h2>排行榜</h2></div><div class="panel-tabs"><button class="active" data-rank-tab="global">全球排行</button><button data-rank-tab="friends">好友排行</button></div></div>
+            <div id="globalLeaderboard" class="leaderboard-list"></div>
+            <div id="friendLeaderboard" class="leaderboard-list hidden"></div>
+          </div>
+
+          <div id="friendsPanel" class="lobby-view lobby-panel hidden">
+            <div class="panel-heading"><div><p class="eyebrow">SOCIAL HUB</p><h2>好友與邀請</h2></div><span id="friendCount">0 位好友</span></div>
             <div class="friend-search"><input id="friendSearchInput" maxlength="18" placeholder="輸入角色帳號" /><button id="friendSearchBtn">加入好友</button></div>
             <p id="friendMessage" class="friend-message" role="status"></p>
-            <section id="requestSection" class="social-section hidden"><h3>等待回覆</h3><div id="incomingList" class="player-list"></div></section>
-            <section class="social-section"><h3>好友</h3><div id="friendsList" class="player-list"><p class="empty-state">還沒有好友，搜尋角色帳號加入。</p></div></section>
-          </aside>
+            <section id="requestSection" class="social-section hidden"><h3>等待你回覆</h3><div id="incomingList" class="player-list"></div></section>
+            <section class="social-section"><h3>所有好友</h3><div id="friendsList" class="player-list"><p class="empty-state">還沒有好友，搜尋角色帳號加入。</p></div></section>
+          </div>
 
-          <aside class="rules-card compact-rules" aria-label="玩法說明">
-            <div class="rules-head"><span>對戰規則</span><small>QUICK GUIDE</small></div>
-            <dl><div><dt>02+</dt><dd>連消兩行以上可攻擊對手</dd></div><div><dt>KO</dt><dd>方塊碰到頂端就落敗</dd></div></dl>
-          </aside>
+          <nav class="lobby-dock" aria-label="大廳功能">
+            <button class="active" data-lobby-view="home"><span>▦</span><b>遊戲大廳</b></button>
+            <button data-lobby-view="leaderboard"><span>♛</span><b>排行榜</b></button>
+            <button data-lobby-view="friends"><span>♟</span><b>好友</b><i id="friendNotice" class="notice-dot hidden"></i></button>
+            <button data-lobby-view="profile"><span>⚙</span><b>個人資料</b></button>
+          </nav>
         </div>
       </section>
 
