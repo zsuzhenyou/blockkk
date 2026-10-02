@@ -19,7 +19,9 @@
       </a>
       <div class="header-actions">
         <div id="userMenu" class="user-menu hidden">
+          <span id="userAvatar" class="header-avatar">⚡</span>
           <span id="userName">PLAYER</span>
+          <button id="settingsBtn" type="button">帳號設定</button>
           <button id="signOutBtn" type="button">登出</button>
         </div>
         <div class="header-status">
@@ -56,11 +58,11 @@
         </div>
       </section>
 
-      <section id="lobby" class="lobby" aria-labelledby="lobbyTitle">
+      <section id="lobby" class="lobby hidden" aria-labelledby="lobbyTitle">
         <div class="lobby-copy">
-          <p class="eyebrow">1 VS 1 · 即時瀏覽器對戰</p>
-          <h1 id="lobbyTitle">疊高、連消，<br /><em>把壓力送回去。</em></h1>
-          <p class="intro">快速尋找線上對手，或建立私人房間，把 6 位房間碼傳給朋友。</p>
+          <p class="eyebrow">BLOCKSTORM LOBBY · 玩家大廳</p>
+          <h1 id="lobbyTitle">準備好了，<br /><em>就加入戰局。</em></h1>
+          <p class="intro">快速配對線上玩家、建立私人房間，或直接邀請好友對戰。</p>
           <div class="mode-actions">
             <button id="matchBtn" class="btn btn-match"><span>尋找玩家對戰</span><b>QUICK MATCH</b></button>
             <button id="hostBtn" class="btn btn-primary"><span>建立私人房間</span><kbd>HOST</kbd></button>
@@ -74,20 +76,26 @@
           <p id="lobbyMessage" class="lobby-message" role="status" aria-live="polite"></p>
         </div>
 
-        <aside class="rules-card" aria-label="玩法說明">
-          <div class="rules-head"><span>對戰規則</span><small>QUICK GUIDE</small></div>
-          <dl>
-            <div><dt>02+</dt><dd>一次消兩行，就會向對手送出攻擊</dd></div>
-            <div><dt>04</dt><dd>四行連消，直接送出 4 行垃圾</dd></div>
-            <div><dt>KO</dt><dd>方塊碰到頂端就落敗</dd></div>
-          </dl>
-          <div class="key-map" aria-label="鍵盤操作">
-            <span><kbd>←</kbd><kbd>→</kbd> 移動</span>
-            <span><kbd>↑</kbd> 旋轉</span>
-            <span><kbd>Space</kbd> 硬降</span>
-            <span><kbd>C</kbd> 暫存</span>
-          </div>
-        </aside>
+        <div class="lobby-rail">
+          <aside class="profile-card" aria-label="個人公開資料">
+            <div class="profile-identity"><span id="profileAvatar" class="profile-avatar">⚡</span><div><small>PUBLIC PROFILE</small><strong id="profileName">PLAYER</strong></div><button id="profileEditBtn" class="mini-action">編輯</button></div>
+            <div class="profile-stats"><span><b id="profileWins">0</b><small>勝場</small></span><span><b id="profileLosses">0</b><small>敗場</small></span><span><b id="profileWinrate">0%</b><small>勝率</small></span></div>
+            <div class="theme-preview"><i></i><i></i><i></i><i></i><span id="profileThemeName">霓虹經典</span></div>
+          </aside>
+
+          <aside class="social-card" aria-label="好友系統">
+            <div class="social-head"><div><small>SOCIAL</small><strong>好友與邀請</strong></div><span id="friendCount">0 位好友</span></div>
+            <div class="friend-search"><input id="friendSearchInput" maxlength="18" placeholder="輸入角色帳號" /><button id="friendSearchBtn">加入好友</button></div>
+            <p id="friendMessage" class="friend-message" role="status"></p>
+            <section id="requestSection" class="social-section hidden"><h3>等待回覆</h3><div id="incomingList" class="player-list"></div></section>
+            <section class="social-section"><h3>好友</h3><div id="friendsList" class="player-list"><p class="empty-state">還沒有好友，搜尋角色帳號加入。</p></div></section>
+          </aside>
+
+          <aside class="rules-card compact-rules" aria-label="玩法說明">
+            <div class="rules-head"><span>對戰規則</span><small>QUICK GUIDE</small></div>
+            <dl><div><dt>02+</dt><dd>連消兩行以上可攻擊對手</dd></div><div><dt>KO</dt><dd>方塊碰到頂端就落敗</dd></div></dl>
+          </aside>
+        </div>
       </section>
 
       <section id="waiting" class="waiting hidden" aria-labelledby="waitingTitle">
@@ -109,7 +117,7 @@
         <div class="battle-grid">
           <article class="player-zone local-zone">
             <div class="player-head">
-              <span class="player-avatar">YOU</span>
+              <span id="localAvatar" class="player-avatar">⚡</span>
               <div><small>PLAYER 01</small><strong>你</strong></div>
               <span id="localBadge" class="badge">READY</span>
             </div>
@@ -138,7 +146,7 @@
 
           <article class="player-zone rival-zone">
             <div class="player-head">
-              <span class="player-avatar rival-avatar">P2</span>
+              <span id="rivalAvatar" class="player-avatar rival-avatar">?</span>
               <div><small>PLAYER 02</small><strong id="rivalName">等待中</strong></div>
               <span id="rivalBadge" class="badge muted">OFFLINE</span>
             </div>
@@ -172,6 +180,27 @@
         <button id="againBtn" class="btn btn-primary">再來一場</button>
         <button id="lobbyBtn" class="text-button">回到大廳</button>
       </div>
+    </div>
+
+    <div id="profileModal" class="modal hidden" role="dialog" aria-modal="true" aria-labelledby="profileModalTitle">
+      <div class="modal-card profile-modal-card">
+        <p class="eyebrow">PLAYER SETTINGS</p>
+        <h2 id="profileModalTitle">個人帳號設定</h2>
+        <label class="setting-label">選擇頭像</label>
+        <div id="avatarOptions" class="avatar-options" role="radiogroup" aria-label="頭像">
+          <button data-avatar="⚡">⚡</button><button data-avatar="🔥">🔥</button><button data-avatar="👾">👾</button><button data-avatar="🤖">🤖</button><button data-avatar="🦊">🦊</button><button data-avatar="💎">💎</button>
+        </div>
+        <label class="setting-label" for="themeSelect">方塊造型</label>
+        <select id="themeSelect"><option value="neon">霓虹經典</option><option value="arcade">街機糖果</option><option value="ice">冰晶藍</option><option value="mono">黑白極簡</option></select>
+        <p class="setting-note">好友與對戰玩家都能看到你的頭像、方塊造型和勝率。</p>
+        <button id="saveProfileBtn" class="btn btn-primary">儲存設定</button>
+        <button id="closeProfileBtn" class="text-button">取消</button>
+      </div>
+    </div>
+
+    <div id="inviteBanner" class="invite-banner hidden" role="dialog" aria-live="assertive">
+      <span id="inviteAvatar">⚡</span><div><small>BATTLE INVITE</small><strong><b id="inviteName">好友</b> 邀請你對戰</strong></div>
+      <button id="acceptInviteBtn">接受</button><button id="declineInviteBtn">略過</button>
     </div>
 
     <div id="toast" class="toast" role="status" aria-live="polite"></div>
