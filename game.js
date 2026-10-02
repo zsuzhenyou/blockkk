@@ -4,6 +4,12 @@ const COLORS = {
   I: '#61eaf2', J: '#4d75f6', L: '#ff9f43', O: '#ffd84d',
   S: '#55df7d', T: '#b66cff', Z: '#ff5277', G: '#586176'
 };
+const THEMES = {
+  neon: {name:'霓虹經典',I:'#61eaf2',J:'#4d75f6',L:'#ff9f43',O:'#ffd84d',S:'#55df7d',T:'#b66cff',Z:'#ff5277',G:'#586176'},
+  arcade: {name:'街機糖果',I:'#ff79c6',J:'#7aa2ff',L:'#ff8f5a',O:'#ffe66d',S:'#8be28b',T:'#c792ea',Z:'#ff5f6d',G:'#604f67'},
+  ice: {name:'冰晶藍',I:'#b8f3ff',J:'#74a9ff',L:'#89d6ff',O:'#e9fbff',S:'#62d6e8',T:'#9fa8ff',Z:'#4f8fff',G:'#40546f'},
+  mono: {name:'黑白極簡',I:'#f7f7f7',J:'#c9c9c9',L:'#e0e0e0',O:'#ffffff',S:'#b7b7b7',T:'#d8d8d8',Z:'#a8a8a8',G:'#555555'}
+};
 const SHAPES = {
   I: [[0,0,0,0],[1,1,1,1],[0,0,0,0],[0,0,0,0]],
   J: [[1,0,0],[1,1,1],[0,0,0]], L: [[0,0,1],[1,1,1],[0,0,0]],
@@ -12,7 +18,7 @@ const SHAPES = {
 };
 const PIECES = Object.keys(SHAPES);
 const $ = (id) => document.getElementById(id);
-const ui = Object.fromEntries(['auth','lobby','waiting','arena','hostBtn','joinBtn','matchBtn','practiceBtn','guestPracticeBtn','roomInput','lobbyMessage','roomCode','copyCode','waitingTitle','waitingText','cancelWait','backBtn','pauseBtn','matchMode','matchRoom','networkStatus','userMenu','userName','signOutBtn','loginTab','signupTab','authForm','accountInput','passwordInput','authSubmit','authMessage','gameCanvas','holdCanvas','nextCanvas','rivalCanvas','score','lines','rivalScore','rivalLines','rivalName','rivalBadge','localBadge','attackMeter','gameOverlay','overlayTitle','overlayText','countdown','resultModal','resultTitle','resultText','resultScore','resultLines','againBtn','lobbyBtn','toast'].map(k => [k, $(k)]));
+const ui = Object.fromEntries(['auth','lobby','waiting','arena','hostBtn','joinBtn','matchBtn','practiceBtn','guestPracticeBtn','roomInput','lobbyMessage','roomCode','copyCode','waitingTitle','waitingText','cancelWait','backBtn','pauseBtn','matchMode','matchRoom','networkStatus','userMenu','userAvatar','userName','settingsBtn','signOutBtn','loginTab','signupTab','authForm','accountInput','passwordInput','authSubmit','authMessage','profileAvatar','profileName','profileWins','profileLosses','profileWinrate','profileThemeName','profileEditBtn','profileModal','avatarOptions','themeSelect','saveProfileBtn','closeProfileBtn','friendCount','friendSearchInput','friendSearchBtn','friendMessage','requestSection','incomingList','friendsList','inviteBanner','inviteAvatar','inviteName','acceptInviteBtn','declineInviteBtn','localAvatar','rivalAvatar','gameCanvas','holdCanvas','nextCanvas','rivalCanvas','score','lines','rivalScore','rivalLines','rivalName','rivalBadge','localBadge','attackMeter','gameOverlay','overlayTitle','overlayText','countdown','resultModal','resultTitle','resultText','resultScore','resultLines','againBtn','lobbyBtn','toast'].map(k => [k, $(k)]));
 const ctx = ui.gameCanvas.getContext('2d');
 const holdCtx = ui.holdCanvas.getContext('2d');
 const nextCtx = ui.nextCanvas.getContext('2d');
@@ -24,6 +30,7 @@ let peer = null, connection = null, isHost = false, activeRoom = '', lastStateSe
 let peerReady = false, remoteReady = false, rematchRequested = false;
 let db = null, session = null, playerName = 'PLAYER', authMode = 'login';
 let currentRoomId = null, matchPoll = null, matchmaking = false;
+let playerProfile = {avatar:'⚡',block_theme:'neon',wins:0,losses:0}, rivalTheme='neon', socialPoll=null, pendingInvite=null, selectedAvatar='⚡';
 
 function emptyBoard() { return Array.from({length: ROWS}, () => Array(COLS).fill(null)); }
 function shuffledBag() {
@@ -100,30 +107,31 @@ function drawCell(target, x, y, color, size, alpha = 1) {
   target.globalAlpha = alpha; target.fillStyle = color; target.fillRect(x * size + 1, y * size + 1, size - 2, size - 2);
   target.fillStyle = 'rgba(255,255,255,.18)'; target.fillRect(x * size + 2, y * size + 2, size - 4, 2); target.globalAlpha = 1;
 }
-function drawGrid(target, source, width = 300, height = 600) {
+function themeColor(type, theme=playerProfile.block_theme) { return (THEMES[theme]||THEMES.neon)[type]||COLORS.G; }
+function drawGrid(target, source, width = 300, height = 600, theme=playerProfile.block_theme) {
   target.clearRect(0, 0, width, height); target.fillStyle = '#080c16'; target.fillRect(0,0,width,height);
   const size = width / COLS;
   target.strokeStyle = 'rgba(120,155,205,.07)'; target.lineWidth = 1;
   for (let x=0;x<=COLS;x++){target.beginPath();target.moveTo(x*size,0);target.lineTo(x*size,height);target.stroke();}
   for (let y=0;y<=ROWS;y++){target.beginPath();target.moveTo(0,y*size);target.lineTo(width,y*size);target.stroke();}
-  source.forEach((row,y)=>row.forEach((cell,x)=>{if(cell) drawCell(target,x,y,COLORS[cell]||COLORS.G,size);}));
+  source.forEach((row,y)=>row.forEach((cell,x)=>{if(cell) drawCell(target,x,y,themeColor(cell,theme),size);}));
 }
 function ghostY() { let y = current.y; while (!collides(current.x, y + 1, current.shape)) y++; return y; }
 function draw() {
   drawGrid(ctx, board);
   if (!current) return;
   const gy = ghostY();
-  current.shape.forEach((row,py)=>row.forEach((cell,px)=>{if(cell && gy+py>=0) drawCell(ctx,current.x+px,gy+py,COLORS[current.type],30,.16);}));
-  current.shape.forEach((row,py)=>row.forEach((cell,px)=>{if(cell && current.y+py>=0) drawCell(ctx,current.x+px,current.y+py,COLORS[current.type],30);}));
+  current.shape.forEach((row,py)=>row.forEach((cell,px)=>{if(cell && gy+py>=0) drawCell(ctx,current.x+px,gy+py,themeColor(current.type),30,.16);}));
+  current.shape.forEach((row,py)=>row.forEach((cell,px)=>{if(cell && current.y+py>=0) drawCell(ctx,current.x+px,current.y+py,themeColor(current.type),30);}));
 }
 function drawMini(target, types, canvasWidth, canvasHeight) {
   target.clearRect(0,0,canvasWidth,canvasHeight); target.fillStyle='#0a0f1b'; target.fillRect(0,0,canvasWidth,canvasHeight);
   types.forEach((type,index)=>{ if(!type)return; const shape=SHAPES[type], size=18, ox=(canvasWidth-shape[0].length*size)/2, oy=index*76+13;
-    shape.forEach((row,y)=>row.forEach((cell,x)=>{if(cell){target.fillStyle=COLORS[type];target.fillRect(ox+x*size+1,oy+y*size+1,size-2,size-2);}}));
+    shape.forEach((row,y)=>row.forEach((cell,x)=>{if(cell){target.fillStyle=themeColor(type);target.fillRect(ox+x*size+1,oy+y*size+1,size-2,size-2);}}));
   });
 }
 function drawSidePanels() { drawMini(holdCtx,[holdPiece],100,100); drawMini(nextCtx,queue.slice(0,3),100,250); }
-function drawRival(remoteBoard) { drawGrid(rivalCtx, remoteBoard || emptyBoard()); }
+function drawRival(remoteBoard) { drawGrid(rivalCtx, remoteBoard || emptyBoard(),300,600,rivalTheme); }
 function updateStats() { ui.score.textContent = score.toLocaleString(); ui.lines.textContent = lines; }
 
 function resetGame() {
@@ -149,6 +157,7 @@ function togglePause() {
 function endGame(won, reason) {
   if (gameEnded) return; gameEnded = true; running = false; cancelAnimationFrame(raf); ui.localBadge.textContent = won ? 'WIN' : 'KO';
   if (!won && roomMode === 'online') send({type:'gameover'});
+  if (roomMode === 'online' && db && session) callRpc('record_match',{p_won:won}).then(refreshSocial).catch(()=>{});
   setTimeout(()=>showResult(won, reason), 350);
 }
 function showResult(won, reason) {
@@ -216,7 +225,7 @@ function onlineError(error) {
 }
 function setupConnection(conn) {
   connection=conn;
-  conn.on('open',()=>{ peerReady=true; setNetwork('對手已連線'); beginOnlineMatch(); send({type:'hello',username:playerName}); });
+  conn.on('open',()=>{ peerReady=true; setNetwork('對手已連線'); beginOnlineMatch(); send({type:'hello',username:playerName,avatar:playerProfile.avatar,theme:playerProfile.block_theme,wins:playerProfile.wins,losses:playerProfile.losses}); });
   conn.on('data',handleData);
   conn.on('close',()=>{ peerReady=false; setNetwork('對手已離線',false); if(running) endGame(true,'對手離開了房間。'); });
   conn.on('error',()=>toast('連線發生問題'));
@@ -226,7 +235,7 @@ function beginOnlineMatch() {
 }
 function handleData(data) {
   if(!data || !data.type)return;
-  if(data.type==='hello' && data.username) ui.rivalName.textContent=data.username;
+  if(data.type==='hello' && data.username){ ui.rivalName.textContent=data.username; ui.rivalAvatar.textContent=data.avatar||'?'; rivalTheme=data.theme||'neon'; ui.rivalBadge.textContent=`${winrate(data.wins,data.losses)}% WIN`; drawRival(); }
   if(data.type==='state'){ drawRival(data.board); ui.rivalScore.textContent=(data.score||0).toLocaleString(); ui.rivalLines.textContent=data.lines||0; }
   if(data.type==='attack') receiveAttack(data.lines||0);
   if(data.type==='gameover') endGame(true,'對手已經到達極限。');
@@ -239,6 +248,55 @@ function handlePeerError(error){ const known={'unavailable-id':'這個房間碼�
 function disconnect(notifyBackend=true){ clearInterval(matchPoll); matchPoll=null; if(notifyBackend&&db&&session)callRpc('leave_online',{p_room_id:currentRoomId}).catch(()=>{}); if(connection){connection.close();connection=null;} if(peer){peer.destroy();peer=null;} peerReady=false; activeRoom=''; currentRoomId=null; cancelAnimationFrame(raf); running=false; }
 function backToLobby(){ disconnect(); ui.resultModal.classList.add('hidden'); showSection(session?'lobby':'auth'); ui.roomInput.value=''; setLobbyMessage(); setNetwork('連線服務待命'); }
 function toast(message){ ui.toast.textContent=message; ui.toast.classList.add('show'); clearTimeout(toast.timer); toast.timer=setTimeout(()=>ui.toast.classList.remove('show'),1800); }
+
+function escapeHtml(value='') { return String(value).replace(/[&<>'"]/g,char=>({'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','"':'&quot;'}[char])); }
+function winrate(wins=0,losses=0) { const total=wins+losses; return total?Math.round(wins/total*100):0; }
+function renderProfile() {
+  const p=playerProfile, rate=winrate(p.wins,p.losses);
+  ui.userAvatar.textContent=p.avatar; ui.localAvatar.textContent=p.avatar; ui.profileAvatar.textContent=p.avatar; ui.profileName.textContent=playerName;
+  ui.profileWins.textContent=p.wins||0; ui.profileLosses.textContent=p.losses||0; ui.profileWinrate.textContent=`${rate}%`; ui.profileThemeName.textContent=(THEMES[p.block_theme]||THEMES.neon).name;
+  document.documentElement.dataset.blockTheme=p.block_theme; draw(); drawSidePanels();
+}
+function openProfileSettings() {
+  selectedAvatar=playerProfile.avatar; ui.themeSelect.value=playerProfile.block_theme;
+  ui.avatarOptions.querySelectorAll('button').forEach(button=>button.classList.toggle('selected',button.dataset.avatar===selectedAvatar));
+  ui.profileModal.classList.remove('hidden');
+}
+async function saveProfileSettings() {
+  ui.saveProfileBtn.disabled=true;
+  try { const next=await callRpc('save_profile',{p_avatar:selectedAvatar,p_block_theme:ui.themeSelect.value}); playerProfile={...playerProfile,...next}; renderProfile(); ui.profileModal.classList.add('hidden'); toast('個人設定已儲存'); await refreshSocial(); }
+  catch(error){toast(error.message||'無法儲存設定');} finally {ui.saveProfileBtn.disabled=false;}
+}
+function renderSocial(state) {
+  if(state.profile){ playerProfile={...playerProfile,...state.profile}; playerName=state.profile.username||playerName; ui.userName.textContent=playerName; renderProfile(); }
+  const friends=state.friends||[], requests=state.requests||[];
+  ui.friendCount.textContent=`${friends.length} 位好友`;
+  ui.requestSection.classList.toggle('hidden',!requests.length);
+  ui.incomingList.innerHTML=requests.map(item=>`<div class="player-row"><span class="row-avatar">${escapeHtml(item.avatar||'⚡')}</span><div><strong>${escapeHtml(item.username)}</strong><small>想加你為好友</small></div><div class="row-actions"><button data-action="accept-friend" data-id="${item.friendship_id}">接受</button><button class="danger" data-action="decline-friend" data-id="${item.friendship_id}">略過</button></div></div>`).join('');
+  ui.friendsList.innerHTML=friends.length?friends.map(friend=>`<div class="player-row"><span class="row-avatar">${escapeHtml(friend.avatar||'⚡')}</span><div><strong>${escapeHtml(friend.username)}</strong><small class="${friend.online?'online-dot':''}">${friend.online?'● 線上':'勝率 '+winrate(friend.wins,friend.losses)+'%'}</small></div><div class="row-actions"><button data-action="invite-friend" data-id="${friend.id}">邀請對戰</button></div></div>`).join(''):'<p class="empty-state">還沒有好友，搜尋角色帳號加入。</p>';
+  const invite=(state.invites||[])[0];
+  if(invite && invite.id!==pendingInvite?.id){pendingInvite=invite;ui.inviteAvatar.textContent=invite.avatar||'⚡';ui.inviteName.textContent=invite.username;ui.inviteBanner.classList.remove('hidden');}
+}
+async function refreshSocial() {
+  if(!db||!session)return;
+  try { renderSocial(await callRpc('get_social_state')); } catch(error){console.warn('Social state unavailable',error.message);}
+}
+async function sendFriendRequest() {
+  const username=ui.friendSearchInput.value.trim(); if(!username){ui.friendMessage.textContent='請輸入角色帳號。';return;}
+  ui.friendSearchBtn.disabled=true;
+  try { await callRpc('send_friend_request',{p_username:username}); ui.friendMessage.textContent='好友邀請已送出。'; ui.friendSearchInput.value=''; await refreshSocial(); }
+  catch(error){ui.friendMessage.textContent=error.message||'找不到這位玩家。';} finally {ui.friendSearchBtn.disabled=false;}
+}
+async function respondFriend(id,accept) { try{await callRpc('respond_friend_request',{p_friendship_id:id,p_accept:accept});await refreshSocial();}catch(error){toast(error.message);} }
+async function inviteFriend(friendId) {
+  if(!requireLogin())return; setLobbyMessage('正在建立好友對戰房間…');
+  preparePeer(async peerId=>{ try { const room=await callRpc('create_private_room',{p_peer_id:peerId}); await callRpc('send_battle_invite',{p_friend_id:friendId,p_room_code:room.code}); isHost=true; currentRoomId=room.room_id; activeRoom=room.code; showWaiting('private',activeRoom); ui.waitingText.textContent='好友邀請已送出'; setNetwork('等待好友接受邀請'); beginPolling(); } catch(error){onlineError(error);} });
+}
+async function respondBattleInvite(accept) {
+  if(!pendingInvite)return;
+  try { const result=await callRpc('respond_battle_invite',{p_invite_id:pendingInvite.id,p_accept:accept}); ui.inviteBanner.classList.add('hidden'); const invite=pendingInvite; pendingInvite=null; if(accept&&result?.room_code){ui.roomInput.value=result.room_code;await joinRoom();}else{toast(`已略過 ${invite.username} 的邀請`);} await refreshSocial(); }
+  catch(error){toast(error.message||'邀請已失效');ui.inviteBanner.classList.add('hidden');pendingInvite=null;}
+}
 
 function selectAuthMode(mode) {
   authMode=mode; const signup=mode==='signup'; ui.loginTab.classList.toggle('active',!signup); ui.signupTab.classList.toggle('active',signup); ui.loginTab.setAttribute('aria-selected',String(!signup)); ui.signupTab.setAttribute('aria-selected',String(signup)); ui.passwordInput.autocomplete=signup?'new-password':'current-password'; ui.authSubmit.firstElementChild.textContent=signup?'創建帳號':'登入'; ui.authMessage.textContent='';
@@ -266,8 +324,8 @@ function translateAuthError(message='') {
   if(/invalid login credentials/i.test(message))return '角色帳號或密碼不正確。'; if(/already registered|user already registered/i.test(message))return '這個角色帳號已被使用。'; if(/password/i.test(message)&&/characters/i.test(message))return '密碼至少需要 8 個字元。'; return message;
 }
 async function applySession(nextSession) {
-  session=nextSession; if(!session){ui.userMenu.classList.add('hidden');showSection('auth');return;}
-  const {data}=await db.from('profiles').select('username').eq('id',session.user.id).single(); playerName=data?.username||session.user.user_metadata?.username||'PLAYER'; ui.userName.textContent=playerName; ui.userMenu.classList.remove('hidden'); ui.rivalName.textContent='等待中'; showSection('lobby'); setNetwork('帳號已連線');
+  session=nextSession; clearInterval(socialPoll); socialPoll=null; if(!session){ui.userMenu.classList.add('hidden');ui.inviteBanner.classList.add('hidden');showSection('auth');return;}
+  const {data}=await db.from('profiles').select('username,avatar,block_theme,wins,losses').eq('id',session.user.id).single(); playerName=data?.username||session.user.user_metadata?.username||'PLAYER'; playerProfile={...playerProfile,...data}; ui.userName.textContent=playerName; ui.userMenu.classList.remove('hidden'); ui.rivalName.textContent='等待中'; showSection('lobby'); setNetwork('玩家大廳已連線'); renderProfile(); await refreshSocial(); socialPoll=setInterval(refreshSocial,4000);
 }
 async function initOnlineServices() {
   const config=window.BLOCKSTORM_CONFIG||{}; if(!config.supabaseUrl||!config.supabaseAnonKey||!window.supabase){showSection('auth');ui.authMessage.textContent='尚未連接線上服務；目前仍可使用離線練習。';setNetwork('等待後端設定',false);return;}
@@ -280,6 +338,12 @@ ui.copyCode.addEventListener('click',async()=>{try{await navigator.clipboard.wri
 ui.cancelWait.addEventListener('click',backToLobby); ui.backBtn.addEventListener('click',backToLobby); ui.pauseBtn.addEventListener('click',togglePause); ui.lobbyBtn.addEventListener('click',backToLobby);
 ui.againBtn.addEventListener('click',()=>{ ui.resultModal.classList.add('hidden'); if(roomMode==='practice')countdownAndStart(); else {rematchRequested=true;send({type:'rematch'});toast('等待對手準備…');} });
 ui.loginTab.addEventListener('click',()=>selectAuthMode('login')); ui.signupTab.addEventListener('click',()=>selectAuthMode('signup')); ui.authForm.addEventListener('submit',submitAuth); ui.signOutBtn.addEventListener('click',async()=>{disconnect();await db?.auth.signOut();});
+ui.settingsBtn.addEventListener('click',openProfileSettings); ui.profileEditBtn.addEventListener('click',openProfileSettings); ui.closeProfileBtn.addEventListener('click',()=>ui.profileModal.classList.add('hidden')); ui.saveProfileBtn.addEventListener('click',saveProfileSettings);
+ui.avatarOptions.addEventListener('click',event=>{const button=event.target.closest('button[data-avatar]');if(!button)return;selectedAvatar=button.dataset.avatar;ui.avatarOptions.querySelectorAll('button').forEach(item=>item.classList.toggle('selected',item===button));});
+ui.friendSearchBtn.addEventListener('click',sendFriendRequest); ui.friendSearchInput.addEventListener('keydown',event=>{if(event.key==='Enter')sendFriendRequest();});
+ui.incomingList.addEventListener('click',event=>{const button=event.target.closest('button[data-action]');if(!button)return;respondFriend(button.dataset.id,button.dataset.action==='accept-friend');});
+ui.friendsList.addEventListener('click',event=>{const button=event.target.closest('button[data-action="invite-friend"]');if(button)inviteFriend(button.dataset.id);});
+ui.acceptInviteBtn.addEventListener('click',()=>respondBattleInvite(true)); ui.declineInviteBtn.addEventListener('click',()=>respondBattleInvite(false));
 
 const actions={left:()=>move(-1,0),right:()=>move(1,0),down:()=>move(0,1),rotate,drop:hardDrop,hold};
 document.querySelectorAll('.mobile-controls button').forEach(btn=>btn.addEventListener('pointerdown',e=>{e.preventDefault();actions[btn.dataset.action]?.();}));
