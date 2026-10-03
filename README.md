@@ -16,8 +16,8 @@
 - 角色帳號＋密碼註冊與登入（玩家不需提供 Email）
 - 公開快速配對佇列
 - 簡約遊戲主選單：個人資訊、貨幣欄、賽季摘要與集中模式選擇
-- 方塊造型商店、永久收藏、方塊幣錢包與每日對戰任務獎勵
-- 個人頭像與四種方塊造型
+- 每日／主線任務與成就系統，可獲得方塊幣及少量星晶
+- 方塊造型商店、專屬紋理、永久收藏與可裝備的遊戲背板
 - 整合式個人資料表：固定玩家 ID、段位、牌位／一般勝率與場次
 - 好友搜尋、好友邀請與好友對戰
 - 全站與好友排行榜
@@ -59,7 +59,7 @@ GitHub 完成部署後，網站會出現在 `https://你的帳號.github.io/你�
 GitHub Pages 只負責網站檔案；帳號、房間及配對資料由 Supabase 處理。
 
 1. 在 Supabase 建立一個專案。
-2. 開啟 **SQL Editor**，依序執行 `supabase/schema.sql`、`supabase/social.sql`、`supabase/ranked.sql` 與 `supabase/economy.sql`。
+2. 開啟 **SQL Editor**，依序執行 `supabase/schema.sql`、`supabase/social.sql`、`supabase/ranked.sql`、`supabase/economy.sql` 與 `supabase/progression.sql`。
 3. 到 **Project Settings → API**，複製 Project URL 與 publishable/anon key。
 4. 將兩個值填入 `config.js`。請勿把 `service_role` key 放進網頁。
 5. 到 **Authentication → URL Configuration**，把本機網址及 GitHub Pages 網址加入允許清單。

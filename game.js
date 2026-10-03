@@ -5,15 +5,40 @@ const COLORS = {
   S: '#55df7d', T: '#b66cff', Z: '#ff5277', G: '#586176'
 };
 const THEMES = {
-  neon: {name:'霓虹經典',price:0,rarity:'免費',I:'#61eaf2',J:'#4d75f6',L:'#ff9f43',O:'#ffd84d',S:'#55df7d',T:'#b66cff',Z:'#ff5277',G:'#586176'},
-  arcade: {name:'街機糖果',price:0,rarity:'免費',I:'#ff79c6',J:'#7aa2ff',L:'#ff8f5a',O:'#ffe66d',S:'#8be28b',T:'#c792ea',Z:'#ff5f6d',G:'#604f67'},
-  ice: {name:'冰晶藍',price:400,rarity:'稀有',I:'#b8f3ff',J:'#74a9ff',L:'#89d6ff',O:'#e9fbff',S:'#62d6e8',T:'#9fa8ff',Z:'#4f8fff',G:'#40546f'},
-  mono: {name:'黑白極簡',price:450,rarity:'稀有',I:'#f7f7f7',J:'#c9c9c9',L:'#e0e0e0',O:'#ffffff',S:'#b7b7b7',T:'#d8d8d8',Z:'#a8a8a8',G:'#555555'},
-  sunset: {name:'落日餘暉',price:550,rarity:'史詩',I:'#ffcf8b',J:'#e47aff',L:'#ff713e',O:'#ffe170',S:'#ff9f68',T:'#c071ff',Z:'#ff4775',G:'#69435f'},
-  forest: {name:'翡翠森林',price:550,rarity:'史詩',I:'#94f5d5',J:'#4ca98b',L:'#d4c47a',O:'#f0e68c',S:'#50df83',T:'#8bcf7b',Z:'#d96b72',G:'#38584a'},
-  magma: {name:'熔岩核心',price:700,rarity:'傳說',I:'#ffd36c',J:'#ff7a45',L:'#ff9b28',O:'#fff08a',S:'#f26d3d',T:'#e64d75',Z:'#ff3548',G:'#67332d'},
-  royal: {name:'皇家星塵',price:800,rarity:'傳說',I:'#9ff4ff',J:'#7386ff',L:'#f3b4ff',O:'#fff4a8',S:'#82e4c8',T:'#c68cff',Z:'#ff82bc',G:'#514a77'}
+  neon: {name:'霓虹經典',price:0,rarity:'免費',pattern:'glow',I:'#61eaf2',J:'#4d75f6',L:'#ff9f43',O:'#ffd84d',S:'#55df7d',T:'#b66cff',Z:'#ff5277',G:'#586176'},
+  arcade: {name:'街機糖果',price:0,rarity:'免費',pattern:'pixel',I:'#ff79c6',J:'#7aa2ff',L:'#ff8f5a',O:'#ffe66d',S:'#8be28b',T:'#c792ea',Z:'#ff5f6d',G:'#604f67'},
+  ice: {name:'冰晶藍',price:400,rarity:'稀有',pattern:'crystal',I:'#b8f3ff',J:'#74a9ff',L:'#89d6ff',O:'#e9fbff',S:'#62d6e8',T:'#9fa8ff',Z:'#4f8fff',G:'#40546f'},
+  mono: {name:'黑白極簡',price:450,rarity:'稀有',pattern:'line',I:'#f7f7f7',J:'#c9c9c9',L:'#e0e0e0',O:'#ffffff',S:'#b7b7b7',T:'#d8d8d8',Z:'#a8a8a8',G:'#555555'},
+  sunset: {name:'落日餘暉',price:550,rarity:'史詩',pattern:'sunset',I:'#ffcf8b',J:'#e47aff',L:'#ff713e',O:'#ffe170',S:'#ff9f68',T:'#c071ff',Z:'#ff4775',G:'#69435f'},
+  forest: {name:'翡翠森林',price:550,rarity:'史詩',pattern:'leaf',I:'#94f5d5',J:'#4ca98b',L:'#d4c47a',O:'#f0e68c',S:'#50df83',T:'#8bcf7b',Z:'#d96b72',G:'#38584a'},
+  magma: {name:'熔岩核心',price:700,rarity:'傳說',pattern:'crack',I:'#ffd36c',J:'#ff7a45',L:'#ff9b28',O:'#fff08a',S:'#f26d3d',T:'#e64d75',Z:'#ff3548',G:'#67332d'},
+  royal: {name:'皇家星塵',price:800,rarity:'傳說',pattern:'star',I:'#9ff4ff',J:'#7386ff',L:'#f3b4ff',O:'#fff4a8',S:'#82e4c8',T:'#c68cff',Z:'#ff82bc',G:'#514a77'}
 };
+const BACKGROUNDS = {
+  void:{name:'深空競技場',price:0,rarity:'免費',colors:['#080c16','#10192a'],pattern:'grid'},
+  aurora:{name:'極光脈衝',price:450,rarity:'稀有',colors:['#071a22','#163044'],pattern:'aurora'},
+  glacier:{name:'冰晶宮殿',price:600,rarity:'史詩',colors:['#071521','#164464'],pattern:'crystal'},
+  sunsetCity:{name:'暮色都市',price:650,rarity:'史詩',colors:['#1b0d27','#59253d'],pattern:'city'},
+  forestRuins:{name:'翡翠遺跡',price:650,rarity:'史詩',colors:['#071912','#18382c'],pattern:'leaves'},
+  magmaCore:{name:'熔岩地心',price:800,rarity:'傳說',colors:['#170807','#4c1710'],pattern:'magma'},
+  royalNebula:{name:'皇家星雲',price:950,rarity:'傳說',colors:['#0c0922','#31205b'],pattern:'stars'}
+};
+const TASKS = [
+  {id:'daily_match',category:'daily',title:'完成一場對戰',desc:'任意完成一場單人或線上對戰',metric:'daily_matches',target:1,coins:80,gems:0},
+  {id:'daily_lines',category:'daily',title:'消除 10 行',desc:'今日累積消除 10 行',metric:'daily_lines',target:10,coins:100,gems:0},
+  {id:'daily_score',category:'daily',title:'今日累積 5,000 分',desc:'所有完成的對戰分數都會累積',metric:'daily_score',target:5000,coins:120,gems:0},
+  {id:'daily_win',category:'daily',title:'贏得一場對戰',desc:'擊敗 AI 或線上玩家',metric:'daily_wins',target:1,coins:0,gems:2},
+  {id:'main_first',category:'main',title:'風暴初戰',desc:'完成生涯第一場對戰',metric:'total_matches',target:1,coins:150,gems:0},
+  {id:'main_lines_100',category:'main',title:'方塊清道夫',desc:'生涯累積消除 100 行',metric:'total_lines',target:100,coins:400,gems:0},
+  {id:'main_score_100k',category:'main',title:'六位數玩家',desc:'生涯累積獲得 100,000 分',metric:'total_score',target:100000,coins:600,gems:5},
+  {id:'main_wins_10',category:'main',title:'十勝之路',desc:'生涯累積贏得 10 場',metric:'total_wins',target:10,coins:800,gems:8},
+  {id:'ach_score_10k',category:'achievement',title:'分數突破 I',desc:'單局達到 10,000 分',metric:'best_score',target:10000,coins:200,gems:3},
+  {id:'ach_score_50k',category:'achievement',title:'分數突破 II',desc:'單局達到 50,000 分',metric:'best_score',target:50000,coins:500,gems:8},
+  {id:'ach_combo_3',category:'achievement',title:'連鎖反應',desc:'單局達成 3 COMBO',metric:'best_combo',target:3,coins:200,gems:3},
+  {id:'ach_combo_5',category:'achievement',title:'風暴連鎖',desc:'單局達成 5 COMBO',metric:'best_combo',target:5,coins:400,gems:6},
+  {id:'ach_tetris_5',category:'achievement',title:'四行專家',desc:'生涯累積完成 5 次 TETRIS',metric:'total_tetrises',target:5,coins:300,gems:5},
+  {id:'ach_perfect',category:'achievement',title:'完美無瑕',desc:'完成一次 PERFECT CLEAR',metric:'perfect_clears',target:1,coins:500,gems:10}
+];
 const SHAPES = {
   I: [[0,0,0,0],[1,1,1,1],[0,0,0,0],[0,0,0,0]],
   J: [[1,0,0],[1,1,1],[0,0,0]], L: [[0,0,1],[1,1,1],[0,0,0]],
@@ -22,22 +47,23 @@ const SHAPES = {
 };
 const PIECES = Object.keys(SHAPES);
 const $ = (id) => document.getElementById(id);
-const ui = Object.fromEntries(['auth','lobby','waiting','arena','hostBtn','joinBtn','matchBtn','rankedMatchBtn','practiceBtn','guestPracticeBtn','aiDifficulty','roomInput','lobbyMessage','roomCode','copyCode','waitingTitle','waitingText','cancelWait','backBtn','pauseBtn','matchMode','matchRoom','networkStatus','userMenu','userAvatar','userName','settingsBtn','signOutBtn','loginTab','signupTab','authForm','accountInput','passwordInput','authSubmit','authMessage','profileAvatar','profileName','profilePlayerId','profileWins','profileLosses','profileWinrate','profileThemeName','profileRank','profileRating','profileEditBtn','profileModal','settingsProfileAvatar','settingsProfileName','settingsProfileId','settingsProfileRank','settingsProfileRating','profileRankWinrate','profileRankMatches','profileRankRecord','profileCasualWinrate','profileCasualMatches','profileCasualRecord','avatarOptions','themeSelect','saveProfileBtn','closeProfileBtn','friendCount','friendNotice','friendSearchInput','friendSearchBtn','friendMessage','requestSection','incomingList','friendsList','lobbyHome','leaderboardPanel','friendsPanel','shopPanel','shopGrid','coinBalance','gemBalance','shopCoinBalance','dailyMission','dailyMissionProgress','globalLeaderboard','friendLeaderboard','playerModal','closePlayerBtn','viewPlayerAvatar','viewPlayerName','viewPlayerId','viewPlayerRank','viewPlayerRating','viewRankWinrate','viewRankMatches','viewRankRecord','viewCasualWinrate','viewCasualMatches','viewCasualRecord','viewPlayerExtra','addPlayerFriendBtn','inviteBanner','inviteAvatar','inviteName','acceptInviteBtn','declineInviteBtn','localAvatar','rivalAvatar','gameCanvas','holdCanvas','nextCanvas','rivalCanvas','score','lines','rivalScore','rivalLines','rivalName','rivalBadge','localBadge','attackMeter','gameOverlay','overlayTitle','overlayText','countdown','clearFeedback','resultModal','resultTitle','resultText','resultScore','resultLines','resultRatingBox','resultRating','resultSettlement','againBtn','lobbyBtn','toast'].map(k => [k, $(k)]));
+const ui = Object.fromEntries(['auth','lobby','waiting','arena','hostBtn','joinBtn','matchBtn','rankedMatchBtn','practiceBtn','guestPracticeBtn','aiDifficulty','roomInput','lobbyMessage','roomCode','copyCode','waitingTitle','waitingText','cancelWait','backBtn','pauseBtn','matchMode','matchRoom','networkStatus','userMenu','userAvatar','userName','settingsBtn','signOutBtn','loginTab','signupTab','authForm','accountInput','passwordInput','authSubmit','authMessage','profileAvatar','profileName','profilePlayerId','profileWins','profileLosses','profileWinrate','profileThemeName','profileRank','profileRating','profileEditBtn','profileModal','settingsProfileAvatar','settingsProfileName','settingsProfileId','settingsProfileRank','settingsProfileRating','profileRankWinrate','profileRankMatches','profileRankRecord','profileCasualWinrate','profileCasualMatches','profileCasualRecord','avatarOptions','themeSelect','backgroundSelect','saveProfileBtn','closeProfileBtn','friendCount','friendNotice','friendSearchInput','friendSearchBtn','friendMessage','requestSection','incomingList','friendsList','lobbyHome','leaderboardPanel','friendsPanel','shopPanel','tasksPanel','taskTabs','taskSummary','taskList','shopGrid','coinBalance','gemBalance','shopCoinBalance','shopGemBalance','dailyMission','dailyMissionTitle','dailyMissionProgress','globalLeaderboard','friendLeaderboard','playerModal','closePlayerBtn','viewPlayerAvatar','viewPlayerName','viewPlayerId','viewPlayerRank','viewPlayerRating','viewRankWinrate','viewRankMatches','viewRankRecord','viewCasualWinrate','viewCasualMatches','viewCasualRecord','viewPlayerExtra','addPlayerFriendBtn','inviteBanner','inviteAvatar','inviteName','acceptInviteBtn','declineInviteBtn','localAvatar','rivalAvatar','gameCanvas','holdCanvas','nextCanvas','rivalCanvas','score','lines','rivalScore','rivalLines','rivalName','rivalBadge','localBadge','attackMeter','gameOverlay','overlayTitle','overlayText','countdown','clearFeedback','resultModal','resultTitle','resultText','resultScore','resultLines','resultRatingBox','resultRating','resultSettlement','againBtn','lobbyBtn','toast'].map(k => [k, $(k)]));
 const ctx = ui.gameCanvas.getContext('2d');
 const holdCtx = ui.holdCanvas.getContext('2d');
 const nextCtx = ui.nextCanvas.getContext('2d');
 const rivalCtx = ui.rivalCanvas.getContext('2d');
 
 let board, current, queue, holdPiece, canHold, score, lines, level, dropMs, lastDrop, raf, lockTimer=null, lockResetCount=0;
-let running = false, paused = false, gameEnded = false, pendingGarbage = 0, garbageQueue=[], roomMode = 'practice', combo=-1, backToBack=false, lastActionRotation=false;
+let running = false, paused = false, gameEnded = false, pendingGarbage = 0, garbageQueue=[], roomMode = 'practice', combo=-1, backToBack=false, lastActionRotation=false, bestComboThisGame=0, tetrisesThisGame=0, perfectClearsThisGame=0;
 let peer = null, connection = null, isHost = false, activeRoom = '', lastStateSent = 0;
 let peerReady = false, remoteReady = false, rematchRequested = false;
 let db = null, session = null, playerName = 'PLAYER', authMode = 'login';
 let currentRoomId = null, matchPoll = null, matchmaking = false, matchmakingMode = 'normal';
-let playerProfile = {avatar:'⚡',block_theme:'neon',wins:0,losses:0,rating:1000,ranked_wins:0,ranked_losses:0}, rivalTheme='neon', socialPoll=null, pendingInvite=null, selectedAvatar='⚡';
+let playerProfile = {avatar:'⚡',block_theme:'neon',battle_background:'void',wins:0,losses:0,rating:1000,ranked_wins:0,ranked_losses:0}, rivalTheme='neon',rivalBackground='void', socialPoll=null, pendingInvite=null, selectedAvatar='⚡';
 let aiBoard = null, aiTimer = null, aiTicks = 0, aiDifficulty = 'normal', aiQueue = [], aiScore = 0, aiLines = 0;
 let leaderboardPlayers = new Map(), viewedPlayer = null, socialFriendNames = new Set();
-let shopState={coins:0,gems:0,dailyCompleted:false,owned:['neon','arcade']},ownedThemes=new Set(['neon','arcade']);
+let shopState={coins:0,gems:0,owned:['neon','arcade'],ownedBackgrounds:['void']},ownedThemes=new Set(['neon','arcade']),ownedBackgrounds=new Set(['void']),shopCategory='block';
+let progressionState={progress:{},claims:[]},taskCategory='daily';
 const AI_LEVELS = {easy:{name:'簡單',tick:2600,choice:12},normal:{name:'普通',tick:2050,choice:7},hard:{name:'困難',tick:1550,choice:3},expert:{name:'專家',tick:1150,choice:1}};
 const RANKS = [{min:0,name:'新星'},{min:900,name:'青銅'},{min:1100,name:'白銀'},{min:1300,name:'黃金'},{min:1500,name:'白金'},{min:1750,name:'鑽石'},{min:2000,name:'大師'}];
 const LOCK_DELAY_MS = 520, MAX_LOCK_RESETS = 15, GARBAGE_DELAY_MS = 1200;
@@ -136,12 +162,15 @@ function clearLines(tSpin=false) {
   const n = full.length,perfectClear=board.every(row=>row.every(cell=>!cell));
   lines += n; level = Math.floor(lines / 10) + 1; dropMs = Math.max(90, 820 - (level - 1) * 62);
   combo++;
+  bestComboThisGame=Math.max(bestComboThisGame,combo);
   const difficult=tSpin||n===4,b2bBonus=difficult&&backToBack,base=tSpin?[0,800,1200,1600][n]:[0,100,300,500,800][n];
   score+=Math.floor(base*(b2bBonus?1.5:1))*level+Math.max(0,combo)*50*level+(perfectClear?2000*level:0);
   let attack=tSpin?[0,2,4,6][n]:[0,0,1,2,4][n];
   if(b2bBonus)attack+=1;
   attack+=[0,0,1,1,2,2,3,3,4,4,4,4,5][Math.min(combo,12)]||0;
   if(perfectClear)attack=Math.max(10,attack);
+  if(n===4)tetrisesThisGame++;
+  if(perfectClear)perfectClearsThisGame++;
   if(difficult)backToBack=true;else if(n>0)backToBack=false;
   const sent=dispatchAttack(attack);
   const names=tSpin?['','T-SPIN SINGLE','T-SPIN DOUBLE','T-SPIN TRIPLE']:['','SINGLE','DOUBLE','TRIPLE','TETRIS'];
@@ -183,39 +212,61 @@ function showClearFeedback(title,detail=''){
   const frame=ui.gameCanvas.closest('.board-frame');ui.clearFeedback.innerHTML=`<strong>${title}</strong><span>${detail}</span>`;ui.clearFeedback.classList.remove('show');frame.classList.remove('clear-pulse');void ui.clearFeedback.offsetWidth;ui.clearFeedback.classList.add('show');frame.classList.add('clear-pulse');clearTimeout(showClearFeedback.timer);showClearFeedback.timer=setTimeout(()=>{ui.clearFeedback.classList.remove('show');frame.classList.remove('clear-pulse');},1050);
 }
 
-function drawCell(target, x, y, color, size, alpha = 1) {
-  target.globalAlpha = alpha; target.fillStyle = color; target.fillRect(x * size + 1, y * size + 1, size - 2, size - 2);
-  target.fillStyle = 'rgba(255,255,255,.18)'; target.fillRect(x * size + 2, y * size + 2, size - 4, 2); target.globalAlpha = 1;
+function drawCell(target, x, y, color, size, alpha = 1, themeId=playerProfile.block_theme) {
+  const px=x*size+1,py=y*size+1,w=size-2,theme=THEMES[themeId]||THEMES.neon;
+  target.save();target.globalAlpha=alpha;target.fillStyle=color;target.fillRect(px,py,w,w);
+  const shine=target.createLinearGradient(px,py,px+w,py+w);shine.addColorStop(0,'rgba(255,255,255,.34)');shine.addColorStop(.42,'rgba(255,255,255,.04)');shine.addColorStop(1,'rgba(0,0,0,.22)');target.fillStyle=shine;target.fillRect(px,py,w,w);
+  target.strokeStyle='rgba(255,255,255,.32)';target.lineWidth=Math.max(1,size/18);
+  if(theme.pattern==='crystal'){target.beginPath();target.moveTo(px+w*.08,py+w*.72);target.lineTo(px+w*.48,py+w*.28);target.lineTo(px+w*.9,py+w*.63);target.moveTo(px+w*.48,py+w*.28);target.lineTo(px+w*.55,py+w*.92);target.stroke();target.fillStyle='rgba(255,255,255,.2)';target.beginPath();target.moveTo(px+w*.1,py+w*.1);target.lineTo(px+w*.52,py+w*.28);target.lineTo(px+w*.2,py+w*.5);target.fill();}
+  else if(theme.pattern==='pixel'){const q=w/4;target.fillStyle='rgba(255,255,255,.2)';target.fillRect(px+q,py+q,q,q);target.fillStyle='rgba(0,0,0,.18)';target.fillRect(px+q*2,py+q*2,q,q);}
+  else if(theme.pattern==='line'){target.strokeRect(px+size*.16,py+size*.16,w-size*.3,w-size*.3);}
+  else if(theme.pattern==='sunset'){target.fillStyle='rgba(255,238,170,.24)';target.beginPath();target.arc(px+w*.68,py+w*.34,w*.18,0,Math.PI*2);target.fill();}
+  else if(theme.pattern==='leaf'){target.beginPath();target.ellipse(px+w*.52,py+w*.52,w*.26,w*.12,-.7,0,Math.PI*2);target.stroke();}
+  else if(theme.pattern==='crack'){target.strokeStyle='rgba(255,245,150,.5)';target.beginPath();target.moveTo(px+w*.55,py);target.lineTo(px+w*.45,py+w*.38);target.lineTo(px+w*.7,py+w*.56);target.lineTo(px+w*.5,py+w);target.stroke();}
+  else if(theme.pattern==='star'){target.fillStyle='rgba(255,255,255,.7)';target.fillRect(px+w*.26,py+w*.27,2,2);target.fillRect(px+w*.7,py+w*.62,2,2);target.fillRect(px+w*.48,py+w*.78,1,1);}
+  else {target.fillStyle='rgba(255,255,255,.2)';target.fillRect(px+1,py+1,w-2,Math.max(2,size*.08));}
+  target.restore();
 }
 function themeColor(type, theme=playerProfile.block_theme) { return (THEMES[theme]||THEMES.neon)[type]||COLORS.G; }
-function drawGrid(target, source, width = 300, height = 600, theme=playerProfile.block_theme) {
-  target.clearRect(0, 0, width, height); target.fillStyle = '#080c16'; target.fillRect(0,0,width,height);
+function drawBackdrop(target,width,height,backgroundId='void'){
+  const bg=BACKGROUNDS[backgroundId]||BACKGROUNDS.void,gradient=target.createLinearGradient(0,0,width,height);gradient.addColorStop(0,bg.colors[0]);gradient.addColorStop(1,bg.colors[1]);target.fillStyle=gradient;target.fillRect(0,0,width,height);
+  target.save();target.globalAlpha=.18;
+  if(bg.pattern==='aurora'){for(let i=0;i<4;i++){target.strokeStyle=i%2?'#75fff1':'#9d7cff';target.lineWidth=18;target.beginPath();target.moveTo(-30,i*145+35);target.bezierCurveTo(width*.25,i*120-15,width*.65,i*150+85,width+40,i*125+25);target.stroke();}}
+  else if(bg.pattern==='crystal'){target.strokeStyle='#b8efff';for(let x=-height;x<width;x+=75){target.beginPath();target.moveTo(x,0);target.lineTo(x+height,height);target.stroke();target.beginPath();target.moveTo(x+35,0);target.lineTo(x-height*.35,height*.35);target.stroke();}}
+  else if(bg.pattern==='city'){target.fillStyle='#ff86ae';for(let x=0;x<width;x+=28){const h=50+(x*17)%120;target.fillRect(x,height-h,20,h);}}
+  else if(bg.pattern==='leaves'){target.strokeStyle='#7de1a9';for(let y=30;y<height;y+=80)for(let x=15;x<width;x+=65){target.beginPath();target.ellipse(x,y,18,7,-.6,0,Math.PI*2);target.stroke();}}
+  else if(bg.pattern==='magma'){target.strokeStyle='#ff743d';target.lineWidth=3;for(let x=15;x<width;x+=60){target.beginPath();target.moveTo(x,0);for(let y=0;y<height;y+=70)target.lineTo(x+(y/70%2?24:-10),y);target.stroke();}}
+  else if(bg.pattern==='stars'){target.fillStyle='#fff';for(let i=0;i<55;i++){const x=(i*73)%width,y=(i*137)%height,s=i%9===0?2:1;target.fillRect(x,y,s,s);}}
+  target.restore();
+}
+function drawGrid(target, source, width = 300, height = 600, theme=playerProfile.block_theme,background=playerProfile.battle_background||'void') {
+  target.clearRect(0, 0, width, height);drawBackdrop(target,width,height,background);
   const size = width / COLS;
   target.strokeStyle = 'rgba(120,155,205,.07)'; target.lineWidth = 1;
   for (let x=0;x<=COLS;x++){target.beginPath();target.moveTo(x*size,0);target.lineTo(x*size,height);target.stroke();}
   for (let y=0;y<=ROWS;y++){target.beginPath();target.moveTo(0,y*size);target.lineTo(width,y*size);target.stroke();}
-  source.forEach((row,y)=>row.forEach((cell,x)=>{if(cell) drawCell(target,x,y,themeColor(cell,theme),size);}));
+  source.forEach((row,y)=>row.forEach((cell,x)=>{if(cell) drawCell(target,x,y,themeColor(cell,theme),size,1,theme);}));
 }
 function ghostY() { let y = current.y; while (!collides(current.x, y + 1, current.shape)) y++; return y; }
 function draw() {
   drawGrid(ctx, board);
   if (!current) return;
   const gy = ghostY();
-  current.shape.forEach((row,py)=>row.forEach((cell,px)=>{if(cell && gy+py>=0) drawCell(ctx,current.x+px,gy+py,themeColor(current.type),30,.16);}));
-  current.shape.forEach((row,py)=>row.forEach((cell,px)=>{if(cell && current.y+py>=0) drawCell(ctx,current.x+px,current.y+py,themeColor(current.type),30);}));
+  current.shape.forEach((row,py)=>row.forEach((cell,px)=>{if(cell && gy+py>=0) drawCell(ctx,current.x+px,gy+py,themeColor(current.type),30,.16,playerProfile.block_theme);}));
+  current.shape.forEach((row,py)=>row.forEach((cell,px)=>{if(cell && current.y+py>=0) drawCell(ctx,current.x+px,current.y+py,themeColor(current.type),30,1,playerProfile.block_theme);}));
 }
 function drawMini(target, types, canvasWidth, canvasHeight) {
   target.clearRect(0,0,canvasWidth,canvasHeight); target.fillStyle='#0a0f1b'; target.fillRect(0,0,canvasWidth,canvasHeight);
   types.forEach((type,index)=>{ if(!type)return; const shape=SHAPES[type], size=18, ox=(canvasWidth-shape[0].length*size)/2, oy=index*76+13;
-    shape.forEach((row,y)=>row.forEach((cell,x)=>{if(cell){target.fillStyle=themeColor(type);target.fillRect(ox+x*size+1,oy+y*size+1,size-2,size-2);}}));
+    shape.forEach((row,y)=>row.forEach((cell,x)=>{if(cell)drawCell(target,(ox/size)+x,(oy/size)+y,themeColor(type),size,1,playerProfile.block_theme);}));
   });
 }
 function drawSidePanels() { drawMini(holdCtx,[holdPiece],100,100); drawMini(nextCtx,queue.slice(0,3),100,250); }
-function drawRival(remoteBoard) { drawGrid(rivalCtx, remoteBoard || emptyBoard(),300,600,rivalTheme); }
+function drawRival(remoteBoard) { drawGrid(rivalCtx, remoteBoard || emptyBoard(),300,600,rivalTheme,rivalBackground); }
 function updateStats() { ui.score.textContent = score.toLocaleString(); ui.lines.textContent = lines; }
 
 function resetGame() {
-  cancelAnimationFrame(raf); clearLockDelay(true); clearInterval(aiTimer); aiTimer=null; board = emptyBoard(); queue = []; holdPiece = null; score = 0; lines = 0; level = 1; dropMs = 820; lastDrop = performance.now(); pendingGarbage = 0;garbageQueue=[];combo=-1;backToBack=false;lastActionRotation=false; gameEnded = false; paused = false; running = false; canHold = true;
+  cancelAnimationFrame(raf); clearLockDelay(true); clearInterval(aiTimer); aiTimer=null; board = emptyBoard(); queue = []; holdPiece = null; score = 0; lines = 0; level = 1; dropMs = 820; lastDrop = performance.now(); pendingGarbage = 0;garbageQueue=[];combo=-1;backToBack=false;lastActionRotation=false;bestComboThisGame=0;tetrisesThisGame=0;perfectClearsThisGame=0; gameEnded = false; paused = false; running = false; canHold = true;
   if(roomMode==='ai'){aiBoard=emptyBoard();aiQueue=[];aiTicks=0;aiScore=0;aiLines=0;ui.rivalScore.textContent='0';ui.rivalLines.textContent='0';drawRival(aiBoard);}
   fillQueue(); spawn(); updateStats(); updateAttackMeter(); ui.gameOverlay.classList.add('hidden'); ui.resultModal.classList.add('hidden'); ui.localBadge.textContent = 'READY'; draw(); drawRival();
 }
@@ -240,7 +291,7 @@ function endGame(won, reason) {
   if (gameEnded) return; gameEnded = true; running = false; clearLockDelay(); stopAllHeld(); cancelAnimationFrame(raf); clearInterval(aiTimer); aiTimer=null; ui.localBadge.textContent = won ? 'WIN' : 'KO';
   if (!won && roomMode === 'online') send({type:'gameover'});
   showResult(won, reason);
-  if(session&&(roomMode==='online'||roomMode==='ai'))completeDailyMission();
+  if(session&&(roomMode==='online'||roomMode==='ai'))recordGameProgress(won);
   if (roomMode === 'online' && db && session) {
     ui.resultSettlement.textContent='正在更新線上戰績…';
     callRpc('record_match_result',{p_won:won,p_ranked:matchmakingMode==='ranked'}).then(result=>{
@@ -351,7 +402,7 @@ function onlineError(error) {
 }
 function setupConnection(conn) {
   connection=conn;
-  conn.on('open',()=>{ peerReady=true; setNetwork('對手已連線'); beginOnlineMatch(); send({type:'hello',username:playerName,avatar:playerProfile.avatar,theme:playerProfile.block_theme,wins:playerProfile.wins,losses:playerProfile.losses,rating:playerProfile.rating}); });
+  conn.on('open',()=>{ peerReady=true; setNetwork('對手已連線'); beginOnlineMatch(); send({type:'hello',username:playerName,avatar:playerProfile.avatar,theme:playerProfile.block_theme,background:playerProfile.battle_background,wins:playerProfile.wins,losses:playerProfile.losses,rating:playerProfile.rating}); });
   conn.on('data',handleData);
   conn.on('close',()=>{ peerReady=false; setNetwork('對手已離線',false); if(running) endGame(true,'對手離開了房間。'); });
   conn.on('error',()=>toast('連線發生問題'));
@@ -361,7 +412,7 @@ function beginOnlineMatch() {
 }
 function handleData(data) {
   if(!data || !data.type)return;
-  if(data.type==='hello' && data.username){ ui.rivalName.textContent=data.username; ui.rivalAvatar.textContent=data.avatar||'?'; rivalTheme=data.theme||'neon'; ui.rivalBadge.textContent=matchmakingMode==='ranked'?rankFor(data.rating).name:`${winrate(data.wins,data.losses)}% WIN`; drawRival(); }
+  if(data.type==='hello' && data.username){ ui.rivalName.textContent=data.username; ui.rivalAvatar.textContent=data.avatar||'?'; rivalTheme=data.theme||'neon';rivalBackground=data.background||'void'; ui.rivalBadge.textContent=matchmakingMode==='ranked'?rankFor(data.rating).name:`${winrate(data.wins,data.losses)}% WIN`; drawRival(); }
   if(data.type==='state'){ drawRival(data.board); ui.rivalScore.textContent=(data.score||0).toLocaleString(); ui.rivalLines.textContent=data.lines||0; }
   if(data.type==='attack') receiveAttack(data.lines||0);
   if(data.type==='gameover') endGame(true,'對手已經到達極限。');
@@ -392,7 +443,7 @@ function renderProfile() {
   ui.settingsProfileAvatar.textContent=p.avatar;ui.settingsProfileName.textContent=playerName;ui.settingsProfileId.textContent=playerId;ui.settingsProfileRank.textContent=rankFor(p.rating).name;ui.settingsProfileRating.textContent=`${p.rating||1000} RP`;
   ui.profileRankWinrate.textContent=`${records.rankedRate}%`;ui.profileRankMatches.textContent=records.rankedMatches;ui.profileRankRecord.textContent=`${records.rankedWins} 勝 ${records.rankedLosses} 敗`;
   ui.profileCasualWinrate.textContent=`${records.casualRate}%`;ui.profileCasualMatches.textContent=records.casualMatches;ui.profileCasualRecord.textContent=`${records.casualWins} 勝 ${records.casualLosses} 敗`;
-  document.documentElement.dataset.blockTheme=p.block_theme; draw(); drawSidePanels();
+  document.documentElement.dataset.blockTheme=p.block_theme;document.documentElement.dataset.battleBackground=p.battle_background||'void'; draw(); drawSidePanels();drawRival();
 }
 function leaderboardMarkup(players=[]) {
   if(!players.length)return '<p class="empty-state">目前還沒有排行資料。</p>';
@@ -408,7 +459,7 @@ function openPlayerProfile(id) {
   ui.viewPlayerAvatar.textContent=p.avatar||'⚡';ui.viewPlayerName.textContent=p.username;ui.viewPlayerId.textContent=shortPlayerId(p.id);ui.viewPlayerRank.textContent=rankFor(p.rating).name;ui.viewPlayerRating.textContent=`${p.rating||1000} RP`;
   ui.viewRankWinrate.textContent=`${records.rankedRate}%`;ui.viewRankMatches.textContent=records.rankedMatches;ui.viewRankRecord.textContent=`${records.rankedWins} 勝 ${records.rankedLosses} 敗`;
   ui.viewCasualWinrate.textContent=`${records.casualRate}%`;ui.viewCasualMatches.textContent=records.casualMatches;ui.viewCasualRecord.textContent=`${records.casualWins} 勝 ${records.casualLosses} 敗`;
-  ui.viewPlayerExtra.textContent=`方塊造型 ${(THEMES[p.block_theme]||THEMES.neon).name}`;
+  ui.viewPlayerExtra.textContent=`方塊造型 ${(THEMES[p.block_theme]||THEMES.neon).name} · 背板 ${(BACKGROUNDS[p.battle_background]||BACKGROUNDS.void).name}`;
   const self=p.username===playerName,friend=socialFriendNames.has(p.username.toLocaleLowerCase());ui.addPlayerFriendBtn.classList.toggle('hidden',self);ui.addPlayerFriendBtn.disabled=friend;ui.addPlayerFriendBtn.textContent=friend?'已是好友':'加入好友';ui.playerModal.classList.remove('hidden');
 }
 async function addViewedPlayerFriend() {
@@ -417,21 +468,23 @@ async function addViewedPlayerFriend() {
   catch(error){ui.addPlayerFriendBtn.disabled=false;toast(error.message||'無法送出好友邀請');}
 }
 function switchLobbyView(view) {
-  ui.lobbyHome.classList.toggle('hidden',view!=='home'); ui.leaderboardPanel.classList.toggle('hidden',view!=='leaderboard'); ui.friendsPanel.classList.toggle('hidden',view!=='friends');ui.shopPanel.classList.toggle('hidden',view!=='shop');
+  ui.lobbyHome.classList.toggle('hidden',view!=='home'); ui.leaderboardPanel.classList.toggle('hidden',view!=='leaderboard'); ui.friendsPanel.classList.toggle('hidden',view!=='friends');ui.shopPanel.classList.toggle('hidden',view!=='shop');ui.tasksPanel.classList.toggle('hidden',view!=='tasks');
   document.querySelectorAll('[data-lobby-view]').forEach(button=>button.classList.toggle('active',button.dataset.lobbyView===view));
-  if(view==='leaderboard')refreshLeaderboards();if(view==='shop')refreshShop();if(view==='profile')openProfileSettings();
+  if(view==='leaderboard')refreshLeaderboards();if(view==='shop')refreshShop();if(view==='tasks')refreshProgression();if(view==='profile')openProfileSettings();
 }
 function renderEconomy(){
-  ui.coinBalance.textContent=Number(shopState.coins||0).toLocaleString();ui.gemBalance.textContent=Number(shopState.gems||0).toLocaleString();ui.shopCoinBalance.textContent=Number(shopState.coins||0).toLocaleString();
-  ui.dailyMission.classList.toggle('completed',Boolean(shopState.dailyCompleted));ui.dailyMissionProgress.textContent=shopState.dailyCompleted?'1 / 1 · 已領取':'0 / 1';
-  ownedThemes=new Set([...(shopState.owned||[]),'neon','arcade']);renderThemeSelect();renderShop();
+  ui.coinBalance.textContent=Number(shopState.coins||0).toLocaleString();ui.gemBalance.textContent=Number(shopState.gems||0).toLocaleString();ui.shopCoinBalance.textContent=Number(shopState.coins||0).toLocaleString();ui.shopGemBalance.textContent=Number(shopState.gems||0).toLocaleString();
+  ownedThemes=new Set([...(shopState.owned||[]),'neon','arcade']);ownedBackgrounds=new Set([...(shopState.ownedBackgrounds||[]),'void']);renderCosmeticSelects();renderShop();renderTasks();
 }
-function renderThemeSelect(){
+function renderCosmeticSelects(){
   const selected=playerProfile.block_theme||'neon';ui.themeSelect.innerHTML=[...ownedThemes].filter(id=>THEMES[id]).map(id=>`<option value="${id}">${escapeHtml(THEMES[id].name)}</option>`).join('');ui.themeSelect.value=ownedThemes.has(selected)?selected:'neon';
+  const background=playerProfile.battle_background||'void';ui.backgroundSelect.innerHTML=[...ownedBackgrounds].filter(id=>BACKGROUNDS[id]).map(id=>`<option value="${id}">${escapeHtml(BACKGROUNDS[id].name)}</option>`).join('');ui.backgroundSelect.value=ownedBackgrounds.has(background)?background:'void';
 }
 function themeSwatches(theme){return ['I','J','L','O','S','T','Z'].map(key=>`<i style="--swatch:${theme[key]}"></i>`).join('');}
+function backgroundPreview(background){return `<div class="background-preview bg-${background.pattern}" style="--bg-a:${background.colors[0]};--bg-b:${background.colors[1]}"><i></i><i></i><i></i></div>`;}
 function renderShop(){
-  ui.shopGrid.innerHTML=Object.entries(THEMES).map(([id,theme])=>{const owned=ownedThemes.has(id),equipped=playerProfile.block_theme===id;return `<article class="shop-item ${equipped?'equipped':''}"><div class="theme-swatch">${themeSwatches(theme)}</div><small>${escapeHtml(theme.rarity)}</small><h3>${escapeHtml(theme.name)}</h3><p>${owned?'已永久擁有':'解鎖後可在個人資料自由使用'}</p><button data-theme-id="${id}" data-shop-action="${owned?'equip':'buy'}" ${equipped?'disabled':''}>${equipped?'使用中':owned?'套用造型':`● ${theme.price.toLocaleString()}`}</button></article>`;}).join('');
+  const catalog=shopCategory==='block'?THEMES:BACKGROUNDS,ownedSet=shopCategory==='block'?ownedThemes:ownedBackgrounds,equippedId=shopCategory==='block'?playerProfile.block_theme:playerProfile.battle_background;
+  ui.shopGrid.innerHTML=Object.entries(catalog).map(([id,item])=>{const owned=ownedSet.has(id),equipped=equippedId===id,preview=shopCategory==='block'?`<div class="theme-swatch pattern-${item.pattern}">${themeSwatches(item)}</div>`:backgroundPreview(item);return `<article class="shop-item ${equipped?'equipped':''}">${preview}<small>${escapeHtml(item.rarity)}</small><h3>${escapeHtml(item.name)}</h3><p>${owned?'已永久擁有':shopCategory==='block'?'帶有專屬紋理與光影':'套用到你的遊戲盤面'}</p><button data-cosmetic-id="${id}" data-cosmetic-kind="${shopCategory}" data-shop-action="${owned?'equip':'buy'}" ${equipped?'disabled':''}>${equipped?'使用中':owned?'套用造型':`● ${item.price.toLocaleString()}`}</button></article>`;}).join('');
 }
 async function refreshShop(){
   if(!db||!session){renderEconomy();return;}try{const state=await callRpc('get_shop_state');shopState={...shopState,...state};renderEconomy();}catch(error){console.warn('Shop unavailable',error.message);renderEconomy();}
@@ -439,20 +492,43 @@ async function refreshShop(){
 async function buyTheme(id){
   const theme=THEMES[id];if(!theme||ownedThemes.has(id))return;try{const state=await callRpc('buy_theme',{p_theme_id:id});shopState={...shopState,...state};renderEconomy();toast(`${theme.name} 已加入收藏`);}catch(error){toast(error.message||'無法購買造型');}
 }
-async function equipTheme(id){
-  if(!ownedThemes.has(id))return;try{const next=await callRpc('save_profile',{p_avatar:playerProfile.avatar,p_block_theme:id});playerProfile={...playerProfile,...next};renderProfile();renderEconomy();toast(`已套用 ${THEMES[id].name}`);await refreshSocial();}catch(error){toast(error.message||'無法套用造型');}
+async function buyBackground(id){
+  const background=BACKGROUNDS[id];if(!background||ownedBackgrounds.has(id))return;try{const state=await callRpc('buy_background',{p_background_id:id});shopState={...shopState,...state};renderEconomy();toast(`${background.name} 已加入收藏`);}catch(error){toast(error.message||'無法購買背板');}
 }
-async function completeDailyMission(){
-  if(!db||!session||shopState.dailyCompleted)return;try{const state=await callRpc('complete_daily_match');const rewarded=state.rewarded;shopState={...shopState,...state};renderEconomy();if(rewarded)toast('每日任務完成 · 獲得 120 方塊幣');}catch(error){console.warn('Daily mission unavailable',error.message);}
+async function equipTheme(id){
+  if(!ownedThemes.has(id))return;try{const next=await callRpc('save_profile',{p_avatar:playerProfile.avatar,p_block_theme:id,p_battle_background:playerProfile.battle_background||'void'});playerProfile={...playerProfile,...next};renderProfile();renderEconomy();toast(`已套用 ${THEMES[id].name}`);await refreshSocial();}catch(error){toast(error.message||'無法套用造型');}
+}
+async function equipBackground(id){
+  if(!ownedBackgrounds.has(id))return;try{const next=await callRpc('save_profile',{p_avatar:playerProfile.avatar,p_block_theme:playerProfile.block_theme,p_battle_background:id});playerProfile={...playerProfile,...next};renderProfile();renderEconomy();toast(`已套用 ${BACKGROUNDS[id].name}`);await refreshSocial();}catch(error){toast(error.message||'無法套用背板');}
+}
+function taskProgress(task){return Math.max(0,Number(progressionState.progress?.[task.metric]||0));}
+function taskClaimed(task){return (progressionState.claims||[]).includes(task.id);}
+function rewardLabel(task){return [task.coins?`● ${task.coins}`:'',task.gems?`◆ ${task.gems}`:''].filter(Boolean).join('　');}
+function renderTasks(){
+  if(!ui.taskList)return;
+  const daily=TASKS.filter(task=>task.category==='daily'),dailyDone=daily.filter(task=>taskClaimed(task)).length,claimable=TASKS.filter(task=>!taskClaimed(task)&&taskProgress(task)>=task.target).length;
+  ui.dailyMission.classList.toggle('completed',dailyDone===daily.length);ui.dailyMissionTitle.textContent=dailyDone===daily.length?'今日任務全部完成':`今日還有 ${daily.length-dailyDone} 項任務`;ui.dailyMissionProgress.textContent=claimable?`${claimable} 項獎勵可領取 →`:'查看任務中心 →';
+  ui.taskSummary.innerHTML=`<span><small>可領取</small><strong>${claimable}</strong></span><span><small>生涯分數</small><strong>${Number(progressionState.progress?.total_score||0).toLocaleString()}</strong></span><span><small>最高連擊</small><strong>${Number(progressionState.progress?.best_combo||0)}</strong></span>`;
+  const tasks=TASKS.filter(task=>task.category===taskCategory);
+  ui.taskList.innerHTML=tasks.map(task=>{const progress=taskProgress(task),claimed=taskClaimed(task),complete=progress>=task.target,percent=Math.min(100,progress/task.target*100);return `<article class="task-card ${claimed?'claimed':complete?'complete':''}"><span class="task-icon">${task.category==='achievement'?'★':task.category==='main'?'◆':'✓'}</span><div class="task-copy"><small>${task.category==='daily'?'每日任務':task.category==='main'?'主線任務':'成就'}</small><h3>${escapeHtml(task.title)}</h3><p>${escapeHtml(task.desc)}</p><div class="task-progress"><i style="width:${percent}%"></i></div><b>${Math.min(progress,task.target).toLocaleString()} / ${task.target.toLocaleString()}</b></div><div class="task-reward"><span>${rewardLabel(task)}</span><button data-claim-task="${task.id}" ${!complete||claimed?'disabled':''}>${claimed?'已領取':complete?'領取':'進行中'}</button></div></article>`;}).join('');
+}
+async function refreshProgression(){
+  if(!db||!session){renderTasks();return;}try{progressionState=await callRpc('get_progression_state');if(progressionState.wallet)shopState={...shopState,...progressionState.wallet};renderEconomy();}catch(error){console.warn('Progression unavailable',error.message);renderTasks();}
+}
+async function recordGameProgress(won){
+  if(!db||!session)return;try{progressionState=await callRpc('record_game_progress',{p_score:score,p_lines:lines,p_best_combo:bestComboThisGame,p_tetrises:tetrisesThisGame,p_perfect_clears:perfectClearsThisGame,p_won:Boolean(won),p_mode:roomMode});renderTasks();}catch(error){console.warn('Game progress unavailable',error.message);}
+}
+async function claimTask(id){
+  const task=TASKS.find(item=>item.id===id);if(!task)return;try{const result=await callRpc('claim_task',{p_task_id:id});progressionState=result.progression;shopState={...shopState,...result.shop};renderEconomy();toast(`獎勵已領取 · ${rewardLabel(task)}`);}catch(error){toast(error.message||'目前無法領取獎勵');}
 }
 function openProfileSettings() {
-  selectedAvatar=playerProfile.avatar;renderThemeSelect();ui.themeSelect.value=ownedThemes.has(playerProfile.block_theme)?playerProfile.block_theme:'neon';
+  selectedAvatar=playerProfile.avatar;renderCosmeticSelects();ui.themeSelect.value=ownedThemes.has(playerProfile.block_theme)?playerProfile.block_theme:'neon';ui.backgroundSelect.value=ownedBackgrounds.has(playerProfile.battle_background)?playerProfile.battle_background:'void';
   ui.avatarOptions.querySelectorAll('button').forEach(button=>button.classList.toggle('selected',button.dataset.avatar===selectedAvatar));
   ui.profileModal.classList.remove('hidden');
 }
 async function saveProfileSettings() {
   ui.saveProfileBtn.disabled=true;
-  try { const next=await callRpc('save_profile',{p_avatar:selectedAvatar,p_block_theme:ui.themeSelect.value}); playerProfile={...playerProfile,...next}; renderProfile(); ui.profileModal.classList.add('hidden'); toast('個人設定已儲存'); await refreshSocial(); }
+  try { const next=await callRpc('save_profile',{p_avatar:selectedAvatar,p_block_theme:ui.themeSelect.value,p_battle_background:ui.backgroundSelect.value}); playerProfile={...playerProfile,...next}; renderProfile(); ui.profileModal.classList.add('hidden'); toast('個人設定已儲存'); await refreshSocial(); }
   catch(error){toast(error.message||'無法儲存設定');} finally {ui.saveProfileBtn.disabled=false;}
 }
 function renderSocial(state) {
@@ -515,7 +591,7 @@ function translateAuthError(message='') {
 }
 async function applySession(nextSession) {
   session=nextSession; clearInterval(socialPoll); socialPoll=null; if(!session){ui.userMenu.classList.add('hidden');ui.inviteBanner.classList.add('hidden');showSection('auth');return;}
-  const {data}=await db.from('profiles').select('username,avatar,block_theme,wins,losses,rating,ranked_wins,ranked_losses').eq('id',session.user.id).single(); playerName=data?.username||session.user.user_metadata?.username||'PLAYER'; playerProfile={...playerProfile,...data,id:session.user.id}; ui.userName.textContent=playerName; ui.userMenu.classList.remove('hidden'); ui.rivalName.textContent='等待中'; showSection('lobby'); switchLobbyView('home'); setNetwork('玩家大廳已連線'); renderProfile(); await Promise.all([refreshSocial(),refreshShop()]); socialPoll=setInterval(refreshSocial,4000);
+  const {data}=await db.from('profiles').select('username,avatar,block_theme,battle_background,wins,losses,rating,ranked_wins,ranked_losses').eq('id',session.user.id).single(); playerName=data?.username||session.user.user_metadata?.username||'PLAYER'; playerProfile={...playerProfile,...data,id:session.user.id}; ui.userName.textContent=playerName; ui.userMenu.classList.remove('hidden'); ui.rivalName.textContent='等待中'; showSection('lobby'); switchLobbyView('home'); setNetwork('玩家大廳已連線'); renderProfile(); await Promise.all([refreshSocial(),refreshShop(),refreshProgression()]); socialPoll=setInterval(refreshSocial,4000);
 }
 async function initOnlineServices() {
   const config=window.BLOCKSTORM_CONFIG||{}; if(!config.supabaseUrl||!config.supabaseAnonKey||!window.supabase){showSection('auth');ui.authMessage.textContent='尚未連接線上服務；目前仍可使用離線練習。';setNetwork('等待後端設定',false);return;}
@@ -530,14 +606,18 @@ ui.againBtn.addEventListener('click',()=>{ ui.resultModal.classList.add('hidden'
 ui.loginTab.addEventListener('click',()=>selectAuthMode('login')); ui.signupTab.addEventListener('click',()=>selectAuthMode('signup')); ui.authForm.addEventListener('submit',submitAuth); ui.signOutBtn.addEventListener('click',async()=>{disconnect();await db?.auth.signOut();});
 ui.settingsBtn.addEventListener('click',openProfileSettings); ui.profileEditBtn.addEventListener('click',openProfileSettings); ui.closeProfileBtn.addEventListener('click',()=>{ui.profileModal.classList.add('hidden');renderProfile();}); ui.saveProfileBtn.addEventListener('click',saveProfileSettings);
 document.querySelectorAll('[data-open-shop]').forEach(button=>button.addEventListener('click',()=>switchLobbyView('shop')));
-ui.shopGrid.addEventListener('click',event=>{const button=event.target.closest('button[data-theme-id]');if(!button)return;button.dataset.shopAction==='buy'?buyTheme(button.dataset.themeId):equipTheme(button.dataset.themeId);});
+ui.shopGrid.addEventListener('click',event=>{const button=event.target.closest('button[data-cosmetic-id]');if(!button)return;const id=button.dataset.cosmeticId,kind=button.dataset.cosmeticKind,buy=button.dataset.shopAction==='buy';if(kind==='block')buy?buyTheme(id):equipTheme(id);else buy?buyBackground(id):equipBackground(id);});
+ui.shopPanel.querySelector('.panel-tabs').addEventListener('click',event=>{const button=event.target.closest('[data-shop-category]');if(!button)return;shopCategory=button.dataset.shopCategory;ui.shopPanel.querySelectorAll('[data-shop-category]').forEach(item=>item.classList.toggle('active',item===button));renderShop();});
+ui.taskTabs.addEventListener('click',event=>{const button=event.target.closest('[data-task-category]');if(!button)return;taskCategory=button.dataset.taskCategory;ui.taskTabs.querySelectorAll('button').forEach(item=>item.classList.toggle('active',item===button));renderTasks();});
+ui.taskList.addEventListener('click',event=>{const button=event.target.closest('[data-claim-task]');if(button&&!button.disabled)claimTask(button.dataset.claimTask);});
+ui.dailyMission.addEventListener('click',()=>switchLobbyView('tasks'));
 ui.avatarOptions.addEventListener('click',event=>{const button=event.target.closest('button[data-avatar]');if(!button)return;selectedAvatar=button.dataset.avatar;ui.settingsProfileAvatar.textContent=selectedAvatar;ui.avatarOptions.querySelectorAll('button').forEach(item=>item.classList.toggle('selected',item===button));});
 ui.friendSearchBtn.addEventListener('click',sendFriendRequest); ui.friendSearchInput.addEventListener('keydown',event=>{if(event.key==='Enter')sendFriendRequest();});
 ui.incomingList.addEventListener('click',event=>{const button=event.target.closest('button[data-action]');if(!button)return;respondFriend(button.dataset.id,button.dataset.action==='accept-friend');});
 ui.friendsList.addEventListener('click',event=>{const button=event.target.closest('button[data-action="invite-friend"]');if(button)inviteFriend(button.dataset.id);});
 ui.acceptInviteBtn.addEventListener('click',()=>respondBattleInvite(true)); ui.declineInviteBtn.addEventListener('click',()=>respondBattleInvite(false));
 document.querySelector('.lobby-dock').addEventListener('click',event=>{const button=event.target.closest('[data-lobby-view]');if(button)switchLobbyView(button.dataset.lobbyView);});
-document.querySelector('.panel-tabs').addEventListener('click',event=>{const button=event.target.closest('[data-rank-tab]');if(!button)return;document.querySelectorAll('[data-rank-tab]').forEach(item=>item.classList.toggle('active',item===button));ui.globalLeaderboard.classList.toggle('hidden',button.dataset.rankTab!=='global');ui.friendLeaderboard.classList.toggle('hidden',button.dataset.rankTab!=='friends');});
+ui.leaderboardPanel.querySelector('.panel-tabs').addEventListener('click',event=>{const button=event.target.closest('[data-rank-tab]');if(!button)return;ui.leaderboardPanel.querySelectorAll('[data-rank-tab]').forEach(item=>item.classList.toggle('active',item===button));ui.globalLeaderboard.classList.toggle('hidden',button.dataset.rankTab!=='global');ui.friendLeaderboard.classList.toggle('hidden',button.dataset.rankTab!=='friends');});
 [ui.globalLeaderboard,ui.friendLeaderboard].forEach(list=>list.addEventListener('click',event=>{const row=event.target.closest('[data-player-id]');if(row)openPlayerProfile(row.dataset.playerId);}));
 ui.closePlayerBtn.addEventListener('click',()=>ui.playerModal.classList.add('hidden'));ui.addPlayerFriendBtn.addEventListener('click',addViewedPlayerFriend);
 
