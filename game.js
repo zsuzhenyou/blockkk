@@ -12,7 +12,13 @@ const THEMES = {
   sunset: {name:'落日餘暉',price:550,rarity:'史詩',pattern:'sunset',I:'#ffcf8b',J:'#e47aff',L:'#ff713e',O:'#ffe170',S:'#ff9f68',T:'#c071ff',Z:'#ff4775',G:'#69435f'},
   forest: {name:'翡翠森林',price:550,rarity:'史詩',pattern:'leaf',I:'#94f5d5',J:'#4ca98b',L:'#d4c47a',O:'#f0e68c',S:'#50df83',T:'#8bcf7b',Z:'#d96b72',G:'#38584a'},
   magma: {name:'熔岩核心',price:700,rarity:'傳說',pattern:'crack',I:'#ffd36c',J:'#ff7a45',L:'#ff9b28',O:'#fff08a',S:'#f26d3d',T:'#e64d75',Z:'#ff3548',G:'#67332d'},
-  royal: {name:'皇家星塵',price:800,rarity:'傳說',pattern:'star',I:'#9ff4ff',J:'#7386ff',L:'#f3b4ff',O:'#fff4a8',S:'#82e4c8',T:'#c68cff',Z:'#ff82bc',G:'#514a77'}
+  royal: {name:'皇家星塵',price:800,rarity:'傳說',pattern:'star',I:'#9ff4ff',J:'#7386ff',L:'#f3b4ff',O:'#fff4a8',S:'#82e4c8',T:'#c68cff',Z:'#ff82bc',G:'#514a77'},
+  pearl: {name:'奶霜珍珠',price:600,rarity:'史詩',pattern:'pearl',I:'#bfe7e8',J:'#b9c7e8',L:'#e8c8ad',O:'#f1dfad',S:'#b9d8bd',T:'#d4bedf',Z:'#e4b7bd',G:'#817c78'},
+  sakura: {name:'櫻花和菓',price:650,rarity:'史詩',pattern:'petal',I:'#acdce1',J:'#9eaed5',L:'#eeb795',O:'#f2d899',S:'#acd0ae',T:'#d6acd1',Z:'#e99eaa',G:'#765d68'},
+  ocean: {name:'深海微光',price:700,rarity:'史詩',pattern:'wave',I:'#79e1df',J:'#527fc4',L:'#73b6d1',O:'#d1e8a5',S:'#61c7aa',T:'#8f9fd5',Z:'#7598c5',G:'#365267'},
+  lavender: {name:'薰衣草霧',price:750,rarity:'傳說',pattern:'mist',I:'#c8e4ed',J:'#909fd2',L:'#d8b8cf',O:'#e9dca9',S:'#afcfbd',T:'#b999d4',Z:'#d89ab4',G:'#5e5872'},
+  copper: {name:'赤銅工坊',price:850,rarity:'傳說',pattern:'brushed',I:'#b9d8cf',J:'#7f9caf',L:'#d39062',O:'#e1bb70',S:'#86ad86',T:'#ad829b',Z:'#c47468',G:'#584c47'},
+  mint: {name:'薄荷玻璃',price:650,rarity:'史詩',pattern:'glass',I:'#a6eee7',J:'#83bace',L:'#b7d2ae',O:'#e7e1a1',S:'#8bd9b0',T:'#a9b9d9',Z:'#dca8ad',G:'#49645f'}
 };
 const BACKGROUNDS = {
   void:{name:'深空競技場',price:0,rarity:'免費',colors:['#080c16','#10192a'],pattern:'grid'},
@@ -21,7 +27,12 @@ const BACKGROUNDS = {
   sunsetCity:{name:'暮色都市',price:650,rarity:'史詩',colors:['#1b0d27','#59253d'],pattern:'city'},
   forestRuins:{name:'翡翠遺跡',price:650,rarity:'史詩',colors:['#071912','#18382c'],pattern:'leaves'},
   magmaCore:{name:'熔岩地心',price:800,rarity:'傳說',colors:['#170807','#4c1710'],pattern:'magma'},
-  royalNebula:{name:'皇家星雲',price:950,rarity:'傳說',colors:['#0c0922','#31205b'],pattern:'stars'}
+  royalNebula:{name:'皇家星雲',price:950,rarity:'傳說',colors:['#0c0922','#31205b'],pattern:'stars'},
+  linen:{name:'亞麻棋盤',price:400,rarity:'稀有',colors:['#252a2d','#394044'],pattern:'linen'},
+  paperGarden:{name:'紙境庭園',price:550,rarity:'史詩',colors:['#17241e','#354b3c'],pattern:'garden'},
+  rainWindow:{name:'雨夜窗景',price:650,rarity:'史詩',colors:['#101c28','#294356'],pattern:'rain'},
+  dune:{name:'暮色沙丘',price:700,rarity:'史詩',colors:['#261916','#704739'],pattern:'dunes'},
+  moonLake:{name:'月下靜湖',price:850,rarity:'傳說',colors:['#101526','#303b58'],pattern:'moon'}
 };
 const TASKS = [
   {id:'daily_match',category:'daily',title:'完成一場對戰',desc:'任意完成一場單人或線上對戰',metric:'daily_matches',target:1,coins:80,gems:0},
@@ -62,14 +73,14 @@ const SHAPES = {
 };
 const PIECES = Object.keys(SHAPES);
 const $ = (id) => document.getElementById(id);
-const ui = Object.fromEntries(['auth','lobby','waiting','arena','hostBtn','joinBtn','matchBtn','rankedMatchBtn','practiceBtn','guestPracticeBtn','aiDifficulty','roomInput','lobbyMessage','roomCode','copyCode','waitingTitle','waitingText','cancelWait','backBtn','pauseBtn','matchMode','matchRoom','networkStatus','userMenu','userAvatar','userName','settingsBtn','signOutBtn','loginTab','signupTab','authForm','accountInput','passwordInput','authSubmit','authMessage','profileAvatar','profileName','profilePlayerId','profileWins','profileLosses','profileWinrate','profileThemeName','profileRank','profileRating','profileEditBtn','profileModal','settingsProfileAvatar','settingsProfileName','settingsProfileId','settingsProfileRank','settingsProfileRating','profileRankWinrate','profileRankMatches','profileRankRecord','profileCasualWinrate','profileCasualMatches','profileCasualRecord','avatarOptions','themeSelect','backgroundSelect','saveProfileBtn','closeProfileBtn','friendCount','friendNotice','friendSearchInput','friendSearchBtn','friendMessage','requestSection','incomingList','friendsList','lobbyHome','leaderboardPanel','friendsPanel','shopPanel','tasksPanel','taskTabs','taskSummary','taskList','shopGrid','coinBalance','gemBalance','shopCoinBalance','shopGemBalance','dailyMission','dailyMissionTitle','dailyMissionProgress','globalLeaderboard','friendLeaderboard','playerModal','closePlayerBtn','viewPlayerAvatar','viewPlayerName','viewPlayerId','viewPlayerRank','viewPlayerRating','viewRankWinrate','viewRankMatches','viewRankRecord','viewCasualWinrate','viewCasualMatches','viewCasualRecord','viewPlayerExtra','addPlayerFriendBtn','inviteBanner','inviteAvatar','inviteName','acceptInviteBtn','declineInviteBtn','localAvatar','rivalAvatar','gameCanvas','holdCanvas','nextCanvas','rivalCanvas','score','lines','rivalScore','rivalLines','rivalName','rivalBadge','localBadge','attackMeter','gameOverlay','overlayTitle','overlayText','countdown','clearFeedback','resultModal','resultTitle','resultText','resultScore','resultLines','resultRatingBox','resultRating','resultSettlement','againBtn','lobbyBtn','toast'].map(k => [k, $(k)]));
+const ui = Object.fromEntries(['auth','lobby','waiting','arena','hostBtn','joinBtn','matchBtn','rankedMatchBtn','practiceBtn','guestPracticeBtn','aiDifficulty','roomInput','lobbyMessage','roomCode','copyCode','waitingTitle','waitingText','cancelWait','backBtn','pauseBtn','matchMode','matchRoom','networkStatus','userMenu','userAvatar','userName','settingsBtn','signOutBtn','themeModeBtn','matchmakingToast','matchmakingToastTitle','matchmakingToastText','cancelMatchBtn','loginTab','signupTab','authForm','accountInput','passwordInput','authSubmit','authMessage','profileAvatar','profileName','profilePlayerId','profileWins','profileLosses','profileWinrate','profileThemeName','profileRank','profileRating','profileEditBtn','profileModal','settingsProfileAvatar','settingsProfileName','settingsProfileId','settingsProfileRank','settingsProfileRating','profileRankWinrate','profileRankMatches','profileRankRecord','profileCasualWinrate','profileCasualMatches','profileCasualRecord','avatarOptions','themeSelect','backgroundSelect','saveProfileBtn','closeProfileBtn','friendCount','friendNotice','friendSearchInput','friendSearchBtn','friendMessage','requestSection','incomingList','friendsList','lobbyHome','leaderboardPanel','friendsPanel','shopPanel','tasksPanel','taskTabs','taskSummary','taskList','shopGrid','coinBalance','gemBalance','shopCoinBalance','shopGemBalance','dailyMission','dailyMissionTitle','dailyMissionProgress','globalLeaderboard','friendLeaderboard','playerModal','closePlayerBtn','viewPlayerAvatar','viewPlayerName','viewPlayerId','viewPlayerRank','viewPlayerRating','viewRankWinrate','viewRankMatches','viewRankRecord','viewCasualWinrate','viewCasualMatches','viewCasualRecord','viewPlayerExtra','addPlayerFriendBtn','inviteBanner','inviteAvatar','inviteName','acceptInviteBtn','declineInviteBtn','localAvatar','rivalAvatar','gameCanvas','holdCanvas','nextCanvas','rivalCanvas','score','lines','rivalScore','rivalLines','rivalName','rivalBadge','localBadge','attackMeter','gameOverlay','overlayTitle','overlayText','countdown','clearFeedback','resultModal','resultTitle','resultText','resultScore','resultLines','resultRatingBox','resultRating','resultSettlement','againBtn','lobbyBtn','toast'].map(k => [k, $(k)]));
 const ctx = ui.gameCanvas.getContext('2d');
 const holdCtx = ui.holdCanvas.getContext('2d');
 const nextCtx = ui.nextCanvas.getContext('2d');
 const rivalCtx = ui.rivalCanvas.getContext('2d');
 
 let board, current, queue, holdPiece, canHold, score, lines, level, dropMs, lastDrop, raf, lockTimer=null, lockResetCount=0;
-let running = false, paused = false, gameEnded = false, pendingGarbage = 0, garbageQueue=[], roomMode = 'practice', combo=-1, backToBack=false, lastActionRotation=false, bestComboThisGame=0, tetrisesThisGame=0, perfectClearsThisGame=0;
+let running = false, paused = false, gameEnded = false, pendingGarbage = 0, garbageQueue=[], roomMode = 'practice', combo=-1, backToBack=false, lastActionRotation=false,lastRotationKickIndex=0, bestComboThisGame=0, tetrisesThisGame=0, perfectClearsThisGame=0;
 let peer = null, connection = null, isHost = false, activeRoom = '', lastStateSent = 0;
 let peerReady = false, remoteReady = false, rematchRequested = false;
 let db = null, session = null, playerName = 'PLAYER', authMode = 'login';
@@ -82,6 +93,12 @@ let progressionState={progress:{},claims:[]},taskCategory='daily';
 const AI_LEVELS = {easy:{name:'簡單',tick:2600,choice:12},normal:{name:'普通',tick:2050,choice:7},hard:{name:'困難',tick:1550,choice:3},expert:{name:'專家',tick:1150,choice:1}};
 const RANKS = [{min:0,name:'新星'},{min:900,name:'青銅'},{min:1100,name:'白銀'},{min:1300,name:'黃金'},{min:1500,name:'白金'},{min:1750,name:'鑽石'},{min:2000,name:'大師'}];
 const LOCK_DELAY_MS = 520, MAX_LOCK_RESETS = 15, GARBAGE_DELAY_MS = 1200;
+const COMBO_ATTACK=[0,0,1,1,1,2,2,3,3,4,4,4,5];
+
+function setUiTheme(theme){
+  const next=theme==='dark'?'dark':'light';document.documentElement.dataset.uiTheme=next;ui.themeModeBtn.textContent=next==='dark'?'☀':'☾';ui.themeModeBtn.title=next==='dark'?'切換亮色模式':'切換深色模式';localStorage.setItem('blockstorm-ui-theme',next);
+}
+setUiTheme(localStorage.getItem('blockstorm-ui-theme')||(matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light'));
 
 function emptyBoard() { return Array.from({length: ROWS}, () => Array(COLS).fill(null)); }
 function shuffledBag() {
@@ -95,7 +112,7 @@ function spawn(type = queue.shift()) {
   clearLockDelay(true);
   fillQueue();
   current = { type, shape: cloneShape(type), rotation:0, x: Math.floor((COLS - SHAPES[type][0].length) / 2), y: -1 };
-  lastActionRotation=false;
+  lastActionRotation=false;lastRotationKickIndex=0;
   canHold = true;
   if (collides(current.x, current.y, current.shape)) endGame(false, '方塊堆到了頂端');
   drawSidePanels();
@@ -132,7 +149,7 @@ function rotate(direction=1) {
   if (!running || paused || current.type==='O') return;
   const next=direction>0?rotateMatrix(current.shape):rotateMatrix(rotateMatrix(rotateMatrix(current.shape)));
   const from=current.rotation,to=(from+(direction>0?1:3))%4,kicks=rotationKicks(current.type,from,to);
-  for (const [dx,dyUp] of kicks) if (!collides(current.x+dx,current.y-dyUp,next)) { current.x+=dx;current.y-=dyUp;current.shape=next;current.rotation=to;lastActionRotation=true;refreshLockDelay();break; }
+  for (let index=0;index<kicks.length;index++){const [dx,dyUp]=kicks[index];if (!collides(current.x+dx,current.y-dyUp,next)) { current.x+=dx;current.y-=dyUp;current.shape=next;current.rotation=to;lastActionRotation=true;lastRotationKickIndex=index;refreshLockDelay();break; }}
   draw();
 }
 function rotateCCW(){rotate(-1);}
@@ -154,14 +171,17 @@ function hold() {
   if (old) spawn(old); else spawn();
   canHold = false; drawSidePanels(); draw();
 }
-function isTSpin() {
+function tSpinType() {
   if(current?.type!=='T'||!lastActionRotation)return false;
   const cx=current.x+1,cy=current.y+1;
-  return [[-1,-1],[1,-1],[-1,1],[1,1]].filter(([dx,dy])=>cx+dx<0||cx+dx>=COLS||cy+dy>=ROWS||cy+dy<0||board[cy+dy]?.[cx+dx]).length>=3;
+  const occupied=([dx,dy])=>cx+dx<0||cx+dx>=COLS||cy+dy>=ROWS||cy+dy<0||Boolean(board[cy+dy]?.[cx+dx]);
+  const corners=[[-1,-1],[1,-1],[1,1],[-1,1]],filled=corners.filter(occupied).length;if(filled<3)return false;
+  const frontByRotation=[[[ -1,-1],[1,-1]],[[1,-1],[1,1]],[[-1,1],[1,1]],[[-1,-1],[-1,1]]];
+  const front=frontByRotation[current.rotation]||frontByRotation[0];return front.every(occupied)||lastRotationKickIndex===4?'full':'mini';
 }
 function lockPiece() {
   clearLockDelay();
-  const tSpin=isTSpin();
+  const tSpin=tSpinType();
   current.shape.forEach((row, py) => row.forEach((cell, px) => { if (cell && current.y + py >= 0) board[current.y + py][current.x + px] = current.type; }));
   clearLines(tSpin);
   applyReadyGarbage();
@@ -171,24 +191,24 @@ function lockPiece() {
 function clearLines(tSpin=false) {
   const full = [];
   board.forEach((row, i) => { if (row.every(Boolean)) full.push(i); });
-  if (!full.length) {combo=-1;if(tSpin){score+=400*level;showClearFeedback('T-SPIN','旋轉技巧');}return;}
+  if (!full.length) {combo=-1;if(tSpin){score+=(tSpin==='mini'?100:400)*level;showClearFeedback(tSpin==='mini'?'T-SPIN MINI':'T-SPIN','旋轉技巧');}return;}
   full.forEach(i => board.splice(i, 1));
   while (board.length < ROWS) board.unshift(Array(COLS).fill(null));
   const n = full.length,perfectClear=board.every(row=>row.every(cell=>!cell));
   lines += n; level = Math.floor(lines / 10) + 1; dropMs = Math.max(90, 820 - (level - 1) * 62);
   combo++;
   bestComboThisGame=Math.max(bestComboThisGame,combo);
-  const difficult=tSpin||n===4,b2bBonus=difficult&&backToBack,base=tSpin?[0,800,1200,1600][n]:[0,100,300,500,800][n];
+  const mini=tSpin==='mini'&&n===1,difficult=Boolean(tSpin)||n===4,b2bBonus=difficult&&backToBack,base=mini?200:tSpin?[0,800,1200,1600][n]:[0,100,300,500,800][n];
   score+=Math.floor(base*(b2bBonus?1.5:1))*level+Math.max(0,combo)*50*level+(perfectClear?2000*level:0);
-  let attack=tSpin?[0,2,4,6][n]:[0,0,1,2,4][n];
+  let attack=mini?0:tSpin?[0,2,4,6][n]:[0,0,1,2,4][n];
   if(b2bBonus)attack+=1;
-  attack+=[0,0,1,1,2,2,3,3,4,4,4,4,5][Math.min(combo,12)]||0;
+  attack+=COMBO_ATTACK[Math.min(combo,12)]||0;
   if(perfectClear)attack=Math.max(10,attack);
   if(n===4)tetrisesThisGame++;
   if(perfectClear)perfectClearsThisGame++;
   if(difficult)backToBack=true;else if(n>0)backToBack=false;
   const sent=dispatchAttack(attack);
-  const names=tSpin?['','T-SPIN SINGLE','T-SPIN DOUBLE','T-SPIN TRIPLE']:['','SINGLE','DOUBLE','TRIPLE','TETRIS'];
+  const names=mini?['','T-SPIN MINI SINGLE']:tSpin?['','T-SPIN SINGLE','T-SPIN DOUBLE','T-SPIN TRIPLE']:['','SINGLE','DOUBLE','TRIPLE','TETRIS'];
   const badges=[b2bBonus?'BACK-TO-BACK':'',combo>0?`${combo} COMBO`:'',perfectClear?'PERFECT CLEAR':''].filter(Boolean).join(' · ');
   showClearFeedback(names[n],badges||`${n} 行消除`);
   if(sent)toast(`${names[n]} · 攻擊 ${sent}`);
@@ -229,30 +249,40 @@ function showClearFeedback(title,detail=''){
 
 function drawCell(target, x, y, color, size, alpha = 1, themeId=playerProfile.block_theme) {
   const px=x*size+1,py=y*size+1,w=size-2,theme=THEMES[themeId]||THEMES.neon;
-  target.save();target.globalAlpha=alpha;target.shadowColor='rgba(0,0,0,.58)';target.shadowBlur=Math.max(2,size*.13);target.fillStyle=color;target.fillRect(px+1,py+1,w-2,w-2);target.shadowBlur=0;
-  const shine=target.createLinearGradient(px,py,px+w,py+w);shine.addColorStop(0,'rgba(255,255,255,.34)');shine.addColorStop(.42,'rgba(255,255,255,.04)');shine.addColorStop(1,'rgba(0,0,0,.22)');target.fillStyle=shine;target.fillRect(px,py,w,w);
-  target.strokeStyle='rgba(255,255,255,.32)';target.lineWidth=Math.max(1,size/18);
-  if(theme.pattern==='crystal'){target.beginPath();target.moveTo(px+w*.08,py+w*.72);target.lineTo(px+w*.48,py+w*.28);target.lineTo(px+w*.9,py+w*.63);target.moveTo(px+w*.48,py+w*.28);target.lineTo(px+w*.55,py+w*.92);target.stroke();target.fillStyle='rgba(255,255,255,.2)';target.beginPath();target.moveTo(px+w*.1,py+w*.1);target.lineTo(px+w*.52,py+w*.28);target.lineTo(px+w*.2,py+w*.5);target.fill();}
-  else if(theme.pattern==='pixel'){const q=w/4;target.fillStyle='rgba(255,255,255,.2)';target.fillRect(px+q,py+q,q,q);target.fillStyle='rgba(0,0,0,.18)';target.fillRect(px+q*2,py+q*2,q,q);}
-  else if(theme.pattern==='line'){target.strokeRect(px+size*.16,py+size*.16,w-size*.3,w-size*.3);}
-  else if(theme.pattern==='sunset'){target.fillStyle='rgba(255,238,170,.24)';target.beginPath();target.arc(px+w*.68,py+w*.34,w*.18,0,Math.PI*2);target.fill();}
-  else if(theme.pattern==='leaf'){target.beginPath();target.ellipse(px+w*.52,py+w*.52,w*.26,w*.12,-.7,0,Math.PI*2);target.stroke();}
-  else if(theme.pattern==='crack'){target.strokeStyle='rgba(255,245,150,.5)';target.beginPath();target.moveTo(px+w*.55,py);target.lineTo(px+w*.45,py+w*.38);target.lineTo(px+w*.7,py+w*.56);target.lineTo(px+w*.5,py+w);target.stroke();}
-  else if(theme.pattern==='star'){target.fillStyle='rgba(255,255,255,.7)';target.fillRect(px+w*.26,py+w*.27,2,2);target.fillRect(px+w*.7,py+w*.62,2,2);target.fillRect(px+w*.48,py+w*.78,1,1);}
-  else {target.fillStyle='rgba(255,255,255,.2)';target.fillRect(px+1,py+1,w-2,Math.max(2,size*.08));}
-  target.strokeStyle='rgba(3,7,10,.62)';target.lineWidth=Math.max(1.4,size*.065);target.strokeRect(px+1,py+1,w-2,w-2);
+  target.save();target.globalAlpha=alpha;target.shadowColor='rgba(0,0,0,.2)';target.shadowBlur=Math.max(1,size*.055);target.shadowOffsetY=1;target.fillStyle=color;target.fillRect(px,py,w,w);target.shadowBlur=0;target.shadowOffsetY=0;
+  const shine=target.createLinearGradient(px,py,px+w,py+w);shine.addColorStop(0,'rgba(255,255,255,.26)');shine.addColorStop(.48,'rgba(255,255,255,.025)');shine.addColorStop(1,'rgba(22,29,35,.13)');target.fillStyle=shine;target.fillRect(px,py,w,w);
+  target.strokeStyle='rgba(255,255,255,.25)';target.lineWidth=Math.max(.65,size/28);
+  if(theme.pattern==='crystal'){target.beginPath();target.moveTo(px+w*.08,py+w*.7);target.lineTo(px+w*.48,py+w*.28);target.lineTo(px+w*.91,py+w*.62);target.moveTo(px+w*.48,py+w*.28);target.lineTo(px+w*.56,py+w*.92);target.stroke();}
+  else if(theme.pattern==='pixel'){const q=w/5;target.fillStyle='rgba(255,255,255,.13)';target.fillRect(px+q,py+q,q,q);target.fillRect(px+q*3,py+q*3,q,q);}
+  else if(theme.pattern==='line'){target.strokeStyle='rgba(255,255,255,.2)';target.strokeRect(px+w*.18,py+w*.18,w*.64,w*.64);}
+  else if(theme.pattern==='sunset'){target.strokeStyle='rgba(255,245,201,.28)';target.beginPath();target.arc(px+w*.66,py+w*.46,w*.2,Math.PI,Math.PI*2);target.stroke();}
+  else if(theme.pattern==='leaf'){target.beginPath();target.ellipse(px+w*.52,py+w*.52,w*.24,w*.105,-.62,0,Math.PI*2);target.stroke();target.beginPath();target.moveTo(px+w*.35,py+w*.66);target.lineTo(px+w*.69,py+w*.37);target.stroke();}
+  else if(theme.pattern==='crack'){target.strokeStyle='rgba(255,241,170,.34)';target.beginPath();target.moveTo(px+w*.55,py+w*.06);target.lineTo(px+w*.46,py+w*.4);target.lineTo(px+w*.68,py+w*.57);target.lineTo(px+w*.52,py+w*.94);target.stroke();}
+  else if(theme.pattern==='star'){target.fillStyle='rgba(255,255,255,.58)';target.fillRect(px+w*.26,py+w*.27,1.5,1.5);target.fillRect(px+w*.7,py+w*.62,1.5,1.5);target.fillRect(px+w*.48,py+w*.78,1,1);}
+  else if(theme.pattern==='pearl'){const pearl=target.createRadialGradient(px+w*.38,py+w*.32,0,px+w*.48,py+w*.48,w*.55);pearl.addColorStop(0,'rgba(255,255,255,.3)');pearl.addColorStop(.5,'rgba(255,255,255,.05)');pearl.addColorStop(1,'rgba(116,92,101,.1)');target.fillStyle=pearl;target.fillRect(px,py,w,w);}
+  else if(theme.pattern==='petal'){target.fillStyle='rgba(255,255,255,.18)';target.beginPath();target.ellipse(px+w*.43,py+w*.43,w*.18,w*.09,-.65,0,Math.PI*2);target.ellipse(px+w*.62,py+w*.58,w*.16,w*.075,-.65,0,Math.PI*2);target.fill();}
+  else if(theme.pattern==='wave'){target.strokeStyle='rgba(220,252,255,.27)';target.beginPath();target.moveTo(px,py+w*.58);target.bezierCurveTo(px+w*.25,py+w*.38,px+w*.45,py+w*.77,px+w*.72,py+w*.53);target.bezierCurveTo(px+w*.82,py+w*.45,px+w*.9,py+w*.44,px+w,py+w*.5);target.stroke();}
+  else if(theme.pattern==='mist'){const mist=target.createLinearGradient(px,py,px+w,py);mist.addColorStop(0,'transparent');mist.addColorStop(.48,'rgba(255,255,255,.2)');mist.addColorStop(.7,'rgba(255,255,255,.04)');mist.addColorStop(1,'transparent');target.fillStyle=mist;target.fillRect(px,py+w*.25,w,w*.5);}
+  else if(theme.pattern==='brushed'){target.strokeStyle='rgba(255,244,220,.2)';for(let i=.22;i<.9;i+=.22){target.beginPath();target.moveTo(px+w*.12,py+w*i);target.lineTo(px+w*.88,py+w*(i-.07));target.stroke();}}
+  else if(theme.pattern==='glass'){target.fillStyle='rgba(255,255,255,.16)';target.beginPath();target.moveTo(px,py);target.lineTo(px+w*.72,py);target.lineTo(px+w*.27,py+w);target.lineTo(px,py+w);target.fill();}
+  else {target.fillStyle='rgba(255,255,255,.16)';target.fillRect(px+1,py+1,w-2,Math.max(1.5,size*.065));}
   target.restore();
 }
 function themeColor(type, theme=playerProfile.block_theme) { return (THEMES[theme]||THEMES.neon)[type]||COLORS.G; }
 function drawBackdrop(target,width,height,backgroundId='void'){
   const bg=BACKGROUNDS[backgroundId]||BACKGROUNDS.void,gradient=target.createLinearGradient(0,0,width,height);gradient.addColorStop(0,bg.colors[0]);gradient.addColorStop(1,bg.colors[1]);target.fillStyle=gradient;target.fillRect(0,0,width,height);
   target.save();target.globalAlpha=.065;
-  if(bg.pattern==='aurora'){for(let i=0;i<4;i++){target.strokeStyle=i%2?'#75fff1':'#9d7cff';target.lineWidth=18;target.beginPath();target.moveTo(-30,i*145+35);target.bezierCurveTo(width*.25,i*120-15,width*.65,i*150+85,width+40,i*125+25);target.stroke();}}
+  if(bg.pattern==='aurora'){target.globalCompositeOperation='screen';target.globalAlpha=.16;for(let i=0;i<3;i++){const ribbon=target.createLinearGradient(0,0,width,0);ribbon.addColorStop(0,'rgba(89,221,217,0)');ribbon.addColorStop(.3,i===1?'#9f88ed':'#67d8cb');ribbon.addColorStop(.72,i===2?'#e09bcc':'#8bb5ee');ribbon.addColorStop(1,'rgba(120,180,220,0)');target.strokeStyle=ribbon;target.lineWidth=12-i*2;target.shadowColor=i===1?'#9f88ed':'#67d8cb';target.shadowBlur=12;target.beginPath();target.moveTo(-25,70+i*125);target.bezierCurveTo(width*.24,15+i*120,width*.66,145+i*92,width+30,65+i*120);target.stroke();}target.shadowBlur=0;target.globalCompositeOperation='source-over';}
   else if(bg.pattern==='crystal'){target.strokeStyle='#b8efff';for(let x=-height;x<width;x+=75){target.beginPath();target.moveTo(x,0);target.lineTo(x+height,height);target.stroke();target.beginPath();target.moveTo(x+35,0);target.lineTo(x-height*.35,height*.35);target.stroke();}}
   else if(bg.pattern==='city'){target.fillStyle='#ff86ae';for(let x=0;x<width;x+=28){const h=50+(x*17)%120;target.fillRect(x,height-h,20,h);}}
   else if(bg.pattern==='leaves'){target.strokeStyle='#7de1a9';for(let y=30;y<height;y+=80)for(let x=15;x<width;x+=65){target.beginPath();target.ellipse(x,y,18,7,-.6,0,Math.PI*2);target.stroke();}}
   else if(bg.pattern==='magma'){target.strokeStyle='#ff743d';target.lineWidth=3;for(let x=15;x<width;x+=60){target.beginPath();target.moveTo(x,0);for(let y=0;y<height;y+=70)target.lineTo(x+(y/70%2?24:-10),y);target.stroke();}}
   else if(bg.pattern==='stars'){target.fillStyle='#fff';for(let i=0;i<55;i++){const x=(i*73)%width,y=(i*137)%height,s=i%9===0?2:1;target.fillRect(x,y,s,s);}}
+  else if(bg.pattern==='linen'){target.strokeStyle='#d8cbb6';target.lineWidth=.7;for(let x=0;x<width;x+=8){target.beginPath();target.moveTo(x,0);target.lineTo(x,height);target.stroke();}for(let y=0;y<height;y+=8){target.beginPath();target.moveTo(0,y);target.lineTo(width,y);target.stroke();}}
+  else if(bg.pattern==='garden'){target.strokeStyle='#c5ddb9';for(let y=45;y<height;y+=95)for(let x=20;x<width;x+=78){target.beginPath();target.ellipse(x,y,22,8,-.55,0,Math.PI*2);target.stroke();target.beginPath();target.moveTo(x-17,y+10);target.lineTo(x+17,y-10);target.stroke();}}
+  else if(bg.pattern==='rain'){target.strokeStyle='#acd5e8';target.lineWidth=1;for(let i=0;i<75;i++){const x=(i*47)%width,y=(i*79)%height;target.beginPath();target.moveTo(x,y);target.lineTo(x-5,y+18);target.stroke();}}
+  else if(bg.pattern==='dunes'){target.strokeStyle='#efc3a6';target.lineWidth=16;for(let y=110;y<height;y+=150){target.beginPath();target.moveTo(-20,y);target.bezierCurveTo(width*.25,y-70,width*.55,y+45,width+25,y-25);target.stroke();}}
+  else if(bg.pattern==='moon'){const moon=target.createRadialGradient(width*.72,height*.2,0,width*.72,height*.2,width*.34);moon.addColorStop(0,'rgba(225,235,255,.75)');moon.addColorStop(.3,'rgba(177,195,229,.23)');moon.addColorStop(1,'transparent');target.fillStyle=moon;target.fillRect(0,0,width,height);target.strokeStyle='#bacde7';for(let y=height*.62;y<height;y+=24){target.beginPath();target.moveTo(width*.18,y);target.lineTo(width*.82,y);target.stroke();}}
   target.restore();
 }
 function drawGrid(target, source, width = 300, height = 600, theme=playerProfile.block_theme,background=playerProfile.battle_background||'void') {
@@ -381,9 +411,9 @@ async function callRpc(name, params={}) {
   const {data,error}=await db.rpc(name,params); if(error)throw error; return data;
 }
 function showWaiting(type, code='') {
-  matchmaking=type==='match'; ui.waitingTitle.textContent=matchmaking?(matchmakingMode==='ranked'?'正在尋找牌位對手':'正在尋找對手'):'等待對手加入';
-  ui.waitingText.textContent=matchmaking?(matchmakingMode==='ranked'?`目前 ${rankFor(playerProfile.rating).name} · 系統優先配對相近 RP`:'系統正在配對另一位線上玩家'):'把這組代碼傳給朋友';
-  ui.copyCode.classList.toggle('hidden',matchmaking); ui.roomCode.textContent=code||'------'; showSection('waiting');
+  matchmaking=type==='match';
+  if(matchmaking){showSection('lobby');ui.matchmakingToastTitle.textContent=matchmakingMode==='ranked'?'正在尋找牌位對手':'正在尋找對手';ui.matchmakingToastText.textContent=matchmakingMode==='ranked'?`目前 ${rankFor(playerProfile.rating).name} · 優先搜尋相近 RP`:'系統正在搜尋線上玩家…';ui.matchmakingToast.classList.remove('hidden');return;}
+  ui.waitingTitle.textContent='等待對手加入';ui.waitingText.textContent='把這組代碼傳給朋友';ui.copyCode.classList.remove('hidden');ui.roomCode.textContent=code||'------';showSection('waiting');
 }
 function beginPolling() {
   clearInterval(matchPoll); matchPoll=setInterval(async()=>{
@@ -410,15 +440,16 @@ function handleMatchedRoom(room) {
   clearInterval(matchPoll); currentRoomId=room.room_id; activeRoom=room.code; isHost=room.host_id===session.user.id; matchmaking=!room.is_private; matchmakingMode=room.is_private?'normal':(room.match_mode||matchmakingMode||'normal');
   if(room.opponent_name) ui.rivalName.textContent=room.opponent_name;
   setNetwork('找到對手，正在連線');
+  if(matchmaking){ui.matchmakingToastTitle.textContent='找到對手';ui.matchmakingToastText.textContent='正在建立即時連線…';ui.matchmakingToast.classList.remove('hidden');}
   if(!isHost && !connection) setupConnection(peer.connect(room.host_peer_id,{reliable:true}));
-  else if(isHost) { showWaiting(matchmaking?'match':'private',activeRoom); ui.waitingTitle.textContent='找到對手'; ui.waitingText.textContent='正在建立即時連線…'; }
+  else if(isHost&&!matchmaking) { showWaiting('private',activeRoom); ui.waitingTitle.textContent='找到對手'; ui.waitingText.textContent='正在建立即時連線…'; }
 }
 function onlineError(error) {
   console.error(error); setLobbyMessage(error.message||'線上服務暫時無法使用。'); setNetwork('線上服務錯誤',false); disconnect(false); showSection('lobby');
 }
 function setupConnection(conn) {
   connection=conn;
-  conn.on('open',()=>{ peerReady=true; setNetwork('對手已連線'); beginOnlineMatch(); send({type:'hello',username:playerName,avatar:playerProfile.avatar,theme:playerProfile.block_theme,background:playerProfile.battle_background,wins:playerProfile.wins,losses:playerProfile.losses,rating:playerProfile.rating}); });
+  conn.on('open',()=>{ peerReady=true;ui.matchmakingToast.classList.add('hidden'); setNetwork('對手已連線'); beginOnlineMatch(); send({type:'hello',username:playerName,avatar:playerProfile.avatar,theme:playerProfile.block_theme,background:playerProfile.battle_background,wins:playerProfile.wins,losses:playerProfile.losses,rating:playerProfile.rating}); });
   conn.on('data',handleData);
   conn.on('close',()=>{ peerReady=false; setNetwork('對手已離線',false); if(running) endGame(true,'對手離開了房間。'); });
   conn.on('error',()=>toast('連線發生問題'));
@@ -438,7 +469,8 @@ function handleData(data) {
 function send(data){ if(connection?.open) connection.send(data); }
 function sendState(force=false){ const now=performance.now(); if(!force && now-lastStateSent<170)return; lastStateSent=now; send({type:'state',board,score,lines}); }
 function handlePeerError(error){ const known={'unavailable-id':'這個房間碼已被使用，請重新建立。','peer-unavailable':'找不到房間，請確認代碼是否正確。',network:'連線服務暫時無法使用。'}; setLobbyMessage(known[error.type]||'無法建立連線，請稍後再試。'); setNetwork('連線失敗',false); showSection('lobby'); }
-function disconnect(notifyBackend=true){ clearLockDelay(true);stopAllHeld();clearInterval(matchPoll); clearInterval(aiTimer); matchPoll=null; aiTimer=null; if(notifyBackend&&db&&session)callRpc('leave_online',{p_room_id:currentRoomId}).catch(()=>{}); if(connection){connection.close();connection=null;} if(peer){peer.destroy();peer=null;} peerReady=false; activeRoom=''; currentRoomId=null; cancelAnimationFrame(raf); running=false; }
+function disconnect(notifyBackend=true){ clearLockDelay(true);stopAllHeld();clearInterval(matchPoll); clearInterval(aiTimer); matchPoll=null; aiTimer=null;ui.matchmakingToast.classList.add('hidden'); if(notifyBackend&&db&&session)callRpc('leave_online',{p_room_id:currentRoomId}).catch(()=>{}); if(connection){connection.close();connection=null;} if(peer){peer.destroy();peer=null;} peerReady=false; activeRoom=''; currentRoomId=null;matchmaking=false; cancelAnimationFrame(raf); running=false; }
+function cancelMatchmaking(){disconnect();showSection('lobby');switchLobbyView('home');setLobbyMessage('已停止配對。');setNetwork('玩家大廳已連線');}
 function backToLobby(){ disconnect(); ui.resultModal.classList.add('hidden'); showSection(session?'lobby':'auth'); ui.roomInput.value=''; setLobbyMessage(); setNetwork('連線服務待命'); }
 function toast(message){ ui.toast.textContent=message; ui.toast.classList.add('show'); clearTimeout(toast.timer); toast.timer=setTimeout(()=>ui.toast.classList.remove('show'),1800); }
 
@@ -616,6 +648,7 @@ async function initOnlineServices() {
 }
 
 ui.hostBtn.addEventListener('click',hostRoom); ui.joinBtn.addEventListener('click',joinRoom); ui.matchBtn.addEventListener('click',()=>findOpponent('normal')); ui.rankedMatchBtn.addEventListener('click',()=>findOpponent('ranked')); ui.practiceBtn.addEventListener('click',startAiBattle); ui.guestPracticeBtn.addEventListener('click',startPractice);
+ui.themeModeBtn.addEventListener('click',()=>setUiTheme(document.documentElement.dataset.uiTheme==='dark'?'light':'dark'));ui.cancelMatchBtn.addEventListener('click',cancelMatchmaking);
 ui.roomInput.addEventListener('input',e=>e.target.value=e.target.value.toUpperCase().replace(/[^A-Z2-9]/g,'')); ui.roomInput.addEventListener('keydown',e=>{if(e.key==='Enter')joinRoom();});
 ui.copyCode.addEventListener('click',async()=>{try{await navigator.clipboard.writeText(activeRoom);toast('房間碼已複製');}catch{toast(`房間碼：${activeRoom}`);}});
 ui.cancelWait.addEventListener('click',backToLobby); ui.backBtn.addEventListener('click',backToLobby); ui.pauseBtn.addEventListener('click',togglePause); ui.lobbyBtn.addEventListener('click',backToLobby);
