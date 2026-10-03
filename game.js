@@ -18,13 +18,13 @@ const SHAPES = {
 };
 const PIECES = Object.keys(SHAPES);
 const $ = (id) => document.getElementById(id);
-const ui = Object.fromEntries(['auth','lobby','waiting','arena','hostBtn','joinBtn','matchBtn','rankedMatchBtn','practiceBtn','guestPracticeBtn','aiDifficulty','roomInput','lobbyMessage','roomCode','copyCode','waitingTitle','waitingText','cancelWait','backBtn','pauseBtn','matchMode','matchRoom','networkStatus','userMenu','userAvatar','userName','settingsBtn','signOutBtn','loginTab','signupTab','authForm','accountInput','passwordInput','authSubmit','authMessage','profileAvatar','profileName','profileWins','profileLosses','profileWinrate','profileThemeName','profileRank','profileRating','profileEditBtn','profileModal','avatarOptions','themeSelect','saveProfileBtn','closeProfileBtn','friendCount','friendNotice','friendSearchInput','friendSearchBtn','friendMessage','requestSection','incomingList','friendsList','lobbyHome','leaderboardPanel','friendsPanel','globalLeaderboard','friendLeaderboard','playerModal','closePlayerBtn','viewPlayerAvatar','viewPlayerName','viewPlayerRank','viewPlayerRating','viewPlayerWins','viewPlayerLosses','viewPlayerWinrate','viewPlayerExtra','addPlayerFriendBtn','inviteBanner','inviteAvatar','inviteName','acceptInviteBtn','declineInviteBtn','localAvatar','rivalAvatar','gameCanvas','holdCanvas','nextCanvas','rivalCanvas','score','lines','rivalScore','rivalLines','rivalName','rivalBadge','localBadge','attackMeter','gameOverlay','overlayTitle','overlayText','countdown','resultModal','resultTitle','resultText','resultScore','resultLines','resultRatingBox','resultRating','resultSettlement','againBtn','lobbyBtn','toast'].map(k => [k, $(k)]));
+const ui = Object.fromEntries(['auth','lobby','waiting','arena','hostBtn','joinBtn','matchBtn','rankedMatchBtn','practiceBtn','guestPracticeBtn','aiDifficulty','roomInput','lobbyMessage','roomCode','copyCode','waitingTitle','waitingText','cancelWait','backBtn','pauseBtn','matchMode','matchRoom','networkStatus','userMenu','userAvatar','userName','settingsBtn','signOutBtn','loginTab','signupTab','authForm','accountInput','passwordInput','authSubmit','authMessage','profileAvatar','profileName','profilePlayerId','profileWins','profileLosses','profileWinrate','profileThemeName','profileRank','profileRating','profileEditBtn','profileModal','settingsProfileAvatar','settingsProfileName','settingsProfileId','settingsProfileRank','settingsProfileRating','profileRankWinrate','profileRankMatches','profileRankRecord','profileCasualWinrate','profileCasualMatches','profileCasualRecord','avatarOptions','themeSelect','saveProfileBtn','closeProfileBtn','friendCount','friendNotice','friendSearchInput','friendSearchBtn','friendMessage','requestSection','incomingList','friendsList','lobbyHome','leaderboardPanel','friendsPanel','globalLeaderboard','friendLeaderboard','playerModal','closePlayerBtn','viewPlayerAvatar','viewPlayerName','viewPlayerId','viewPlayerRank','viewPlayerRating','viewRankWinrate','viewRankMatches','viewRankRecord','viewCasualWinrate','viewCasualMatches','viewCasualRecord','viewPlayerExtra','addPlayerFriendBtn','inviteBanner','inviteAvatar','inviteName','acceptInviteBtn','declineInviteBtn','localAvatar','rivalAvatar','gameCanvas','holdCanvas','nextCanvas','rivalCanvas','score','lines','rivalScore','rivalLines','rivalName','rivalBadge','localBadge','attackMeter','gameOverlay','overlayTitle','overlayText','countdown','resultModal','resultTitle','resultText','resultScore','resultLines','resultRatingBox','resultRating','resultSettlement','againBtn','lobbyBtn','toast'].map(k => [k, $(k)]));
 const ctx = ui.gameCanvas.getContext('2d');
 const holdCtx = ui.holdCanvas.getContext('2d');
 const nextCtx = ui.nextCanvas.getContext('2d');
 const rivalCtx = ui.rivalCanvas.getContext('2d');
 
-let board, current, queue, holdPiece, canHold, score, lines, level, dropMs, lastDrop, raf;
+let board, current, queue, holdPiece, canHold, score, lines, level, dropMs, lastDrop, raf, lockTimer=null, lockResetCount=0;
 let running = false, paused = false, gameEnded = false, pendingGarbage = 0, roomMode = 'practice';
 let peer = null, connection = null, isHost = false, activeRoom = '', lastStateSent = 0;
 let peerReady = false, remoteReady = false, rematchRequested = false;
@@ -35,6 +35,7 @@ let aiBoard = null, aiTimer = null, aiTicks = 0, aiDifficulty = 'normal', aiQueu
 let leaderboardPlayers = new Map(), viewedPlayer = null, socialFriendNames = new Set();
 const AI_LEVELS = {easy:{name:'簡單',tick:2600,choice:12},normal:{name:'普通',tick:2050,choice:7},hard:{name:'困難',tick:1550,choice:3},expert:{name:'專家',tick:1150,choice:1}};
 const RANKS = [{min:0,name:'新星'},{min:900,name:'青銅'},{min:1100,name:'白銀'},{min:1300,name:'黃金'},{min:1500,name:'白金'},{min:1750,name:'鑽石'},{min:2000,name:'大師'}];
+const LOCK_DELAY_MS = 520, MAX_LOCK_RESETS = 15;
 
 function emptyBoard() { return Array.from({length: ROWS}, () => Array(COLS).fill(null)); }
 function shuffledBag() {
@@ -45,6 +46,7 @@ function shuffledBag() {
 function fillQueue() { while (queue.length < 8) queue.push(...shuffledBag()); }
 function cloneShape(type) { return SHAPES[type].map(row => [...row]); }
 function spawn(type = queue.shift()) {
+  clearLockDelay(true);
   fillQueue();
   current = { type, shape: cloneShape(type), x: Math.floor((COLS - SHAPES[type][0].length) / 2), y: -1 };
   canHold = true;
@@ -54,23 +56,34 @@ function spawn(type = queue.shift()) {
 function collides(x, y, shape) {
   return shape.some((row, py) => row.some((cell, px) => cell && (x + px < 0 || x + px >= COLS || y + py >= ROWS || (y + py >= 0 && board[y + py][x + px]))));
 }
+function isGrounded() { return Boolean(current)&&collides(current.x,current.y+1,current.shape); }
+function clearLockDelay(resetCount=false) { if(lockTimer){clearTimeout(lockTimer);lockTimer=null;}if(resetCount)lockResetCount=0; }
+function scheduleLockDelay() {
+  if(lockTimer||!running||paused||gameEnded||!isGrounded())return;
+  lockTimer=setTimeout(()=>{lockTimer=null;if(running&&!paused&&!gameEnded&&isGrounded())lockPiece();},LOCK_DELAY_MS);
+}
+function refreshLockDelay() {
+  if(!isGrounded()){clearLockDelay();return;}
+  if(lockTimer&&lockResetCount<MAX_LOCK_RESETS){clearLockDelay();lockResetCount++;}
+  scheduleLockDelay();
+}
 function rotateMatrix(matrix) { return matrix[0].map((_, i) => matrix.map(row => row[i]).reverse()); }
 function rotate() {
   if (!running || paused) return;
   const next = rotateMatrix(current.shape);
-  for (const kick of [0,-1,1,-2,2]) if (!collides(current.x + kick, current.y, next)) { current.x += kick; current.shape = next; break; }
+  for (const kick of [0,-1,1,-2,2]) if (!collides(current.x + kick, current.y, next)) { current.x += kick; current.shape = next; refreshLockDelay(); break; }
   draw();
 }
 function move(dx, dy) {
   if (!running || paused) return false;
-  if (!collides(current.x + dx, current.y + dy, current.shape)) { current.x += dx; current.y += dy; draw(); return true; }
-  if (dy > 0) lockPiece();
+  if (!collides(current.x + dx, current.y + dy, current.shape)) { current.x += dx; current.y += dy;if(dx!==0)refreshLockDelay();else if(isGrounded())scheduleLockDelay();else clearLockDelay();draw(); return true; }
+  if (dy > 0) scheduleLockDelay();
   return false;
 }
 function hardDrop() {
   if (!running || paused) return;
   let distance = 0; while (!collides(current.x, current.y + 1, current.shape)) { current.y++; distance++; }
-  score += distance * 2; lockPiece();
+  score += distance * 2; clearLockDelay(); lockPiece();
 }
 function hold() {
   if (!running || paused || !canHold) return;
@@ -79,6 +92,7 @@ function hold() {
   canHold = false; drawSidePanels(); draw();
 }
 function lockPiece() {
+  clearLockDelay();
   current.shape.forEach((row, py) => row.forEach((cell, px) => { if (cell && current.y + py >= 0) board[current.y + py][current.x + px] = current.type; }));
   clearLines();
   if (pendingGarbage > 0) { addGarbage(pendingGarbage); pendingGarbage = 0; updateAttackMeter(); }
@@ -140,7 +154,7 @@ function drawRival(remoteBoard) { drawGrid(rivalCtx, remoteBoard || emptyBoard()
 function updateStats() { ui.score.textContent = score.toLocaleString(); ui.lines.textContent = lines; }
 
 function resetGame() {
-  cancelAnimationFrame(raf); clearInterval(aiTimer); aiTimer=null; board = emptyBoard(); queue = []; holdPiece = null; score = 0; lines = 0; level = 1; dropMs = 820; lastDrop = performance.now(); pendingGarbage = 0; gameEnded = false; paused = false; running = false; canHold = true;
+  cancelAnimationFrame(raf); clearLockDelay(true); clearInterval(aiTimer); aiTimer=null; board = emptyBoard(); queue = []; holdPiece = null; score = 0; lines = 0; level = 1; dropMs = 820; lastDrop = performance.now(); pendingGarbage = 0; gameEnded = false; paused = false; running = false; canHold = true;
   if(roomMode==='ai'){aiBoard=emptyBoard();aiQueue=[];aiTicks=0;aiScore=0;aiLines=0;ui.rivalScore.textContent='0';ui.rivalLines.textContent='0';drawRival(aiBoard);}
   fillQueue(); spawn(); updateStats(); updateAttackMeter(); ui.gameOverlay.classList.add('hidden'); ui.resultModal.classList.add('hidden'); ui.localBadge.textContent = 'READY'; draw(); drawRival();
 }
@@ -159,10 +173,10 @@ function loop(now) {
 function togglePause() {
   if (!running || gameEnded) return;
   if (roomMode === 'online') { toast('線上對戰不能暫停'); return; }
-  paused = !paused; ui.gameOverlay.classList.toggle('hidden', !paused); ui.overlayTitle.textContent = paused ? '暫停' : ''; ui.overlayText.textContent = '按 P 繼續';
+  paused = !paused;if(paused)clearLockDelay();else if(isGrounded())scheduleLockDelay();ui.gameOverlay.classList.toggle('hidden', !paused); ui.overlayTitle.textContent = paused ? '暫停' : ''; ui.overlayText.textContent = '按 P 繼續';
 }
 function endGame(won, reason) {
-  if (gameEnded) return; gameEnded = true; running = false; stopAllHeld(); cancelAnimationFrame(raf); clearInterval(aiTimer); aiTimer=null; ui.localBadge.textContent = won ? 'WIN' : 'KO';
+  if (gameEnded) return; gameEnded = true; running = false; clearLockDelay(); stopAllHeld(); cancelAnimationFrame(raf); clearInterval(aiTimer); aiTimer=null; ui.localBadge.textContent = won ? 'WIN' : 'KO';
   if (!won && roomMode === 'online') send({type:'gameover'});
   showResult(won, reason);
   if (roomMode === 'online' && db && session) {
@@ -295,18 +309,27 @@ function handleData(data) {
 function send(data){ if(connection?.open) connection.send(data); }
 function sendState(force=false){ const now=performance.now(); if(!force && now-lastStateSent<170)return; lastStateSent=now; send({type:'state',board,score,lines}); }
 function handlePeerError(error){ const known={'unavailable-id':'這個房間碼已被使用，請重新建立。','peer-unavailable':'找不到房間，請確認代碼是否正確。',network:'連線服務暫時無法使用。'}; setLobbyMessage(known[error.type]||'無法建立連線，請稍後再試。'); setNetwork('連線失敗',false); showSection('lobby'); }
-function disconnect(notifyBackend=true){ stopAllHeld();clearInterval(matchPoll); clearInterval(aiTimer); matchPoll=null; aiTimer=null; if(notifyBackend&&db&&session)callRpc('leave_online',{p_room_id:currentRoomId}).catch(()=>{}); if(connection){connection.close();connection=null;} if(peer){peer.destroy();peer=null;} peerReady=false; activeRoom=''; currentRoomId=null; cancelAnimationFrame(raf); running=false; }
+function disconnect(notifyBackend=true){ clearLockDelay(true);stopAllHeld();clearInterval(matchPoll); clearInterval(aiTimer); matchPoll=null; aiTimer=null; if(notifyBackend&&db&&session)callRpc('leave_online',{p_room_id:currentRoomId}).catch(()=>{}); if(connection){connection.close();connection=null;} if(peer){peer.destroy();peer=null;} peerReady=false; activeRoom=''; currentRoomId=null; cancelAnimationFrame(raf); running=false; }
 function backToLobby(){ disconnect(); ui.resultModal.classList.add('hidden'); showSection(session?'lobby':'auth'); ui.roomInput.value=''; setLobbyMessage(); setNetwork('連線服務待命'); }
 function toast(message){ ui.toast.textContent=message; ui.toast.classList.add('show'); clearTimeout(toast.timer); toast.timer=setTimeout(()=>ui.toast.classList.remove('show'),1800); }
 
 function escapeHtml(value='') { return String(value).replace(/[&<>'"]/g,char=>({'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','"':'&quot;'}[char])); }
 function winrate(wins=0,losses=0) { const total=wins+losses; return total?Math.round(wins/total*100):0; }
 function rankFor(rating=1000) { return [...RANKS].reverse().find(rank=>Number(rating||1000)>=rank.min)||RANKS[0]; }
+function shortPlayerId(id='') { const clean=String(id).replace(/-/g,'').toUpperCase();return `#${clean.slice(0,6)||'------'}`; }
+function profileRecords(profile={}) {
+  const rankedWins=profile.ranked_wins||0,rankedLosses=profile.ranked_losses||0;
+  const casualWins=Math.max(0,(profile.wins||0)-rankedWins),casualLosses=Math.max(0,(profile.losses||0)-rankedLosses);
+  return {rankedWins,rankedLosses,rankedMatches:rankedWins+rankedLosses,rankedRate:winrate(rankedWins,rankedLosses),casualWins,casualLosses,casualMatches:casualWins+casualLosses,casualRate:winrate(casualWins,casualLosses)};
+}
 function renderProfile() {
-  const p=playerProfile, rate=winrate(p.wins,p.losses);
+  const p=playerProfile, rate=winrate(p.wins,p.losses),records=profileRecords(p),playerId=shortPlayerId(p.id||session?.user?.id);
   ui.userAvatar.textContent=p.avatar; ui.localAvatar.textContent=p.avatar; ui.profileAvatar.textContent=p.avatar; ui.profileName.textContent=playerName;
   ui.profileWins.textContent=p.wins||0; ui.profileLosses.textContent=p.losses||0; ui.profileWinrate.textContent=`${rate}%`; ui.profileThemeName.textContent=(THEMES[p.block_theme]||THEMES.neon).name;
-  ui.profileRank.textContent=rankFor(p.rating).name; ui.profileRating.textContent=`${p.rating||1000} RP`;
+  ui.profilePlayerId.textContent=playerId;ui.profileRank.textContent=rankFor(p.rating).name; ui.profileRating.textContent=`${p.rating||1000} RP`;
+  ui.settingsProfileAvatar.textContent=p.avatar;ui.settingsProfileName.textContent=playerName;ui.settingsProfileId.textContent=playerId;ui.settingsProfileRank.textContent=rankFor(p.rating).name;ui.settingsProfileRating.textContent=`${p.rating||1000} RP`;
+  ui.profileRankWinrate.textContent=`${records.rankedRate}%`;ui.profileRankMatches.textContent=records.rankedMatches;ui.profileRankRecord.textContent=`${records.rankedWins} 勝 ${records.rankedLosses} 敗`;
+  ui.profileCasualWinrate.textContent=`${records.casualRate}%`;ui.profileCasualMatches.textContent=records.casualMatches;ui.profileCasualRecord.textContent=`${records.casualWins} 勝 ${records.casualLosses} 敗`;
   document.documentElement.dataset.blockTheme=p.block_theme; draw(); drawSidePanels();
 }
 function leaderboardMarkup(players=[]) {
@@ -319,9 +342,11 @@ async function refreshLeaderboards() {
   catch(error){ui.globalLeaderboard.innerHTML='<p class="empty-state">排行榜暫時無法載入。</p>';console.warn('Leaderboard unavailable',error.message);}
 }
 function openPlayerProfile(id) {
-  const p=leaderboardPlayers.get(String(id)); if(!p)return; viewedPlayer=p;
-  ui.viewPlayerAvatar.textContent=p.avatar||'⚡';ui.viewPlayerName.textContent=p.username;ui.viewPlayerRank.textContent=rankFor(p.rating).name;ui.viewPlayerRating.textContent=`${p.rating||1000} RP`;ui.viewPlayerWins.textContent=p.wins||0;ui.viewPlayerLosses.textContent=p.losses||0;ui.viewPlayerWinrate.textContent=`${winrate(p.wins,p.losses)}%`;
-  ui.viewPlayerExtra.textContent=`牌位戰績 ${p.ranked_wins||0} 勝 ${p.ranked_losses||0} 敗 · 方塊造型 ${(THEMES[p.block_theme]||THEMES.neon).name}`;
+  const p=leaderboardPlayers.get(String(id)); if(!p)return; viewedPlayer=p;const records=profileRecords(p);
+  ui.viewPlayerAvatar.textContent=p.avatar||'⚡';ui.viewPlayerName.textContent=p.username;ui.viewPlayerId.textContent=shortPlayerId(p.id);ui.viewPlayerRank.textContent=rankFor(p.rating).name;ui.viewPlayerRating.textContent=`${p.rating||1000} RP`;
+  ui.viewRankWinrate.textContent=`${records.rankedRate}%`;ui.viewRankMatches.textContent=records.rankedMatches;ui.viewRankRecord.textContent=`${records.rankedWins} 勝 ${records.rankedLosses} 敗`;
+  ui.viewCasualWinrate.textContent=`${records.casualRate}%`;ui.viewCasualMatches.textContent=records.casualMatches;ui.viewCasualRecord.textContent=`${records.casualWins} 勝 ${records.casualLosses} 敗`;
+  ui.viewPlayerExtra.textContent=`方塊造型 ${(THEMES[p.block_theme]||THEMES.neon).name}`;
   const self=p.username===playerName,friend=socialFriendNames.has(p.username.toLocaleLowerCase());ui.addPlayerFriendBtn.classList.toggle('hidden',self);ui.addPlayerFriendBtn.disabled=friend;ui.addPlayerFriendBtn.textContent=friend?'已是好友':'加入好友';ui.playerModal.classList.remove('hidden');
 }
 async function addViewedPlayerFriend() {
@@ -404,7 +429,7 @@ function translateAuthError(message='') {
 }
 async function applySession(nextSession) {
   session=nextSession; clearInterval(socialPoll); socialPoll=null; if(!session){ui.userMenu.classList.add('hidden');ui.inviteBanner.classList.add('hidden');showSection('auth');return;}
-  const {data}=await db.from('profiles').select('username,avatar,block_theme,wins,losses,rating,ranked_wins,ranked_losses').eq('id',session.user.id).single(); playerName=data?.username||session.user.user_metadata?.username||'PLAYER'; playerProfile={...playerProfile,...data}; ui.userName.textContent=playerName; ui.userMenu.classList.remove('hidden'); ui.rivalName.textContent='等待中'; showSection('lobby'); switchLobbyView('home'); setNetwork('玩家大廳已連線'); renderProfile(); await refreshSocial(); socialPoll=setInterval(refreshSocial,4000);
+  const {data}=await db.from('profiles').select('username,avatar,block_theme,wins,losses,rating,ranked_wins,ranked_losses').eq('id',session.user.id).single(); playerName=data?.username||session.user.user_metadata?.username||'PLAYER'; playerProfile={...playerProfile,...data,id:session.user.id}; ui.userName.textContent=playerName; ui.userMenu.classList.remove('hidden'); ui.rivalName.textContent='等待中'; showSection('lobby'); switchLobbyView('home'); setNetwork('玩家大廳已連線'); renderProfile(); await refreshSocial(); socialPoll=setInterval(refreshSocial,4000);
 }
 async function initOnlineServices() {
   const config=window.BLOCKSTORM_CONFIG||{}; if(!config.supabaseUrl||!config.supabaseAnonKey||!window.supabase){showSection('auth');ui.authMessage.textContent='尚未連接線上服務；目前仍可使用離線練習。';setNetwork('等待後端設定',false);return;}
@@ -417,8 +442,8 @@ ui.copyCode.addEventListener('click',async()=>{try{await navigator.clipboard.wri
 ui.cancelWait.addEventListener('click',backToLobby); ui.backBtn.addEventListener('click',backToLobby); ui.pauseBtn.addEventListener('click',togglePause); ui.lobbyBtn.addEventListener('click',backToLobby);
 ui.againBtn.addEventListener('click',()=>{ ui.resultModal.classList.add('hidden'); if(roomMode==='practice'||roomMode==='ai')countdownAndStart(); else {rematchRequested=true;send({type:'rematch'});toast('等待對手準備…');} });
 ui.loginTab.addEventListener('click',()=>selectAuthMode('login')); ui.signupTab.addEventListener('click',()=>selectAuthMode('signup')); ui.authForm.addEventListener('submit',submitAuth); ui.signOutBtn.addEventListener('click',async()=>{disconnect();await db?.auth.signOut();});
-ui.settingsBtn.addEventListener('click',openProfileSettings); ui.profileEditBtn.addEventListener('click',openProfileSettings); ui.closeProfileBtn.addEventListener('click',()=>ui.profileModal.classList.add('hidden')); ui.saveProfileBtn.addEventListener('click',saveProfileSettings);
-ui.avatarOptions.addEventListener('click',event=>{const button=event.target.closest('button[data-avatar]');if(!button)return;selectedAvatar=button.dataset.avatar;ui.avatarOptions.querySelectorAll('button').forEach(item=>item.classList.toggle('selected',item===button));});
+ui.settingsBtn.addEventListener('click',openProfileSettings); ui.profileEditBtn.addEventListener('click',openProfileSettings); ui.closeProfileBtn.addEventListener('click',()=>{ui.profileModal.classList.add('hidden');renderProfile();}); ui.saveProfileBtn.addEventListener('click',saveProfileSettings);
+ui.avatarOptions.addEventListener('click',event=>{const button=event.target.closest('button[data-avatar]');if(!button)return;selectedAvatar=button.dataset.avatar;ui.settingsProfileAvatar.textContent=selectedAvatar;ui.avatarOptions.querySelectorAll('button').forEach(item=>item.classList.toggle('selected',item===button));});
 ui.friendSearchBtn.addEventListener('click',sendFriendRequest); ui.friendSearchInput.addEventListener('keydown',event=>{if(event.key==='Enter')sendFriendRequest();});
 ui.incomingList.addEventListener('click',event=>{const button=event.target.closest('button[data-action]');if(!button)return;respondFriend(button.dataset.id,button.dataset.action==='accept-friend');});
 ui.friendsList.addEventListener('click',event=>{const button=event.target.closest('button[data-action="invite-friend"]');if(button)inviteFriend(button.dataset.id);});

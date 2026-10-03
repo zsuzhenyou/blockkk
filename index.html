@@ -63,7 +63,7 @@
           <header class="player-bar">
             <div class="player-bar-main">
               <span id="profileAvatar" class="profile-avatar">⚡</span>
-              <div><small>WELCOME BACK</small><h1 id="lobbyTitle"><span id="profileName">PLAYER</span> 的大廳</h1></div>
+              <div><small>WELCOME BACK · <span id="profilePlayerId">#------</span></small><h1 id="lobbyTitle"><span id="profileName">PLAYER</span> 的大廳</h1></div>
             </div>
             <div class="rank-chip"><small>目前牌位</small><strong id="profileRank">新星</strong><span id="profileRating">1000 RP</span></div>
             <div class="profile-stats"><span><b id="profileWins">0</b><small>勝場</small></span><span><b id="profileLosses">0</b><small>敗場</small></span><span><b id="profileWinrate">0%</b><small>勝率</small></span></div>
@@ -195,8 +195,12 @@
         <p class="eyebrow">PUBLIC PLAYER PROFILE</p>
         <span id="viewPlayerAvatar" class="public-player-avatar">⚡</span>
         <h2 id="playerModalTitle"><span id="viewPlayerName">PLAYER</span></h2>
+        <p id="viewPlayerId" class="player-id">#------</p>
         <div class="public-rank"><strong id="viewPlayerRank">青銅</strong><span id="viewPlayerRating">1000 RP</span></div>
-        <div class="result-stats player-detail-stats"><span><small>總勝場</small><b id="viewPlayerWins">0</b></span><span><small>總敗場</small><b id="viewPlayerLosses">0</b></span><span><small>勝率</small><b id="viewPlayerWinrate">0%</b></span></div>
+        <div class="profile-record-grid public-records">
+          <article><small>RANKED · 牌位</small><strong id="viewRankWinrate">0%</strong><span><b id="viewRankMatches">0</b> 場 · <i id="viewRankRecord">0 勝 0 敗</i></span></article>
+          <article><small>CASUAL · 一般</small><strong id="viewCasualWinrate">0%</strong><span><b id="viewCasualMatches">0</b> 場 · <i id="viewCasualRecord">0 勝 0 敗</i></span></article>
+        </div>
         <p id="viewPlayerExtra" class="setting-note"></p>
         <button id="addPlayerFriendBtn" class="btn btn-primary">加入好友</button>
       </div>
@@ -205,7 +209,17 @@
     <div id="profileModal" class="modal hidden" role="dialog" aria-modal="true" aria-labelledby="profileModalTitle">
       <div class="modal-card profile-modal-card">
         <p class="eyebrow">PLAYER SETTINGS</p>
-        <h2 id="profileModalTitle">個人帳號設定</h2>
+        <h2 id="profileModalTitle">個人資料</h2>
+        <div class="profile-overview">
+          <span id="settingsProfileAvatar" class="public-player-avatar">⚡</span>
+          <div><strong id="settingsProfileName">PLAYER</strong><span id="settingsProfileId" class="player-id">#------</span></div>
+          <div class="profile-overview-rank"><small>目前牌位</small><strong id="settingsProfileRank">青銅</strong><span id="settingsProfileRating">1000 RP</span></div>
+        </div>
+        <div class="profile-record-grid">
+          <article><small>RANKED · 牌位</small><strong id="profileRankWinrate">0%</strong><span><b id="profileRankMatches">0</b> 場 · <i id="profileRankRecord">0 勝 0 敗</i></span></article>
+          <article><small>CASUAL · 一般</small><strong id="profileCasualWinrate">0%</strong><span><b id="profileCasualMatches">0</b> 場 · <i id="profileCasualRecord">0 勝 0 敗</i></span></article>
+        </div>
+        <div class="profile-divider"><span>外觀設定</span></div>
         <label class="setting-label">選擇頭像</label>
         <div id="avatarOptions" class="avatar-options" role="radiogroup" aria-label="頭像">
           <button data-avatar="⚡">⚡</button><button data-avatar="🔥">🔥</button><button data-avatar="👾">👾</button><button data-avatar="🤖">🤖</button><button data-avatar="🦊">🦊</button><button data-avatar="💎">💎</button>
