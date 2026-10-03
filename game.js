@@ -28,16 +28,31 @@ const TASKS = [
   {id:'daily_lines',category:'daily',title:'消除 10 行',desc:'今日累積消除 10 行',metric:'daily_lines',target:10,coins:100,gems:0},
   {id:'daily_score',category:'daily',title:'今日累積 5,000 分',desc:'所有完成的對戰分數都會累積',metric:'daily_score',target:5000,coins:120,gems:0},
   {id:'daily_win',category:'daily',title:'贏得一場對戰',desc:'擊敗 AI 或線上玩家',metric:'daily_wins',target:1,coins:0,gems:2},
-  {id:'main_first',category:'main',title:'風暴初戰',desc:'完成生涯第一場對戰',metric:'total_matches',target:1,coins:150,gems:0},
-  {id:'main_lines_100',category:'main',title:'方塊清道夫',desc:'生涯累積消除 100 行',metric:'total_lines',target:100,coins:400,gems:0},
-  {id:'main_score_100k',category:'main',title:'六位數玩家',desc:'生涯累積獲得 100,000 分',metric:'total_score',target:100000,coins:600,gems:5},
-  {id:'main_wins_10',category:'main',title:'十勝之路',desc:'生涯累積贏得 10 場',metric:'total_wins',target:10,coins:800,gems:8},
+  {id:'main_first',category:'main',title:'踏入風暴',desc:'完成生涯第一場對戰',metric:'total_matches',target:1,coins:150,gems:0},
+  {id:'main_lines_20',category:'main',previous:'main_first',title:'開始整理',desc:'生涯累積消除 20 行',metric:'total_lines',target:20,coins:180,gems:0},
+  {id:'main_score_10k',category:'main',previous:'main_lines_20',title:'分數起飛',desc:'生涯累積獲得 10,000 分',metric:'total_score',target:10000,coins:220,gems:1},
+  {id:'main_wins_3',category:'main',previous:'main_score_10k',title:'初露鋒芒',desc:'生涯累積贏得 3 場',metric:'total_wins',target:3,coins:280,gems:2},
+  {id:'main_lines_100',category:'main',previous:'main_wins_3',title:'方塊清道夫',desc:'生涯累積消除 100 行',metric:'total_lines',target:100,coins:400,gems:2},
+  {id:'main_combo_3',category:'main',previous:'main_lines_100',title:'掌握節奏',desc:'單局達成 3 COMBO',metric:'best_combo',target:3,coins:450,gems:3},
+  {id:'main_tetris_5',category:'main',previous:'main_combo_3',title:'四行攻勢',desc:'生涯完成 5 次 TETRIS',metric:'total_tetrises',target:5,coins:520,gems:4},
+  {id:'main_score_100k',category:'main',previous:'main_tetris_5',title:'六位數玩家',desc:'生涯累積獲得 100,000 分',metric:'total_score',target:100000,coins:650,gems:5},
+  {id:'main_wins_10',category:'main',previous:'main_score_100k',title:'十勝之路',desc:'生涯累積贏得 10 場',metric:'total_wins',target:10,coins:800,gems:8},
+  {id:'main_perfect',category:'main',previous:'main_wins_10',title:'風暴之眼',desc:'完成一次 PERFECT CLEAR',metric:'perfect_clears',target:1,coins:1000,gems:12},
+  {id:'ach_score_5k',category:'achievement',title:'分數萌芽',desc:'單局達到 5,000 分',metric:'best_score',target:5000,coins:120,gems:1},
   {id:'ach_score_10k',category:'achievement',title:'分數突破 I',desc:'單局達到 10,000 分',metric:'best_score',target:10000,coins:200,gems:3},
-  {id:'ach_score_50k',category:'achievement',title:'分數突破 II',desc:'單局達到 50,000 分',metric:'best_score',target:50000,coins:500,gems:8},
+  {id:'ach_score_25k',category:'achievement',title:'分數突破 II',desc:'單局達到 25,000 分',metric:'best_score',target:25000,coins:350,gems:5},
+  {id:'ach_score_50k',category:'achievement',title:'分數突破 III',desc:'單局達到 50,000 分',metric:'best_score',target:50000,coins:500,gems:8},
+  {id:'ach_combo_2',category:'achievement',title:'接續消除',desc:'單局達成 2 COMBO',metric:'best_combo',target:2,coins:120,gems:1},
   {id:'ach_combo_3',category:'achievement',title:'連鎖反應',desc:'單局達成 3 COMBO',metric:'best_combo',target:3,coins:200,gems:3},
   {id:'ach_combo_5',category:'achievement',title:'風暴連鎖',desc:'單局達成 5 COMBO',metric:'best_combo',target:5,coins:400,gems:6},
+  {id:'ach_combo_8',category:'achievement',title:'無間連鎖',desc:'單局達成 8 COMBO',metric:'best_combo',target:8,coins:700,gems:10},
+  {id:'ach_tetris_1',category:'achievement',title:'第一次四消',desc:'完成第一次 TETRIS',metric:'total_tetrises',target:1,coins:150,gems:2},
   {id:'ach_tetris_5',category:'achievement',title:'四行專家',desc:'生涯累積完成 5 次 TETRIS',metric:'total_tetrises',target:5,coins:300,gems:5},
-  {id:'ach_perfect',category:'achievement',title:'完美無瑕',desc:'完成一次 PERFECT CLEAR',metric:'perfect_clears',target:1,coins:500,gems:10}
+  {id:'ach_tetris_20',category:'achievement',title:'四行大師',desc:'生涯累積完成 20 次 TETRIS',metric:'total_tetrises',target:20,coins:800,gems:12},
+  {id:'ach_perfect',category:'achievement',title:'完美無瑕',desc:'完成一次 PERFECT CLEAR',metric:'perfect_clears',target:1,coins:500,gems:10},
+  {id:'ach_perfect_3',category:'achievement',title:'完美主義',desc:'生涯完成 3 次 PERFECT CLEAR',metric:'perfect_clears',target:3,coins:1000,gems:16},
+  {id:'ach_matches_10',category:'achievement',title:'熟悉戰場',desc:'生涯完成 10 場對戰',metric:'total_matches',target:10,coins:300,gems:3},
+  {id:'ach_matches_50',category:'achievement',title:'百戰前夕',desc:'生涯完成 50 場對戰',metric:'total_matches',target:50,coins:900,gems:10}
 ];
 const SHAPES = {
   I: [[0,0,0,0],[1,1,1,1],[0,0,0,0],[0,0,0,0]],
@@ -214,7 +229,7 @@ function showClearFeedback(title,detail=''){
 
 function drawCell(target, x, y, color, size, alpha = 1, themeId=playerProfile.block_theme) {
   const px=x*size+1,py=y*size+1,w=size-2,theme=THEMES[themeId]||THEMES.neon;
-  target.save();target.globalAlpha=alpha;target.fillStyle=color;target.fillRect(px,py,w,w);
+  target.save();target.globalAlpha=alpha;target.shadowColor='rgba(0,0,0,.58)';target.shadowBlur=Math.max(2,size*.13);target.fillStyle=color;target.fillRect(px+1,py+1,w-2,w-2);target.shadowBlur=0;
   const shine=target.createLinearGradient(px,py,px+w,py+w);shine.addColorStop(0,'rgba(255,255,255,.34)');shine.addColorStop(.42,'rgba(255,255,255,.04)');shine.addColorStop(1,'rgba(0,0,0,.22)');target.fillStyle=shine;target.fillRect(px,py,w,w);
   target.strokeStyle='rgba(255,255,255,.32)';target.lineWidth=Math.max(1,size/18);
   if(theme.pattern==='crystal'){target.beginPath();target.moveTo(px+w*.08,py+w*.72);target.lineTo(px+w*.48,py+w*.28);target.lineTo(px+w*.9,py+w*.63);target.moveTo(px+w*.48,py+w*.28);target.lineTo(px+w*.55,py+w*.92);target.stroke();target.fillStyle='rgba(255,255,255,.2)';target.beginPath();target.moveTo(px+w*.1,py+w*.1);target.lineTo(px+w*.52,py+w*.28);target.lineTo(px+w*.2,py+w*.5);target.fill();}
@@ -225,12 +240,13 @@ function drawCell(target, x, y, color, size, alpha = 1, themeId=playerProfile.bl
   else if(theme.pattern==='crack'){target.strokeStyle='rgba(255,245,150,.5)';target.beginPath();target.moveTo(px+w*.55,py);target.lineTo(px+w*.45,py+w*.38);target.lineTo(px+w*.7,py+w*.56);target.lineTo(px+w*.5,py+w);target.stroke();}
   else if(theme.pattern==='star'){target.fillStyle='rgba(255,255,255,.7)';target.fillRect(px+w*.26,py+w*.27,2,2);target.fillRect(px+w*.7,py+w*.62,2,2);target.fillRect(px+w*.48,py+w*.78,1,1);}
   else {target.fillStyle='rgba(255,255,255,.2)';target.fillRect(px+1,py+1,w-2,Math.max(2,size*.08));}
+  target.strokeStyle='rgba(3,7,10,.62)';target.lineWidth=Math.max(1.4,size*.065);target.strokeRect(px+1,py+1,w-2,w-2);
   target.restore();
 }
 function themeColor(type, theme=playerProfile.block_theme) { return (THEMES[theme]||THEMES.neon)[type]||COLORS.G; }
 function drawBackdrop(target,width,height,backgroundId='void'){
   const bg=BACKGROUNDS[backgroundId]||BACKGROUNDS.void,gradient=target.createLinearGradient(0,0,width,height);gradient.addColorStop(0,bg.colors[0]);gradient.addColorStop(1,bg.colors[1]);target.fillStyle=gradient;target.fillRect(0,0,width,height);
-  target.save();target.globalAlpha=.18;
+  target.save();target.globalAlpha=.065;
   if(bg.pattern==='aurora'){for(let i=0;i<4;i++){target.strokeStyle=i%2?'#75fff1':'#9d7cff';target.lineWidth=18;target.beginPath();target.moveTo(-30,i*145+35);target.bezierCurveTo(width*.25,i*120-15,width*.65,i*150+85,width+40,i*125+25);target.stroke();}}
   else if(bg.pattern==='crystal'){target.strokeStyle='#b8efff';for(let x=-height;x<width;x+=75){target.beginPath();target.moveTo(x,0);target.lineTo(x+height,height);target.stroke();target.beginPath();target.moveTo(x+35,0);target.lineTo(x-height*.35,height*.35);target.stroke();}}
   else if(bg.pattern==='city'){target.fillStyle='#ff86ae';for(let x=0;x<width;x+=28){const h=50+(x*17)%120;target.fillRect(x,height-h,20,h);}}
@@ -503,14 +519,15 @@ async function equipBackground(id){
 }
 function taskProgress(task){return Math.max(0,Number(progressionState.progress?.[task.metric]||0));}
 function taskClaimed(task){return (progressionState.claims||[]).includes(task.id);}
+function taskUnlocked(task){return task.category!=='main'||!task.previous||taskClaimed(TASKS.find(item=>item.id===task.previous)||{});}
 function rewardLabel(task){return [task.coins?`● ${task.coins}`:'',task.gems?`◆ ${task.gems}`:''].filter(Boolean).join('　');}
 function renderTasks(){
   if(!ui.taskList)return;
-  const daily=TASKS.filter(task=>task.category==='daily'),dailyDone=daily.filter(task=>taskClaimed(task)).length,claimable=TASKS.filter(task=>!taskClaimed(task)&&taskProgress(task)>=task.target).length;
+  const daily=TASKS.filter(task=>task.category==='daily'),dailyDone=daily.filter(task=>taskClaimed(task)).length,claimable=TASKS.filter(task=>taskUnlocked(task)&&!taskClaimed(task)&&taskProgress(task)>=task.target).length;
   ui.dailyMission.classList.toggle('completed',dailyDone===daily.length);ui.dailyMissionTitle.textContent=dailyDone===daily.length?'今日任務全部完成':`今日還有 ${daily.length-dailyDone} 項任務`;ui.dailyMissionProgress.textContent=claimable?`${claimable} 項獎勵可領取 →`:'查看任務中心 →';
   ui.taskSummary.innerHTML=`<span><small>可領取</small><strong>${claimable}</strong></span><span><small>生涯分數</small><strong>${Number(progressionState.progress?.total_score||0).toLocaleString()}</strong></span><span><small>最高連擊</small><strong>${Number(progressionState.progress?.best_combo||0)}</strong></span>`;
   const tasks=TASKS.filter(task=>task.category===taskCategory);
-  ui.taskList.innerHTML=tasks.map(task=>{const progress=taskProgress(task),claimed=taskClaimed(task),complete=progress>=task.target,percent=Math.min(100,progress/task.target*100);return `<article class="task-card ${claimed?'claimed':complete?'complete':''}"><span class="task-icon">${task.category==='achievement'?'★':task.category==='main'?'◆':'✓'}</span><div class="task-copy"><small>${task.category==='daily'?'每日任務':task.category==='main'?'主線任務':'成就'}</small><h3>${escapeHtml(task.title)}</h3><p>${escapeHtml(task.desc)}</p><div class="task-progress"><i style="width:${percent}%"></i></div><b>${Math.min(progress,task.target).toLocaleString()} / ${task.target.toLocaleString()}</b></div><div class="task-reward"><span>${rewardLabel(task)}</span><button data-claim-task="${task.id}" ${!complete||claimed?'disabled':''}>${claimed?'已領取':complete?'領取':'進行中'}</button></div></article>`;}).join('');
+  ui.taskList.innerHTML=tasks.map((task,index)=>{const progress=taskProgress(task),claimed=taskClaimed(task),unlocked=taskUnlocked(task),complete=unlocked&&progress>=task.target,percent=unlocked?Math.min(100,progress/task.target*100):0,label=task.category==='main'?`主線 ${String(index+1).padStart(2,'0')}`:task.category==='daily'?'每日任務':'成就';return `<article class="task-card ${!unlocked?'locked':claimed?'claimed':complete?'complete':''}"><span class="task-icon">${!unlocked?'🔒':task.category==='achievement'?'★':task.category==='main'?'◆':'✓'}</span><div class="task-copy"><small>${label}</small><h3>${escapeHtml(task.title)}</h3><p>${unlocked?escapeHtml(task.desc):'完成並領取上一章獎勵後解鎖'}</p><div class="task-progress"><i style="width:${percent}%"></i></div><b>${unlocked?`${Math.min(progress,task.target).toLocaleString()} / ${task.target.toLocaleString()}`:'尚未解鎖'}</b></div><div class="task-reward"><span>${rewardLabel(task)}</span><button data-claim-task="${task.id}" ${!complete||claimed?'disabled':''}>${!unlocked?'未解鎖':claimed?'已領取':complete?'領取':'進行中'}</button></div></article>`;}).join('');
 }
 async function refreshProgression(){
   if(!db||!session){renderTasks();return;}try{progressionState=await callRpc('get_progression_state');if(progressionState.wallet)shopState={...shopState,...progressionState.wallet};renderEconomy();}catch(error){console.warn('Progression unavailable',error.message);renderTasks();}
