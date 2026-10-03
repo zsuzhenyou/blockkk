@@ -63,20 +63,35 @@
           <header class="player-bar">
             <div class="player-bar-main">
               <span id="profileAvatar" class="profile-avatar">⚡</span>
-              <div><small>WELCOME BACK · <span id="profilePlayerId">#------</span></small><h1 id="lobbyTitle"><span id="profileName">PLAYER</span> 的大廳</h1></div>
+              <div><small>PLAYER · <span id="profilePlayerId">#------</span></small><h1 id="lobbyTitle"><span id="profileName">PLAYER</span></h1></div>
             </div>
-            <div class="rank-chip"><small>目前牌位</small><strong id="profileRank">新星</strong><span id="profileRating">1000 RP</span></div>
-            <div class="profile-stats"><span><b id="profileWins">0</b><small>勝場</small></span><span><b id="profileLosses">0</b><small>敗場</small></span><span><b id="profileWinrate">0%</b><small>勝率</small></span></div>
-            <div class="profile-tools"><span id="profileThemeName">霓虹經典</span><button id="profileEditBtn" class="mini-action">編輯個人資料</button></div>
+            <button id="profileEditBtn" class="profile-edit-compact" aria-label="編輯個人資料">編輯</button>
+            <div class="lobby-wallet" aria-label="遊戲貨幣">
+              <div class="currency-chip"><span class="currency-icon coin">●</span><small>方塊幣</small><strong>1,200</strong><button type="button" aria-label="取得方塊幣">＋</button></div>
+              <div class="currency-chip"><span class="currency-icon gem">◆</span><small>星晶</small><strong>50</strong><button type="button" aria-label="取得星晶">＋</button></div>
+            </div>
           </header>
 
           <div id="lobbyHome" class="lobby-view">
-            <div class="lobby-section-head"><div><p class="eyebrow">SELECT GAME MODE</p><h2>選擇遊戲模式</h2></div><p>選一種玩法，立即開始下一場方塊對決。</p></div>
-            <div class="game-mode-grid">
-              <article class="game-mode-card normal-mode"><span class="mode-icon">VS</span><div><small>CASUAL</small><h3>一般配對</h3><p>輕鬆與線上玩家對戰，不影響牌位積分。</p></div><button id="matchBtn" class="mode-play">開始配對 <b>→</b></button></article>
-              <article class="game-mode-card ranked-mode"><span class="mode-icon">◆</span><div><small>RANKED</small><h3>牌位競技</h3><p>與相近牌位玩家對戰，勝負會改變 RP。</p></div><button id="rankedMatchBtn" class="mode-play">牌位配對 <b>→</b></button></article>
-              <article class="game-mode-card ai-mode"><span class="mode-icon">AI</span><div><small>SOLO BATTLE</small><h3>AI 對手</h3><p>挑戰電腦對手，練習攻擊與防守節奏。</p><label class="difficulty-label">難度<select id="aiDifficulty"><option value="easy">簡單</option><option value="normal" selected>普通</option><option value="hard">困難</option><option value="expert">專家</option></select></label></div><button id="practiceBtn" class="mode-play">挑戰 AI <b>→</b></button></article>
-              <article class="game-mode-card private-mode"><span class="mode-icon">#</span><div><small>PRIVATE ROOM</small><h3>好友房間</h3><p>建立房間邀請好友，或輸入六位代碼加入。</p></div><button id="hostBtn" class="mode-play">建立房間 <b>＋</b></button><div class="join-row"><label for="roomInput" class="sr-only">房間代碼</label><input id="roomInput" maxlength="6" autocomplete="off" spellcheck="false" placeholder="輸入房間碼" /><button id="joinBtn">加入</button></div></article>
+            <div class="lobby-dashboard">
+              <aside class="lobby-side-card">
+                <div class="side-card-heading"><p class="eyebrow">CURRENT SEASON</p><span>01</span></div>
+                <div class="rank-chip"><small>目前牌位</small><strong id="profileRank">新星</strong><span id="profileRating">1000 RP</span></div>
+                <div class="season-progress"><div><span>賽季進度</span><b>下一階段</b></div><i><span></span></i></div>
+                <div class="profile-stats"><span><b id="profileWins">0</b><small>勝場</small></span><span><b id="profileLosses">0</b><small>敗場</small></span><span><b id="profileWinrate">0%</b><small>勝率</small></span></div>
+                <div class="daily-mission"><span>✓</span><div><small>今日任務</small><strong>完成一場對戰</strong><i>0 / 1</i></div></div>
+                <div class="current-style"><small>使用造型</small><strong id="profileThemeName">霓虹經典</strong></div>
+              </aside>
+
+              <section class="mode-hub" aria-labelledby="modeTitle">
+                <div class="lobby-section-head"><div><p class="eyebrow">PLAY</p><h2 id="modeTitle">選擇遊戲模式</h2></div><p>選擇玩法，開始下一場對決。</p></div>
+                <div class="game-mode-grid">
+                  <article class="game-mode-card normal-mode"><span class="mode-icon">VS</span><div><small>CASUAL</small><h3>一般配對</h3><p>輕鬆與線上玩家對戰，不影響牌位積分。</p></div><button id="matchBtn" class="mode-play">開始配對 <b>→</b></button></article>
+                  <article class="game-mode-card ranked-mode"><span class="mode-icon">◆</span><div><small>RANKED</small><h3>牌位競技</h3><p>與相近牌位玩家對戰，勝負會改變 RP。</p></div><button id="rankedMatchBtn" class="mode-play">牌位配對 <b>→</b></button></article>
+                  <article class="game-mode-card ai-mode"><span class="mode-icon">1P</span><div><small>SOLO</small><h3>單人模式</h3><p>與電腦對手練習攻擊、防守和堆疊節奏。</p><label class="difficulty-label">難度<select id="aiDifficulty"><option value="easy">簡單</option><option value="normal" selected>普通</option><option value="hard">困難</option><option value="expert">專家</option></select></label></div><button id="practiceBtn" class="mode-play">開始遊戲 <b>→</b></button></article>
+                  <article class="game-mode-card private-mode"><span class="mode-icon">#</span><div><small>PRIVATE</small><h3>好友房間</h3><p>建立房間邀請好友，或輸入六位代碼加入。</p></div><button id="hostBtn" class="mode-play">建立房間 <b>＋</b></button><div class="join-row"><label for="roomInput" class="sr-only">房間代碼</label><input id="roomInput" maxlength="6" autocomplete="off" spellcheck="false" placeholder="輸入房間碼" /><button id="joinBtn">加入</button></div></article>
+                </div>
+              </section>
             </div>
             <p id="lobbyMessage" class="lobby-message" role="status" aria-live="polite"></p>
           </div>
