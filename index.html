@@ -8,7 +8,7 @@
     <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%23070a12'/%3E%3Cpath d='M12 12h16v16H12zm24 0h16v16H36zM24 28h16v16H24zm0 16h16v16H24z' fill='%236cf6ff'/%3E%3C/svg%3E" />
     <title>方塊風暴｜即時對戰</title>
     <link rel="preconnect" href="https://unpkg.com" />
-    <link rel="stylesheet" href="styles.css?v=lobby-ui-1" />
+    <link rel="stylesheet" href="styles.css?v=economy-rules-1" />
   </head>
   <body>
     <div class="noise" aria-hidden="true"></div>
@@ -67,8 +67,8 @@
             </div>
             <button id="profileEditBtn" class="profile-edit-compact" aria-label="編輯個人資料">編輯</button>
             <div class="lobby-wallet" aria-label="遊戲貨幣">
-              <div class="currency-chip"><span class="currency-icon coin">●</span><small>方塊幣</small><strong>1,200</strong><button type="button" aria-label="取得方塊幣">＋</button></div>
-              <div class="currency-chip"><span class="currency-icon gem">◆</span><small>星晶</small><strong>50</strong><button type="button" aria-label="取得星晶">＋</button></div>
+              <div class="currency-chip"><span class="currency-icon coin">●</span><small>方塊幣</small><strong id="coinBalance">0</strong><button type="button" data-open-shop aria-label="前往商店使用方塊幣">＋</button></div>
+              <div class="currency-chip"><span class="currency-icon gem">◆</span><small>星晶</small><strong id="gemBalance">0</strong><button type="button" data-open-shop aria-label="前往商店查看星晶">＋</button></div>
             </div>
           </header>
 
@@ -79,7 +79,7 @@
                 <div class="rank-chip"><small>目前牌位</small><strong id="profileRank">新星</strong><span id="profileRating">1000 RP</span></div>
                 <div class="season-progress"><div><span>賽季進度</span><b>下一階段</b></div><i><span></span></i></div>
                 <div class="profile-stats"><span><b id="profileWins">0</b><small>勝場</small></span><span><b id="profileLosses">0</b><small>敗場</small></span><span><b id="profileWinrate">0%</b><small>勝率</small></span></div>
-                <div class="daily-mission"><span>✓</span><div><small>今日任務</small><strong>完成一場對戰</strong><i>0 / 1</i></div></div>
+                <div id="dailyMission" class="daily-mission"><span>✓</span><div><small>今日任務 · ＋120 方塊幣</small><strong>完成一場對戰</strong><i id="dailyMissionProgress">0 / 1</i></div></div>
                 <div class="current-style"><small>使用造型</small><strong id="profileThemeName">霓虹經典</strong></div>
               </aside>
 
@@ -110,8 +110,15 @@
             <section class="social-section"><h3>所有好友</h3><div id="friendsList" class="player-list"><p class="empty-state">還沒有好友，搜尋角色帳號加入。</p></div></section>
           </div>
 
+          <div id="shopPanel" class="lobby-view lobby-panel shop-panel hidden">
+            <div class="panel-heading"><div><p class="eyebrow">BLOCK SHOP</p><h2>造型商店</h2></div><span>使用每日任務獲得的方塊幣解鎖永久造型</span></div>
+            <div class="shop-wallet"><span class="currency-icon coin">●</span><div><small>目前持有</small><strong><b id="shopCoinBalance">0</b> 方塊幣</strong></div></div>
+            <div id="shopGrid" class="shop-grid" aria-live="polite"></div>
+          </div>
+
           <nav class="lobby-dock" aria-label="大廳功能">
             <button class="active" data-lobby-view="home"><span>▦</span><b>遊戲大廳</b></button>
+            <button data-lobby-view="shop"><span>◈</span><b>商店</b></button>
             <button data-lobby-view="leaderboard"><span>♛</span><b>排行榜</b></button>
             <button data-lobby-view="friends"><span>♟</span><b>好友</b><i id="friendNotice" class="notice-dot hidden"></i></button>
             <button data-lobby-view="profile"><span>⚙</span><b>個人資料</b></button>
@@ -155,6 +162,7 @@
                   <strong id="overlayTitle">暫停</strong><span id="overlayText">按 P 繼續</span>
                 </div>
                 <div id="countdown" class="countdown hidden">3</div>
+                <div id="clearFeedback" class="clear-feedback" aria-live="polite"></div>
               </div>
               <aside class="side-panel right-panel">
                 <div class="mini-box"><span>NEXT</span><canvas id="nextCanvas" width="100" height="250"></canvas></div>
@@ -240,7 +248,7 @@
           <button data-avatar="⚡">⚡</button><button data-avatar="🔥">🔥</button><button data-avatar="👾">👾</button><button data-avatar="🤖">🤖</button><button data-avatar="🦊">🦊</button><button data-avatar="💎">💎</button>
         </div>
         <label class="setting-label" for="themeSelect">方塊造型</label>
-        <select id="themeSelect"><option value="neon">霓虹經典</option><option value="arcade">街機糖果</option><option value="ice">冰晶藍</option><option value="mono">黑白極簡</option></select>
+        <select id="themeSelect"><option value="neon">霓虹經典</option><option value="arcade">街機糖果</option></select>
         <p class="setting-note">好友與對戰玩家都能看到你的頭像、方塊造型和勝率。</p>
         <button id="saveProfileBtn" class="btn btn-primary">儲存設定</button>
         <button id="closeProfileBtn" class="text-button">取消</button>
@@ -256,6 +264,6 @@
     <script src="https://unpkg.com/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
     <script src="config.js"></script>
     <script src="https://unpkg.com/peerjs@1.5.4/dist/peerjs.min.js"></script>
-    <script src="game.js?v=lobby-ui-1"></script>
+    <script src="game.js?v=economy-rules-1"></script>
   </body>
 </html>

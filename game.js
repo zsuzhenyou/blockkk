@@ -5,10 +5,14 @@ const COLORS = {
   S: '#55df7d', T: '#b66cff', Z: '#ff5277', G: '#586176'
 };
 const THEMES = {
-  neon: {name:'霓虹經典',I:'#61eaf2',J:'#4d75f6',L:'#ff9f43',O:'#ffd84d',S:'#55df7d',T:'#b66cff',Z:'#ff5277',G:'#586176'},
-  arcade: {name:'街機糖果',I:'#ff79c6',J:'#7aa2ff',L:'#ff8f5a',O:'#ffe66d',S:'#8be28b',T:'#c792ea',Z:'#ff5f6d',G:'#604f67'},
-  ice: {name:'冰晶藍',I:'#b8f3ff',J:'#74a9ff',L:'#89d6ff',O:'#e9fbff',S:'#62d6e8',T:'#9fa8ff',Z:'#4f8fff',G:'#40546f'},
-  mono: {name:'黑白極簡',I:'#f7f7f7',J:'#c9c9c9',L:'#e0e0e0',O:'#ffffff',S:'#b7b7b7',T:'#d8d8d8',Z:'#a8a8a8',G:'#555555'}
+  neon: {name:'霓虹經典',price:0,rarity:'免費',I:'#61eaf2',J:'#4d75f6',L:'#ff9f43',O:'#ffd84d',S:'#55df7d',T:'#b66cff',Z:'#ff5277',G:'#586176'},
+  arcade: {name:'街機糖果',price:0,rarity:'免費',I:'#ff79c6',J:'#7aa2ff',L:'#ff8f5a',O:'#ffe66d',S:'#8be28b',T:'#c792ea',Z:'#ff5f6d',G:'#604f67'},
+  ice: {name:'冰晶藍',price:400,rarity:'稀有',I:'#b8f3ff',J:'#74a9ff',L:'#89d6ff',O:'#e9fbff',S:'#62d6e8',T:'#9fa8ff',Z:'#4f8fff',G:'#40546f'},
+  mono: {name:'黑白極簡',price:450,rarity:'稀有',I:'#f7f7f7',J:'#c9c9c9',L:'#e0e0e0',O:'#ffffff',S:'#b7b7b7',T:'#d8d8d8',Z:'#a8a8a8',G:'#555555'},
+  sunset: {name:'落日餘暉',price:550,rarity:'史詩',I:'#ffcf8b',J:'#e47aff',L:'#ff713e',O:'#ffe170',S:'#ff9f68',T:'#c071ff',Z:'#ff4775',G:'#69435f'},
+  forest: {name:'翡翠森林',price:550,rarity:'史詩',I:'#94f5d5',J:'#4ca98b',L:'#d4c47a',O:'#f0e68c',S:'#50df83',T:'#8bcf7b',Z:'#d96b72',G:'#38584a'},
+  magma: {name:'熔岩核心',price:700,rarity:'傳說',I:'#ffd36c',J:'#ff7a45',L:'#ff9b28',O:'#fff08a',S:'#f26d3d',T:'#e64d75',Z:'#ff3548',G:'#67332d'},
+  royal: {name:'皇家星塵',price:800,rarity:'傳說',I:'#9ff4ff',J:'#7386ff',L:'#f3b4ff',O:'#fff4a8',S:'#82e4c8',T:'#c68cff',Z:'#ff82bc',G:'#514a77'}
 };
 const SHAPES = {
   I: [[0,0,0,0],[1,1,1,1],[0,0,0,0],[0,0,0,0]],
@@ -18,14 +22,14 @@ const SHAPES = {
 };
 const PIECES = Object.keys(SHAPES);
 const $ = (id) => document.getElementById(id);
-const ui = Object.fromEntries(['auth','lobby','waiting','arena','hostBtn','joinBtn','matchBtn','rankedMatchBtn','practiceBtn','guestPracticeBtn','aiDifficulty','roomInput','lobbyMessage','roomCode','copyCode','waitingTitle','waitingText','cancelWait','backBtn','pauseBtn','matchMode','matchRoom','networkStatus','userMenu','userAvatar','userName','settingsBtn','signOutBtn','loginTab','signupTab','authForm','accountInput','passwordInput','authSubmit','authMessage','profileAvatar','profileName','profilePlayerId','profileWins','profileLosses','profileWinrate','profileThemeName','profileRank','profileRating','profileEditBtn','profileModal','settingsProfileAvatar','settingsProfileName','settingsProfileId','settingsProfileRank','settingsProfileRating','profileRankWinrate','profileRankMatches','profileRankRecord','profileCasualWinrate','profileCasualMatches','profileCasualRecord','avatarOptions','themeSelect','saveProfileBtn','closeProfileBtn','friendCount','friendNotice','friendSearchInput','friendSearchBtn','friendMessage','requestSection','incomingList','friendsList','lobbyHome','leaderboardPanel','friendsPanel','globalLeaderboard','friendLeaderboard','playerModal','closePlayerBtn','viewPlayerAvatar','viewPlayerName','viewPlayerId','viewPlayerRank','viewPlayerRating','viewRankWinrate','viewRankMatches','viewRankRecord','viewCasualWinrate','viewCasualMatches','viewCasualRecord','viewPlayerExtra','addPlayerFriendBtn','inviteBanner','inviteAvatar','inviteName','acceptInviteBtn','declineInviteBtn','localAvatar','rivalAvatar','gameCanvas','holdCanvas','nextCanvas','rivalCanvas','score','lines','rivalScore','rivalLines','rivalName','rivalBadge','localBadge','attackMeter','gameOverlay','overlayTitle','overlayText','countdown','resultModal','resultTitle','resultText','resultScore','resultLines','resultRatingBox','resultRating','resultSettlement','againBtn','lobbyBtn','toast'].map(k => [k, $(k)]));
+const ui = Object.fromEntries(['auth','lobby','waiting','arena','hostBtn','joinBtn','matchBtn','rankedMatchBtn','practiceBtn','guestPracticeBtn','aiDifficulty','roomInput','lobbyMessage','roomCode','copyCode','waitingTitle','waitingText','cancelWait','backBtn','pauseBtn','matchMode','matchRoom','networkStatus','userMenu','userAvatar','userName','settingsBtn','signOutBtn','loginTab','signupTab','authForm','accountInput','passwordInput','authSubmit','authMessage','profileAvatar','profileName','profilePlayerId','profileWins','profileLosses','profileWinrate','profileThemeName','profileRank','profileRating','profileEditBtn','profileModal','settingsProfileAvatar','settingsProfileName','settingsProfileId','settingsProfileRank','settingsProfileRating','profileRankWinrate','profileRankMatches','profileRankRecord','profileCasualWinrate','profileCasualMatches','profileCasualRecord','avatarOptions','themeSelect','saveProfileBtn','closeProfileBtn','friendCount','friendNotice','friendSearchInput','friendSearchBtn','friendMessage','requestSection','incomingList','friendsList','lobbyHome','leaderboardPanel','friendsPanel','shopPanel','shopGrid','coinBalance','gemBalance','shopCoinBalance','dailyMission','dailyMissionProgress','globalLeaderboard','friendLeaderboard','playerModal','closePlayerBtn','viewPlayerAvatar','viewPlayerName','viewPlayerId','viewPlayerRank','viewPlayerRating','viewRankWinrate','viewRankMatches','viewRankRecord','viewCasualWinrate','viewCasualMatches','viewCasualRecord','viewPlayerExtra','addPlayerFriendBtn','inviteBanner','inviteAvatar','inviteName','acceptInviteBtn','declineInviteBtn','localAvatar','rivalAvatar','gameCanvas','holdCanvas','nextCanvas','rivalCanvas','score','lines','rivalScore','rivalLines','rivalName','rivalBadge','localBadge','attackMeter','gameOverlay','overlayTitle','overlayText','countdown','clearFeedback','resultModal','resultTitle','resultText','resultScore','resultLines','resultRatingBox','resultRating','resultSettlement','againBtn','lobbyBtn','toast'].map(k => [k, $(k)]));
 const ctx = ui.gameCanvas.getContext('2d');
 const holdCtx = ui.holdCanvas.getContext('2d');
 const nextCtx = ui.nextCanvas.getContext('2d');
 const rivalCtx = ui.rivalCanvas.getContext('2d');
 
 let board, current, queue, holdPiece, canHold, score, lines, level, dropMs, lastDrop, raf, lockTimer=null, lockResetCount=0;
-let running = false, paused = false, gameEnded = false, pendingGarbage = 0, roomMode = 'practice';
+let running = false, paused = false, gameEnded = false, pendingGarbage = 0, garbageQueue=[], roomMode = 'practice', combo=-1, backToBack=false, lastActionRotation=false;
 let peer = null, connection = null, isHost = false, activeRoom = '', lastStateSent = 0;
 let peerReady = false, remoteReady = false, rematchRequested = false;
 let db = null, session = null, playerName = 'PLAYER', authMode = 'login';
@@ -33,9 +37,10 @@ let currentRoomId = null, matchPoll = null, matchmaking = false, matchmakingMode
 let playerProfile = {avatar:'⚡',block_theme:'neon',wins:0,losses:0,rating:1000,ranked_wins:0,ranked_losses:0}, rivalTheme='neon', socialPoll=null, pendingInvite=null, selectedAvatar='⚡';
 let aiBoard = null, aiTimer = null, aiTicks = 0, aiDifficulty = 'normal', aiQueue = [], aiScore = 0, aiLines = 0;
 let leaderboardPlayers = new Map(), viewedPlayer = null, socialFriendNames = new Set();
+let shopState={coins:0,gems:0,dailyCompleted:false,owned:['neon','arcade']},ownedThemes=new Set(['neon','arcade']);
 const AI_LEVELS = {easy:{name:'簡單',tick:2600,choice:12},normal:{name:'普通',tick:2050,choice:7},hard:{name:'困難',tick:1550,choice:3},expert:{name:'專家',tick:1150,choice:1}};
 const RANKS = [{min:0,name:'新星'},{min:900,name:'青銅'},{min:1100,name:'白銀'},{min:1300,name:'黃金'},{min:1500,name:'白金'},{min:1750,name:'鑽石'},{min:2000,name:'大師'}];
-const LOCK_DELAY_MS = 520, MAX_LOCK_RESETS = 15;
+const LOCK_DELAY_MS = 520, MAX_LOCK_RESETS = 15, GARBAGE_DELAY_MS = 1200;
 
 function emptyBoard() { return Array.from({length: ROWS}, () => Array(COLS).fill(null)); }
 function shuffledBag() {
@@ -48,7 +53,8 @@ function cloneShape(type) { return SHAPES[type].map(row => [...row]); }
 function spawn(type = queue.shift()) {
   clearLockDelay(true);
   fillQueue();
-  current = { type, shape: cloneShape(type), x: Math.floor((COLS - SHAPES[type][0].length) / 2), y: -1 };
+  current = { type, shape: cloneShape(type), rotation:0, x: Math.floor((COLS - SHAPES[type][0].length) / 2), y: -1 };
+  lastActionRotation=false;
   canHold = true;
   if (collides(current.x, current.y, current.shape)) endGame(false, '方塊堆到了頂端');
   drawSidePanels();
@@ -68,59 +74,114 @@ function refreshLockDelay() {
   scheduleLockDelay();
 }
 function rotateMatrix(matrix) { return matrix[0].map((_, i) => matrix.map(row => row[i]).reverse()); }
-function rotate() {
-  if (!running || paused) return;
-  const next = rotateMatrix(current.shape);
-  for (const kick of [0,-1,1,-2,2]) if (!collides(current.x + kick, current.y, next)) { current.x += kick; current.shape = next; refreshLockDelay(); break; }
+const JLSTZ_KICKS={
+  '0>1':[[0,0],[-1,0],[-1,1],[0,-2],[-1,-2]],'1>2':[[0,0],[1,0],[1,-1],[0,2],[1,2]],
+  '2>3':[[0,0],[1,0],[1,1],[0,-2],[1,-2]],'3>0':[[0,0],[-1,0],[-1,-1],[0,2],[-1,2]]
+};
+const I_KICKS={
+  '0>1':[[0,0],[-2,0],[1,0],[-2,-1],[1,2]],'1>2':[[0,0],[-1,0],[2,0],[-1,2],[2,-1]],
+  '2>3':[[0,0],[2,0],[-1,0],[2,1],[-1,-2]],'3>0':[[0,0],[1,0],[-2,0],[1,-2],[-2,1]]
+};
+function rotationKicks(type,from,to){
+  const table=type==='I'?I_KICKS:JLSTZ_KICKS,key=`${from}>${to}`;
+  if(table[key])return table[key];
+  return (table[`${to}>${from}`]||[[0,0]]).map(([dx,dy])=>[-dx,-dy]);
+}
+function rotate(direction=1) {
+  if (!running || paused || current.type==='O') return;
+  const next=direction>0?rotateMatrix(current.shape):rotateMatrix(rotateMatrix(rotateMatrix(current.shape)));
+  const from=current.rotation,to=(from+(direction>0?1:3))%4,kicks=rotationKicks(current.type,from,to);
+  for (const [dx,dyUp] of kicks) if (!collides(current.x+dx,current.y-dyUp,next)) { current.x+=dx;current.y-=dyUp;current.shape=next;current.rotation=to;lastActionRotation=true;refreshLockDelay();break; }
   draw();
 }
+function rotateCCW(){rotate(-1);}
 function move(dx, dy) {
   if (!running || paused) return false;
-  if (!collides(current.x + dx, current.y + dy, current.shape)) { current.x += dx; current.y += dy;if(dx!==0)refreshLockDelay();else if(isGrounded())scheduleLockDelay();else clearLockDelay();draw(); return true; }
+  if (!collides(current.x + dx, current.y + dy, current.shape)) { current.x += dx; current.y += dy;lastActionRotation=false;if(dx!==0)refreshLockDelay();else if(isGrounded())scheduleLockDelay();else clearLockDelay();draw(); return true; }
   if (dy > 0) scheduleLockDelay();
   return false;
 }
 function hardDrop() {
   if (!running || paused) return;
   let distance = 0; while (!collides(current.x, current.y + 1, current.shape)) { current.y++; distance++; }
-  score += distance * 2; clearLockDelay(); lockPiece();
+  score += distance * 2;if(distance>0)lastActionRotation=false;clearLockDelay(); lockPiece();
 }
+function softDrop(){if(move(0,1)){score+=1;updateStats();return true;}return false;}
 function hold() {
   if (!running || paused || !canHold) return;
   const old = holdPiece; holdPiece = current.type;
   if (old) spawn(old); else spawn();
   canHold = false; drawSidePanels(); draw();
 }
+function isTSpin() {
+  if(current?.type!=='T'||!lastActionRotation)return false;
+  const cx=current.x+1,cy=current.y+1;
+  return [[-1,-1],[1,-1],[-1,1],[1,1]].filter(([dx,dy])=>cx+dx<0||cx+dx>=COLS||cy+dy>=ROWS||cy+dy<0||board[cy+dy]?.[cx+dx]).length>=3;
+}
 function lockPiece() {
   clearLockDelay();
+  const tSpin=isTSpin();
   current.shape.forEach((row, py) => row.forEach((cell, px) => { if (cell && current.y + py >= 0) board[current.y + py][current.x + px] = current.type; }));
-  clearLines();
-  if (pendingGarbage > 0) { addGarbage(pendingGarbage); pendingGarbage = 0; updateAttackMeter(); }
+  clearLines(tSpin);
+  applyReadyGarbage();
+  if(gameEnded)return;
   spawn(); updateStats(); sendState(true); draw();
 }
-function clearLines() {
+function clearLines(tSpin=false) {
   const full = [];
   board.forEach((row, i) => { if (row.every(Boolean)) full.push(i); });
-  if (!full.length) return;
+  if (!full.length) {combo=-1;if(tSpin){score+=400*level;showClearFeedback('T-SPIN','旋轉技巧');}return;}
   full.forEach(i => board.splice(i, 1));
   while (board.length < ROWS) board.unshift(Array(COLS).fill(null));
-  const n = full.length;
+  const n = full.length,perfectClear=board.every(row=>row.every(cell=>!cell));
   lines += n; level = Math.floor(lines / 10) + 1; dropMs = Math.max(90, 820 - (level - 1) * 62);
-  score += [0, 100, 300, 500, 800][n] * level;
-  const attack = [0, 0, 1, 2, 4][n];
-  if (attack && roomMode === 'online') send({type: 'attack', lines: attack});
-  if (attack && roomMode === 'ai') attackAi(attack);
-  if (attack) toast(`${n} 行連消 · 攻擊 ${attack}`);
+  combo++;
+  const difficult=tSpin||n===4,b2bBonus=difficult&&backToBack,base=tSpin?[0,800,1200,1600][n]:[0,100,300,500,800][n];
+  score+=Math.floor(base*(b2bBonus?1.5:1))*level+Math.max(0,combo)*50*level+(perfectClear?2000*level:0);
+  let attack=tSpin?[0,2,4,6][n]:[0,0,1,2,4][n];
+  if(b2bBonus)attack+=1;
+  attack+=[0,0,1,1,2,2,3,3,4,4,4,4,5][Math.min(combo,12)]||0;
+  if(perfectClear)attack=Math.max(10,attack);
+  if(difficult)backToBack=true;else if(n>0)backToBack=false;
+  const sent=dispatchAttack(attack);
+  const names=tSpin?['','T-SPIN SINGLE','T-SPIN DOUBLE','T-SPIN TRIPLE']:['','SINGLE','DOUBLE','TRIPLE','TETRIS'];
+  const badges=[b2bBonus?'BACK-TO-BACK':'',combo>0?`${combo} COMBO`:'',perfectClear?'PERFECT CLEAR':''].filter(Boolean).join(' · ');
+  showClearFeedback(names[n],badges||`${n} 行消除`);
+  if(sent)toast(`${names[n]} · 攻擊 ${sent}`);
+}
+function dispatchAttack(amount){
+  if(!amount)return 0;
+  const remaining=cancelPendingGarbage(amount);
+  if(remaining&&roomMode==='online')send({type:'attack',lines:remaining});
+  if(remaining&&roomMode==='ai')setTimeout(()=>{if(!gameEnded&&roomMode==='ai')attackAi(remaining);},650);
+  return remaining;
 }
 function addGarbage(amount) {
+  const gap = Math.floor(Math.random() * COLS);
   for (let n = 0; n < amount; n++) {
-    board.shift(); const gap = Math.floor(Math.random() * COLS);
+    board.shift();
     board.push(Array.from({length: COLS}, (_, i) => i === gap ? null : 'G'));
   }
   if (board[0].some(Boolean)) endGame(false, '對手的攻擊讓你出局');
 }
-function receiveAttack(amount) { pendingGarbage = Math.min(12, pendingGarbage + amount); updateAttackMeter(); toast(`警告：${amount} 行攻擊接近`); }
-function updateAttackMeter() { ui.attackMeter.firstElementChild.style.height = `${Math.min(100, pendingGarbage / 12 * 100)}%`; }
+function receiveAttack(amount) {
+  const accepted=Math.min(amount,Math.max(0,12-pendingGarbage));if(!accepted)return;
+  garbageQueue.push({lines:accepted,readyAt:performance.now()+GARBAGE_DELAY_MS});pendingGarbage+=accepted;updateAttackMeter();setTimeout(updateAttackMeter,GARBAGE_DELAY_MS+20);toast(`警告：${accepted} 行攻擊，1.2 秒後生效`);
+}
+function cancelPendingGarbage(amount){
+  let left=amount;
+  while(left>0&&garbageQueue.length){const item=garbageQueue[0],cancel=Math.min(left,item.lines);item.lines-=cancel;left-=cancel;pendingGarbage-=cancel;if(item.lines<=0)garbageQueue.shift();}
+  updateAttackMeter();return left;
+}
+function applyReadyGarbage(){
+  const now=performance.now();let ready=0;
+  while(garbageQueue.length&&garbageQueue[0].readyAt<=now){const item=garbageQueue.shift();ready+=item.lines;pendingGarbage-=item.lines;}
+  if(ready)addGarbage(ready);updateAttackMeter();
+}
+function updateAttackMeter() { ui.attackMeter.firstElementChild.style.height = `${Math.min(100,pendingGarbage/12*100)}%`;ui.attackMeter.classList.toggle('danger',garbageQueue.some(item=>item.readyAt<=performance.now())); }
+function showClearFeedback(title,detail=''){
+  const frame=ui.gameCanvas.closest('.board-frame');ui.clearFeedback.innerHTML=`<strong>${title}</strong><span>${detail}</span>`;ui.clearFeedback.classList.remove('show');frame.classList.remove('clear-pulse');void ui.clearFeedback.offsetWidth;ui.clearFeedback.classList.add('show');frame.classList.add('clear-pulse');clearTimeout(showClearFeedback.timer);showClearFeedback.timer=setTimeout(()=>{ui.clearFeedback.classList.remove('show');frame.classList.remove('clear-pulse');},1050);
+}
 
 function drawCell(target, x, y, color, size, alpha = 1) {
   target.globalAlpha = alpha; target.fillStyle = color; target.fillRect(x * size + 1, y * size + 1, size - 2, size - 2);
@@ -154,7 +215,7 @@ function drawRival(remoteBoard) { drawGrid(rivalCtx, remoteBoard || emptyBoard()
 function updateStats() { ui.score.textContent = score.toLocaleString(); ui.lines.textContent = lines; }
 
 function resetGame() {
-  cancelAnimationFrame(raf); clearLockDelay(true); clearInterval(aiTimer); aiTimer=null; board = emptyBoard(); queue = []; holdPiece = null; score = 0; lines = 0; level = 1; dropMs = 820; lastDrop = performance.now(); pendingGarbage = 0; gameEnded = false; paused = false; running = false; canHold = true;
+  cancelAnimationFrame(raf); clearLockDelay(true); clearInterval(aiTimer); aiTimer=null; board = emptyBoard(); queue = []; holdPiece = null; score = 0; lines = 0; level = 1; dropMs = 820; lastDrop = performance.now(); pendingGarbage = 0;garbageQueue=[];combo=-1;backToBack=false;lastActionRotation=false; gameEnded = false; paused = false; running = false; canHold = true;
   if(roomMode==='ai'){aiBoard=emptyBoard();aiQueue=[];aiTicks=0;aiScore=0;aiLines=0;ui.rivalScore.textContent='0';ui.rivalLines.textContent='0';drawRival(aiBoard);}
   fillQueue(); spawn(); updateStats(); updateAttackMeter(); ui.gameOverlay.classList.add('hidden'); ui.resultModal.classList.add('hidden'); ui.localBadge.textContent = 'READY'; draw(); drawRival();
 }
@@ -179,6 +240,7 @@ function endGame(won, reason) {
   if (gameEnded) return; gameEnded = true; running = false; clearLockDelay(); stopAllHeld(); cancelAnimationFrame(raf); clearInterval(aiTimer); aiTimer=null; ui.localBadge.textContent = won ? 'WIN' : 'KO';
   if (!won && roomMode === 'online') send({type:'gameover'});
   showResult(won, reason);
+  if(session&&(roomMode==='online'||roomMode==='ai'))completeDailyMission();
   if (roomMode === 'online' && db && session) {
     ui.resultSettlement.textContent='正在更新線上戰績…';
     callRpc('record_match_result',{p_won:won,p_ranked:matchmakingMode==='ranked'}).then(result=>{
@@ -355,12 +417,36 @@ async function addViewedPlayerFriend() {
   catch(error){ui.addPlayerFriendBtn.disabled=false;toast(error.message||'無法送出好友邀請');}
 }
 function switchLobbyView(view) {
-  ui.lobbyHome.classList.toggle('hidden',view!=='home'); ui.leaderboardPanel.classList.toggle('hidden',view!=='leaderboard'); ui.friendsPanel.classList.toggle('hidden',view!=='friends');
+  ui.lobbyHome.classList.toggle('hidden',view!=='home'); ui.leaderboardPanel.classList.toggle('hidden',view!=='leaderboard'); ui.friendsPanel.classList.toggle('hidden',view!=='friends');ui.shopPanel.classList.toggle('hidden',view!=='shop');
   document.querySelectorAll('[data-lobby-view]').forEach(button=>button.classList.toggle('active',button.dataset.lobbyView===view));
-  if(view==='leaderboard')refreshLeaderboards(); if(view==='profile')openProfileSettings();
+  if(view==='leaderboard')refreshLeaderboards();if(view==='shop')refreshShop();if(view==='profile')openProfileSettings();
+}
+function renderEconomy(){
+  ui.coinBalance.textContent=Number(shopState.coins||0).toLocaleString();ui.gemBalance.textContent=Number(shopState.gems||0).toLocaleString();ui.shopCoinBalance.textContent=Number(shopState.coins||0).toLocaleString();
+  ui.dailyMission.classList.toggle('completed',Boolean(shopState.dailyCompleted));ui.dailyMissionProgress.textContent=shopState.dailyCompleted?'1 / 1 · 已領取':'0 / 1';
+  ownedThemes=new Set([...(shopState.owned||[]),'neon','arcade']);renderThemeSelect();renderShop();
+}
+function renderThemeSelect(){
+  const selected=playerProfile.block_theme||'neon';ui.themeSelect.innerHTML=[...ownedThemes].filter(id=>THEMES[id]).map(id=>`<option value="${id}">${escapeHtml(THEMES[id].name)}</option>`).join('');ui.themeSelect.value=ownedThemes.has(selected)?selected:'neon';
+}
+function themeSwatches(theme){return ['I','J','L','O','S','T','Z'].map(key=>`<i style="--swatch:${theme[key]}"></i>`).join('');}
+function renderShop(){
+  ui.shopGrid.innerHTML=Object.entries(THEMES).map(([id,theme])=>{const owned=ownedThemes.has(id),equipped=playerProfile.block_theme===id;return `<article class="shop-item ${equipped?'equipped':''}"><div class="theme-swatch">${themeSwatches(theme)}</div><small>${escapeHtml(theme.rarity)}</small><h3>${escapeHtml(theme.name)}</h3><p>${owned?'已永久擁有':'解鎖後可在個人資料自由使用'}</p><button data-theme-id="${id}" data-shop-action="${owned?'equip':'buy'}" ${equipped?'disabled':''}>${equipped?'使用中':owned?'套用造型':`● ${theme.price.toLocaleString()}`}</button></article>`;}).join('');
+}
+async function refreshShop(){
+  if(!db||!session){renderEconomy();return;}try{const state=await callRpc('get_shop_state');shopState={...shopState,...state};renderEconomy();}catch(error){console.warn('Shop unavailable',error.message);renderEconomy();}
+}
+async function buyTheme(id){
+  const theme=THEMES[id];if(!theme||ownedThemes.has(id))return;try{const state=await callRpc('buy_theme',{p_theme_id:id});shopState={...shopState,...state};renderEconomy();toast(`${theme.name} 已加入收藏`);}catch(error){toast(error.message||'無法購買造型');}
+}
+async function equipTheme(id){
+  if(!ownedThemes.has(id))return;try{const next=await callRpc('save_profile',{p_avatar:playerProfile.avatar,p_block_theme:id});playerProfile={...playerProfile,...next};renderProfile();renderEconomy();toast(`已套用 ${THEMES[id].name}`);await refreshSocial();}catch(error){toast(error.message||'無法套用造型');}
+}
+async function completeDailyMission(){
+  if(!db||!session||shopState.dailyCompleted)return;try{const state=await callRpc('complete_daily_match');const rewarded=state.rewarded;shopState={...shopState,...state};renderEconomy();if(rewarded)toast('每日任務完成 · 獲得 120 方塊幣');}catch(error){console.warn('Daily mission unavailable',error.message);}
 }
 function openProfileSettings() {
-  selectedAvatar=playerProfile.avatar; ui.themeSelect.value=playerProfile.block_theme;
+  selectedAvatar=playerProfile.avatar;renderThemeSelect();ui.themeSelect.value=ownedThemes.has(playerProfile.block_theme)?playerProfile.block_theme:'neon';
   ui.avatarOptions.querySelectorAll('button').forEach(button=>button.classList.toggle('selected',button.dataset.avatar===selectedAvatar));
   ui.profileModal.classList.remove('hidden');
 }
@@ -429,7 +515,7 @@ function translateAuthError(message='') {
 }
 async function applySession(nextSession) {
   session=nextSession; clearInterval(socialPoll); socialPoll=null; if(!session){ui.userMenu.classList.add('hidden');ui.inviteBanner.classList.add('hidden');showSection('auth');return;}
-  const {data}=await db.from('profiles').select('username,avatar,block_theme,wins,losses,rating,ranked_wins,ranked_losses').eq('id',session.user.id).single(); playerName=data?.username||session.user.user_metadata?.username||'PLAYER'; playerProfile={...playerProfile,...data,id:session.user.id}; ui.userName.textContent=playerName; ui.userMenu.classList.remove('hidden'); ui.rivalName.textContent='等待中'; showSection('lobby'); switchLobbyView('home'); setNetwork('玩家大廳已連線'); renderProfile(); await refreshSocial(); socialPoll=setInterval(refreshSocial,4000);
+  const {data}=await db.from('profiles').select('username,avatar,block_theme,wins,losses,rating,ranked_wins,ranked_losses').eq('id',session.user.id).single(); playerName=data?.username||session.user.user_metadata?.username||'PLAYER'; playerProfile={...playerProfile,...data,id:session.user.id}; ui.userName.textContent=playerName; ui.userMenu.classList.remove('hidden'); ui.rivalName.textContent='等待中'; showSection('lobby'); switchLobbyView('home'); setNetwork('玩家大廳已連線'); renderProfile(); await Promise.all([refreshSocial(),refreshShop()]); socialPoll=setInterval(refreshSocial,4000);
 }
 async function initOnlineServices() {
   const config=window.BLOCKSTORM_CONFIG||{}; if(!config.supabaseUrl||!config.supabaseAnonKey||!window.supabase){showSection('auth');ui.authMessage.textContent='尚未連接線上服務；目前仍可使用離線練習。';setNetwork('等待後端設定',false);return;}
@@ -443,7 +529,8 @@ ui.cancelWait.addEventListener('click',backToLobby); ui.backBtn.addEventListener
 ui.againBtn.addEventListener('click',()=>{ ui.resultModal.classList.add('hidden'); if(roomMode==='practice'||roomMode==='ai')countdownAndStart(); else {rematchRequested=true;send({type:'rematch'});toast('等待對手準備…');} });
 ui.loginTab.addEventListener('click',()=>selectAuthMode('login')); ui.signupTab.addEventListener('click',()=>selectAuthMode('signup')); ui.authForm.addEventListener('submit',submitAuth); ui.signOutBtn.addEventListener('click',async()=>{disconnect();await db?.auth.signOut();});
 ui.settingsBtn.addEventListener('click',openProfileSettings); ui.profileEditBtn.addEventListener('click',openProfileSettings); ui.closeProfileBtn.addEventListener('click',()=>{ui.profileModal.classList.add('hidden');renderProfile();}); ui.saveProfileBtn.addEventListener('click',saveProfileSettings);
-document.querySelectorAll('.currency-chip button').forEach(button=>button.addEventListener('click',()=>toast('貨幣商店即將開放')));
+document.querySelectorAll('[data-open-shop]').forEach(button=>button.addEventListener('click',()=>switchLobbyView('shop')));
+ui.shopGrid.addEventListener('click',event=>{const button=event.target.closest('button[data-theme-id]');if(!button)return;button.dataset.shopAction==='buy'?buyTheme(button.dataset.themeId):equipTheme(button.dataset.themeId);});
 ui.avatarOptions.addEventListener('click',event=>{const button=event.target.closest('button[data-avatar]');if(!button)return;selectedAvatar=button.dataset.avatar;ui.settingsProfileAvatar.textContent=selectedAvatar;ui.avatarOptions.querySelectorAll('button').forEach(item=>item.classList.toggle('selected',item===button));});
 ui.friendSearchBtn.addEventListener('click',sendFriendRequest); ui.friendSearchInput.addEventListener('keydown',event=>{if(event.key==='Enter')sendFriendRequest();});
 ui.incomingList.addEventListener('click',event=>{const button=event.target.closest('button[data-action]');if(!button)return;respondFriend(button.dataset.id,button.dataset.action==='accept-friend');});
@@ -454,7 +541,7 @@ document.querySelector('.panel-tabs').addEventListener('click',event=>{const but
 [ui.globalLeaderboard,ui.friendLeaderboard].forEach(list=>list.addEventListener('click',event=>{const row=event.target.closest('[data-player-id]');if(row)openPlayerProfile(row.dataset.playerId);}));
 ui.closePlayerBtn.addEventListener('click',()=>ui.playerModal.classList.add('hidden'));ui.addPlayerFriendBtn.addEventListener('click',addViewedPlayerFriend);
 
-const actions={left:()=>move(-1,0),right:()=>move(1,0),down:()=>move(0,1),rotate,drop:hardDrop,hold};
+const actions={left:()=>move(-1,0),right:()=>move(1,0),down:softDrop,rotate,drop:hardDrop,hold};
 const heldControls=new Map();
 function stopHeld(id) { const state=heldControls.get(id);if(!state)return;clearTimeout(state.delay);clearInterval(state.repeat);heldControls.delete(id); }
 function stopAllHeld() { [...heldControls.keys()].forEach(stopHeld); }
@@ -473,7 +560,7 @@ document.addEventListener('keydown',e=>{
   if(['ArrowLeft','ArrowRight','ArrowDown','ArrowUp','Space'].includes(e.code))e.preventDefault();
   const held={ArrowLeft:{id:'key-left',opposite:'key-right',action:actions.left,delay:120,rate:38},ArrowRight:{id:'key-right',opposite:'key-left',action:actions.right,delay:120,rate:38},ArrowDown:{id:'key-down',action:actions.down,delay:80,rate:45}};
   if(held[e.code]){if(e.repeat)return;const control=held[e.code];if(control.opposite)stopHeld(control.opposite);startHeld(control.id,control.action,control.delay,control.rate);return;}
-  if(e.repeat)return;const once={ArrowUp:rotate,Space:hardDrop,KeyC:hold,KeyP:togglePause};once[e.code]?.();
+  if(e.repeat)return;const once={ArrowUp:rotate,KeyX:rotate,KeyZ:rotateCCW,Space:hardDrop,KeyC:hold,KeyP:togglePause};once[e.code]?.();
 });
 document.addEventListener('keyup',e=>{const ids={ArrowLeft:'key-left',ArrowRight:'key-right',ArrowDown:'key-down'};if(ids[e.code])stopHeld(ids[e.code]);});
 window.addEventListener('blur',stopAllHeld);window.addEventListener('beforeunload',disconnect);
