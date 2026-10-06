@@ -73,14 +73,14 @@ const SHAPES = {
 };
 const PIECES = Object.keys(SHAPES);
 const $ = (id) => document.getElementById(id);
-const ui = Object.fromEntries(['auth','lobby','waiting','partyRoom','arena','hostBtn','joinBtn','matchBtn','rankedMatchBtn','practiceBtn','guestPracticeBtn','aiDifficulty','roomInput','lobbyMessage','roomCode','copyCode','waitingTitle','waitingText','cancelWait','partyRoomTitle','partyCode','leavePartyBtn','partyCount','partyMembers','partyMaxPlayers','partyTargetMode','partyGarbageDelay','partyHostNote','partyStatus','partyReadyBtn','partyStartBtn','roomChatMessages','roomChatForm','roomChatInput','lobbyChatMessages','lobbyChatForm','lobbyChatInput','lobbyChatToast','lobbyChatToastAvatar','lobbyChatToastName','lobbyChatToastMessage','chatPanel','backBtn','pauseBtn','matchMode','matchRoom','networkStatus','userMenu','userAvatar','userName','settingsBtn','signOutBtn','themeModeBtn','matchmakingToast','matchmakingToastTitle','matchmakingToastText','cancelMatchBtn','loginTab','signupTab','authForm','accountInput','passwordInput','authSubmit','authMessage','profileAvatar','profileName','profilePlayerId','profileWins','profileLosses','profileWinrate','profileThemeName','profileRank','profileRating','profileEditBtn','profileModal','settingsProfileAvatar','settingsProfileName','settingsProfileId','settingsProfileRank','settingsProfileRating','profileRankWinrate','profileRankMatches','profileRankRecord','profileCasualWinrate','profileCasualMatches','profileCasualRecord','avatarOptions','themeSelect','backgroundSelect','saveProfileBtn','closeProfileBtn','friendCount','friendNotice','friendSearchInput','friendSearchBtn','friendMessage','requestSection','incomingList','friendsList','lobbyHome','leaderboardPanel','friendsPanel','shopPanel','tasksPanel','taskTabs','taskSummary','taskList','claimAllTasksBtn','shopGrid','coinBalance','gemBalance','shopCoinBalance','shopGemBalance','dailyMission','dailyMissionTitle','dailyMissionProgress','globalLeaderboard','friendLeaderboard','playerModal','closePlayerBtn','viewPlayerAvatar','viewPlayerName','viewPlayerId','viewPlayerRank','viewPlayerRating','viewRankWinrate','viewRankMatches','viewRankRecord','viewCasualWinrate','viewCasualMatches','viewCasualRecord','viewPlayerExtra','addPlayerFriendBtn','inviteBanner','inviteAvatar','inviteName','acceptInviteBtn','declineInviteBtn','localAvatar','rivalAvatar','gameCanvas','holdCanvas','nextCanvas','score','lines','opponentGrid','rivalCanvas','rivalScore','rivalLines','rivalName','rivalBadge','localBadge','attackMeter','gameOverlay','overlayTitle','overlayText','countdown','clearFeedback','battleSocial','battleChatFeed','resultModal','resultTitle','resultText','resultScore','resultLines','resultRatingBox','resultRating','resultSettlement','againBtn','lobbyBtn','toast'].map(k => [k, $(k)]));
+const ui = Object.fromEntries(['auth','lobby','waiting','partyRoom','arena','hostBtn','joinBtn','matchBtn','rankedMatchBtn','practiceBtn','guestPracticeBtn','aiDifficulty','roomInput','lobbyMessage','roomCode','copyCode','waitingTitle','waitingText','cancelWait','partyRoomTitle','partyCode','leavePartyBtn','partyCount','partyMembers','partyInviteToggleBtn','partyInvitePanel','partyInviteList','partyMaxPlayers','partyTargetMode','partyGarbageDelay','partyHostNote','partyStatus','partyReadyBtn','partyStartBtn','roomChatMessages','roomChatForm','roomChatInput','lobbyChatMessages','lobbyChatForm','lobbyChatInput','lobbyChatToast','lobbyChatToastAvatar','lobbyChatToastName','lobbyChatToastMessage','chatPanel','backBtn','pauseBtn','matchMode','matchRoom','networkStatus','userMenu','userAvatar','userName','settingsBtn','signOutBtn','themeModeBtn','matchmakingToast','matchmakingToastTitle','matchmakingToastText','cancelMatchBtn','loginTab','signupTab','authForm','accountInput','passwordInput','authSubmit','authMessage','profileAvatar','profileName','profilePlayerId','profileWins','profileLosses','profileWinrate','profileThemeName','profileRank','profileRating','profileEditBtn','profileModal','settingsProfileAvatar','settingsProfileName','settingsProfileId','settingsProfileRank','settingsProfileRating','profileRankWinrate','profileRankMatches','profileRankRecord','profileCasualWinrate','profileCasualMatches','profileCasualRecord','avatarOptions','themeSelect','backgroundSelect','saveProfileBtn','closeProfileBtn','friendCount','friendNotice','friendSearchInput','friendSearchBtn','friendMessage','requestSection','incomingList','friendsList','lobbyHome','leaderboardPanel','friendsPanel','shopPanel','tasksPanel','taskTabs','taskSummary','taskList','claimAllTasksBtn','shopGrid','coinBalance','gemBalance','shopCoinBalance','shopGemBalance','dailyMission','dailyMissionTitle','dailyMissionProgress','globalLeaderboard','friendLeaderboard','playerModal','closePlayerBtn','viewPlayerAvatar','viewPlayerName','viewPlayerId','viewPlayerRank','viewPlayerRating','viewRankWinrate','viewRankMatches','viewRankRecord','viewCasualWinrate','viewCasualMatches','viewCasualRecord','viewPlayerExtra','addPlayerFriendBtn','inviteBanner','inviteAvatar','inviteName','acceptInviteBtn','declineInviteBtn','localAvatar','rivalAvatar','gameCanvas','holdCanvas','nextCanvas','score','lines','opponentGrid','rivalCanvas','rivalScore','rivalLines','rivalName','rivalBadge','localBadge','attackMeter','gameOverlay','overlayTitle','overlayText','countdown','clearFeedback','battleSocial','battleChatFeed','resultModal','resultTitle','resultText','resultScore','resultLines','resultRatingBox','resultRating','resultSettlement','againBtn','lobbyBtn','toast'].map(k => [k, $(k)]));
 const ctx = ui.gameCanvas.getContext('2d');
 const holdCtx = ui.holdCanvas.getContext('2d');
 const nextCtx = ui.nextCanvas.getContext('2d');
 let rivalCtx = ui.rivalCanvas.getContext('2d');
 
 let board, current, queue, holdPiece, canHold, score, lines, level, dropMs, lastDrop, raf, lockTimer=null, lockResetCount=0;
-let running = false, paused = false, gameEnded = false, pendingGarbage = 0, garbageQueue=[], roomMode = 'practice', combo=-1, backToBack=false, lastActionRotation=false,lastRotationKickIndex=0, bestComboThisGame=0, tetrisesThisGame=0, perfectClearsThisGame=0;
+let running = false, paused = false, gameEnded = false, pendingGarbage = 0, garbageQueue=[], roomMode = 'practice', combo=-1, backToBack=false,b2bChain=0,lastActionRotation=false,lastRotationKickIndex=0, bestComboThisGame=0, tetrisesThisGame=0, perfectClearsThisGame=0;
 let peer = null, connection = null, connections = new Map(), isHost = false, activeRoom = '', lastStateSent = 0;
 let peerReady = false, remoteReady = false, rematchRequested = false;
 let db = null, session = null, playerName = 'PLAYER', authMode = 'login';
@@ -88,7 +88,7 @@ let currentRoomId = null, matchPoll = null, matchmaking = false, matchmakingMode
 let partyState=null,partyReady=false,partyPoll=null,lobbyChatPoll=null,lockedRows=0,targetCursor=0;
 let lastLobbyMessageId=0,lobbyChatInitialized=false,lobbyChatNoticeTimer=null;
 let opponents=new Map(),eliminatedPlayers=new Set(),roomChat=[];
-let playerProfile = {avatar:'⚡',block_theme:'neon',battle_background:'void',wins:0,losses:0,rating:1000,ranked_wins:0,ranked_losses:0}, rivalTheme='neon',rivalBackground='void', socialPoll=null, pendingInvite=null, selectedAvatar='⚡';
+let playerProfile = {avatar:'⚡',block_theme:'neon',battle_background:'void',wins:0,losses:0,rating:1000,ranked_wins:0,ranked_losses:0}, rivalTheme='neon',rivalBackground='void', socialPoll=null, pendingInvite=null, selectedAvatar='⚡',socialFriends=[];
 let aiBoard = null, aiTimer = null, aiTicks = 0, aiDifficulty = 'normal', aiQueue = [], aiScore = 0, aiLines = 0;
 let leaderboardPlayers = new Map(), viewedPlayer = null, socialFriendNames = new Set();
 let shopState={coins:0,gems:0,owned:['neon','arcade'],ownedBackgrounds:['void']},ownedThemes=new Set(['neon','arcade']),ownedBackgrounds=new Set(['void']),shopCategory='block';
@@ -96,7 +96,7 @@ let progressionState={progress:{},claims:[]},taskCategory='daily';
 const AI_LEVELS = {easy:{name:'簡單',tick:2600,choice:12},normal:{name:'普通',tick:2050,choice:7},hard:{name:'困難',tick:1550,choice:3},expert:{name:'專家',tick:1150,choice:1}};
 const RANKS = [{min:0,name:'新星'},{min:900,name:'青銅'},{min:1100,name:'白銀'},{min:1300,name:'黃金'},{min:1500,name:'白金'},{min:1750,name:'鑽石'},{min:2000,name:'大師'}];
 const LOCK_DELAY_MS = 520, MAX_LOCK_RESETS = 15, GARBAGE_DELAY_MS = 1200;
-const COMBO_ATTACK=[0,0,1,1,1,2,2,3,3,4,4,4,5];
+const COMBO_ATTACK=[0,0,1,1,2,2,3,3,4,4,5,5,6];
 
 function setUiTheme(theme){
   const next=theme==='dark'?'dark':'light';document.documentElement.dataset.uiTheme=next;ui.themeModeBtn.textContent=next==='dark'?'☀':'☾';ui.themeModeBtn.title=next==='dark'?'切換亮色模式':'切換深色模式';localStorage.setItem('blockstorm-ui-theme',next);
@@ -206,27 +206,30 @@ function clearLines(tSpin=false) {
   lines += n; level = Math.floor(lines / 10) + 1; dropMs = Math.max(90, 820 - (level - 1) * 62);
   combo++;
   bestComboThisGame=Math.max(bestComboThisGame,combo);
-  const mini=tSpin==='mini'&&n===1,difficult=Boolean(tSpin)||n===4,b2bBonus=difficult&&backToBack,base=mini?200:tSpin?[0,800,1200,1600][n]:[0,100,300,500,800][n];
+  const mini=tSpin==='mini'&&n===1,difficult=Boolean(tSpin)||n===4,b2bBonus=difficult&&backToBack,previousB2B=b2bChain,base=mini?200:tSpin?[0,800,1200,1600][n]:[0,100,300,500,800][n];
   score+=Math.floor(base*(b2bBonus?1.5:1))*level+Math.max(0,combo)*50*level+(perfectClear?2000*level:0);
   let attack=mini?0:tSpin?[0,2,4,6][n]:[0,0,1,2,4][n];
   if(b2bBonus)attack+=1;
   attack+=COMBO_ATTACK[Math.min(combo,12)]||0;
-  if(perfectClear)attack=Math.max(10,attack);
+  if(difficult){b2bChain=backToBack?b2bChain+1:1;backToBack=true;}else{const surge=previousB2B>=4?Math.min(5,Math.max(1,Math.floor((previousB2B-2)/2))):0;attack+=surge;b2bChain=0;backToBack=false;}
+  if(perfectClear){attack+=3;b2bChain+=2;backToBack=true;}
   if(n===4)tetrisesThisGame++;
   if(perfectClear)perfectClearsThisGame++;
-  if(difficult)backToBack=true;else if(n>0)backToBack=false;
-  const sent=dispatchAttack(attack);
+  let result=dispatchAttack(attack);
+  if(difficult&&result.cancelled){const pressure=dispatchAttack(1);result={generated:result.generated+1,cancelled:result.cancelled+pressure.cancelled,sent:result.sent+pressure.sent};}
+  score+=result.cancelled*75*level;
   const names=mini?['','T-SPIN MINI SINGLE']:tSpin?['','T-SPIN SINGLE','T-SPIN DOUBLE','T-SPIN TRIPLE']:['','SINGLE','DOUBLE','TRIPLE','TETRIS'];
-  const badges=[b2bBonus?'BACK-TO-BACK':'',combo>0?`${combo} COMBO`:'',perfectClear?'PERFECT CLEAR':''].filter(Boolean).join(' · ');
-  showClearFeedback(names[n],badges||`${n} 行消除`);
-  if(sent)toast(`${names[n]} · 攻擊 ${sent}`);
+  const surgeReleased=!difficult&&previousB2B>=4?Math.min(5,Math.max(1,Math.floor((previousB2B-2)/2))):0;
+  const badges=[b2bBonus?`B2B ×${b2bChain}`:'',combo>0?`${combo} COMBO`:'',perfectClear?'PERFECT CLEAR +3':'',surgeReleased?`SURGE +${surgeReleased}`:'',result.cancelled?`抵銷 ${result.cancelled}`:'',result.sent?`攻擊 ${result.sent}`:''].filter(Boolean).join(' · ');
+  showClearFeedback(names[n],badges||`${n} 行消除`,Math.min(4,n+(difficult?1:0)));
+  if(result.sent||result.cancelled)toast([result.cancelled?`抵銷 ${result.cancelled} 行`:'',result.sent?`送出 ${result.sent} 行`:'' ].filter(Boolean).join(' · '));
 }
 function dispatchAttack(amount){
-  if(!amount)return 0;
-  const remaining=cancelPendingGarbage(amount);
+  if(!amount)return {generated:0,cancelled:0,sent:0};
+  const {remaining,cancelled}=cancelPendingGarbage(amount);
   if(remaining&&roomMode==='online')send({type:'attack',lines:remaining,from:session?.user?.id});
   if(remaining&&roomMode==='ai')setTimeout(()=>{if(!gameEnded&&roomMode==='ai')attackAi(remaining);},650);
-  return remaining;
+  return {generated:amount,cancelled,sent:remaining};
 }
 function addGarbage(amount) {
   const gap = Math.floor(Math.random() * COLS);
@@ -243,9 +246,9 @@ function receiveAttack(amount) {
   garbageQueue.push({lines:accepted,readyAt:performance.now()+delay});pendingGarbage+=accepted;updateAttackMeter();setTimeout(updateAttackMeter,delay+20);toast(`警告：${accepted} 行攻擊，${(delay/1000).toFixed(1)} 秒後生效`);
 }
 function cancelPendingGarbage(amount){
-  let left=amount;
-  while(left>0&&garbageQueue.length){const item=garbageQueue[0],cancel=Math.min(left,item.lines);item.lines-=cancel;left-=cancel;pendingGarbage-=cancel;if(item.lines<=0)garbageQueue.shift();}
-  updateAttackMeter();return left;
+  let left=amount,cancelled=0;
+  while(left>0&&garbageQueue.length){const item=garbageQueue[0],cancel=Math.min(left,item.lines);item.lines-=cancel;left-=cancel;cancelled+=cancel;pendingGarbage-=cancel;if(item.lines<=0)garbageQueue.shift();}
+  updateAttackMeter();return {remaining:left,cancelled};
 }
 function applyReadyGarbage(){
   const now=performance.now();let ready=0;
@@ -253,8 +256,8 @@ function applyReadyGarbage(){
   if(ready)addGarbage(ready);updateAttackMeter();
 }
 function updateAttackMeter() { ui.attackMeter.firstElementChild.style.height = `${Math.min(100,pendingGarbage/12*100)}%`;ui.attackMeter.classList.toggle('danger',garbageQueue.some(item=>item.readyAt<=performance.now())); }
-function showClearFeedback(title,detail=''){
-  const frame=ui.gameCanvas.closest('.board-frame');ui.clearFeedback.innerHTML=`<strong>${title}</strong><span>${detail}</span>`;ui.clearFeedback.classList.remove('show');frame.classList.remove('clear-pulse');void ui.clearFeedback.offsetWidth;ui.clearFeedback.classList.add('show');frame.classList.add('clear-pulse');clearTimeout(showClearFeedback.timer);showClearFeedback.timer=setTimeout(()=>{ui.clearFeedback.classList.remove('show');frame.classList.remove('clear-pulse');},1050);
+function showClearFeedback(title,detail='',power=1){
+  const frame=ui.gameCanvas.closest('.board-frame'),impact=Math.max(1,Math.min(4,Number(power)||1));ui.clearFeedback.innerHTML=`<strong>${title}</strong><span>${detail}</span>`;ui.clearFeedback.classList.remove('show');frame.classList.remove('clear-pulse','clear-shake','clear-impact-3','clear-impact-4');void ui.clearFeedback.offsetWidth;ui.clearFeedback.classList.add('show');frame.classList.add('clear-pulse','clear-shake');if(impact>=3)frame.classList.add(`clear-impact-${impact}`);if(navigator.vibrate)navigator.vibrate(impact>=4?[24,20,32]:impact>=3?22:14);clearTimeout(showClearFeedback.timer);showClearFeedback.timer=setTimeout(()=>{ui.clearFeedback.classList.remove('show');frame.classList.remove('clear-pulse','clear-shake','clear-impact-3','clear-impact-4');},1050);
 }
 
 function drawCell(target, x, y, color, size, alpha = 1, themeId=playerProfile.block_theme) {
@@ -323,7 +326,7 @@ function liveBoard(){const next=board.map(row=>[...row]);if(current)current.shap
 function updateStats() { ui.score.textContent = score.toLocaleString(); ui.lines.textContent = lines; }
 
 function resetGame() {
-  cancelAnimationFrame(raf); clearLockDelay(true); clearInterval(aiTimer); aiTimer=null; board = applyLockedFloor(emptyBoard(),lockedRows); queue = []; holdPiece = null; score = 0; lines = 0; level = 1; dropMs = 820; lastDrop = performance.now(); pendingGarbage = 0;garbageQueue=[];combo=-1;backToBack=false;lastActionRotation=false;bestComboThisGame=0;tetrisesThisGame=0;perfectClearsThisGame=0; gameEnded = false; paused = false; running = false; canHold = true;
+  cancelAnimationFrame(raf); clearLockDelay(true); clearInterval(aiTimer); aiTimer=null; board = applyLockedFloor(emptyBoard(),lockedRows); queue = []; holdPiece = null; score = 0; lines = 0; level = 1; dropMs = 820; lastDrop = performance.now(); pendingGarbage = 0;garbageQueue=[];combo=-1;backToBack=false;b2bChain=0;lastActionRotation=false;bestComboThisGame=0;tetrisesThisGame=0;perfectClearsThisGame=0; gameEnded = false; paused = false; running = false; canHold = true;
   if(roomMode==='ai'){aiBoard=emptyBoard();aiQueue=[];aiTicks=0;aiScore=0;aiLines=0;ui.rivalScore.textContent='0';ui.rivalLines.textContent='0';drawRival(aiBoard);}
   fillQueue(); spawn(); updateStats(); updateAttackMeter(); ui.gameOverlay.classList.add('hidden'); ui.resultModal.classList.add('hidden'); ui.localBadge.textContent = 'READY'; draw(); drawRival();
 }
@@ -535,6 +538,7 @@ function renderPartyRoom(){
   ui.partyMaxPlayers.value=String(partyState.max_players||4);ui.partyTargetMode.value=settings.target_mode||'random';ui.partyGarbageDelay.value=String(settings.garbage_delay||1200);
   [ui.partyMaxPlayers,ui.partyTargetMode,ui.partyGarbageDelay].forEach(control=>control.disabled=!isHost);ui.partyHostNote.textContent=isHost?'你是房主，可調整每位玩家':'等待房主設定';
   ui.partyMembers.innerHTML=members.map(member=>{const host=member.id===hostId,self=member.id===session.user.id,disabled=!isHost;return `<div class="party-member" data-member-id="${member.id}"><span class="member-avatar">${escapeHtml(member.avatar||'⚡')}</span><div><strong>${escapeHtml(member.username)}${host?' · 房主':''}${self?'（你）':''}</strong><small>${rankFor(member.rating).name} · ${member.rating||1000} RP</small></div><span class="ready-state ${member.ready?'ready':''}">${member.ready?'已準備':'未準備'}</span><label class="handicap-control">鎖定列 <select data-handicap-id="${member.id}" ${disabled?'disabled':''}>${Array.from({length:7},(_,i)=>`<option value="${i}" ${Number(member.handicap_rows||0)===i?'selected':''}>${i}</option>`).join('')}</select></label></div>`;}).join('');
+  renderPartyInviteList();
   const self=members.find(member=>member.id===session.user.id);partyReady=Boolean(self?.ready);ui.partyReadyBtn.classList.toggle('hidden',isHost);ui.partyReadyBtn.textContent=partyReady?'取消準備':'我已準備';ui.partyStartBtn.classList.toggle('hidden',!isHost);ui.partyStartBtn.disabled=members.length<2||members.some(member=>!member.ready);ui.partyStatus.textContent=members.length<2?'至少還需要一位玩家。':members.some(member=>!member.ready)?'等待所有玩家準備。':'所有玩家已準備，可以開始遊戲。';
 }
 async function refreshPartyRoom(){if(!currentRoomId||!partyState)return;try{const next=await callRpc('get_party_room',{p_room_id:currentRoomId});partyState=next;renderPartyRoom();if(next.state==='playing'&&!running&&!gameEnded)startPartyMatch();}catch(error){console.warn('Party room unavailable',error.message);}}
@@ -548,6 +552,15 @@ async function togglePartyReady(){try{partyState=await callRpc('set_party_ready'
 async function startPartyRoom(){try{await savePartySettings();partyState=await callRpc('start_party_room',{p_room_id:currentRoomId});clearInterval(partyPoll);broadcastParty({type:'party-start',party:partyState});startPartyMatch();}catch(error){toast(error.message||'目前還不能開始');}}
 function startPartyMatch(){if(running||ui.countdown&&!ui.countdown.classList.contains('hidden'))return;clearInterval(partyPoll);roomMode='online';matchmaking=false;lockedRows=Number((partyState?.members||[]).find(member=>member.id===session.user.id)?.handicap_rows||0);eliminatedPlayers.clear();opponents.clear();(partyState?.members||[]).filter(member=>member.id!==session.user.id).forEach(member=>opponents.set(member.id,{...member,userId:member.id,board:emptyBoard(),score:0,lines:0,theme:'neon',background:'void',alive:true}));ui.matchMode.textContent='好友多人對戰';ui.matchRoom.textContent=`ROOM ${activeRoom} · ${partyState.members.length}P`;showSection('arena');ui.battleSocial.classList.remove('hidden');renderOpponentBoards();countdownAndStart();}
 async function leavePartyRoom(){backToLobby();}
+function renderPartyInviteList(){
+  if(!ui.partyInviteList)return;const memberIds=new Set((partyState?.members||[]).map(member=>member.id)),available=socialFriends.filter(friend=>!memberIds.has(friend.id));
+  ui.partyInviteList.innerHTML=available.length?available.map(friend=>`<div class="party-invite-row"><span>${escapeHtml(friend.avatar||'⚡')}</span><div><b>${escapeHtml(friend.username)}</b><small>${friend.online?'● 線上':'離線也可收到邀請'}</small></div><button data-party-invite-id="${friend.id}" type="button">邀請</button></div>`).join(''):'<p class="empty-state">目前沒有可邀請的好友。</p>';
+}
+async function inviteFriendToCurrentRoom(friendId){
+  if(!partyState||!activeRoom)return;const button=ui.partyInviteList.querySelector(`[data-party-invite-id="${friendId}"]`);if(button)button.disabled=true;
+  try{await callRpc('send_battle_invite',{p_friend_id:friendId,p_room_code:activeRoom});toast('房間邀請已送出');if(button){button.textContent='已邀請';}}
+  catch(error){toast(error.message||'無法送出邀請');if(button)button.disabled=false;}
+}
 function appendRoomChat(message){roomChat.push({username:message.username||'PLAYER',message:String(message.message||'').slice(0,120)});roomChat=roomChat.slice(-40);renderRoomChat();if(roomMode==='online')showBattleBubble(`${message.username}: ${message.message}`);}
 function renderRoomChat(){ui.roomChatMessages.innerHTML=roomChat.length?roomChat.map(item=>`<div class="chat-message"><b>${escapeHtml(item.username)}</b><span>${escapeHtml(item.message)}</span></div>`).join(''):'<p class="empty-state">房間內還沒有訊息。</p>';ui.roomChatMessages.scrollTop=ui.roomChatMessages.scrollHeight;}
 function sendRoomChat(event){event.preventDefault();const message=ui.roomChatInput.value.trim();if(!message)return;const data={type:'party-chat',username:playerName,message};ui.roomChatInput.value='';if(isHost){appendRoomChat(data);broadcastParty(data);}else connection?.send(data);}
@@ -678,13 +691,14 @@ async function saveProfileSettings() {
 }
 function renderSocial(state) {
   if(state.profile){ playerProfile={...playerProfile,...state.profile}; playerName=state.profile.username||playerName; ui.userName.textContent=playerName; renderProfile(); }
-  const friends=state.friends||[], requests=state.requests||[];
+  const friends=state.friends||[], requests=state.requests||[];socialFriends=friends;
   socialFriendNames=new Set(friends.map(friend=>friend.username.toLocaleLowerCase()));
   ui.friendCount.textContent=`${friends.length} 位好友`;
   ui.friendNotice.classList.toggle('hidden',!requests.length&&!(state.invites||[]).length);
   ui.requestSection.classList.toggle('hidden',!requests.length);
   ui.incomingList.innerHTML=requests.map(item=>`<div class="player-row"><span class="row-avatar">${escapeHtml(item.avatar||'⚡')}</span><div><strong>${escapeHtml(item.username)}</strong><small>想加你為好友</small></div><div class="row-actions"><button data-action="accept-friend" data-id="${item.friendship_id}">接受</button><button class="danger" data-action="decline-friend" data-id="${item.friendship_id}">略過</button></div></div>`).join('');
   ui.friendsList.innerHTML=friends.length?friends.map(friend=>`<div class="player-row"><span class="row-avatar">${escapeHtml(friend.avatar||'⚡')}</span><div><strong>${escapeHtml(friend.username)}</strong><small class="${friend.online?'online-dot':''}">${friend.online?'● 線上 · ':''}${rankFor(friend.rating).name} · ${winrate(friend.wins,friend.losses)}% 勝率</small></div><div class="row-actions"><button data-action="invite-friend" data-id="${friend.id}">邀請對戰</button></div></div>`).join(''):'<p class="empty-state">還沒有好友，搜尋角色帳號加入。</p>';
+  if(partyState)renderPartyInviteList();
   const invite=(state.invites||[])[0];
   if(invite && invite.id!==pendingInvite?.id){pendingInvite=invite;ui.inviteAvatar.textContent=invite.avatar||'⚡';ui.inviteName.textContent=invite.username;ui.inviteBanner.classList.remove('hidden');}
 }
@@ -747,7 +761,8 @@ async function initOnlineServices() {
 ui.hostBtn.addEventListener('click',hostRoom); ui.joinBtn.addEventListener('click',joinRoom); ui.matchBtn.addEventListener('click',()=>findOpponent('normal')); ui.rankedMatchBtn.addEventListener('click',()=>findOpponent('ranked')); ui.practiceBtn.addEventListener('click',startAiBattle); ui.guestPracticeBtn.addEventListener('click',startPractice);
 ui.themeModeBtn.addEventListener('click',()=>setUiTheme(document.documentElement.dataset.uiTheme==='dark'?'light':'dark'));ui.cancelMatchBtn.addEventListener('click',cancelMatchmaking);
 ui.partyCode.addEventListener('click',async()=>{try{await navigator.clipboard.writeText(activeRoom);toast('房間碼已複製');}catch{toast(`房間碼：${activeRoom}`);}});ui.leavePartyBtn.addEventListener('click',leavePartyRoom);ui.partyReadyBtn.addEventListener('click',togglePartyReady);ui.partyStartBtn.addEventListener('click',startPartyRoom);[ui.partyMaxPlayers,ui.partyTargetMode,ui.partyGarbageDelay].forEach(control=>control.addEventListener('change',savePartySettings));ui.partyMembers.addEventListener('change',event=>{if(event.target.matches('[data-handicap-id]'))savePartySettings();});ui.roomChatForm.addEventListener('submit',sendRoomChat);ui.lobbyChatForm.addEventListener('submit',sendLobbyChat);ui.lobbyChatToast.addEventListener('click',()=>switchLobbyView('chat'));document.querySelector('.reaction-bar').addEventListener('click',event=>{const button=event.target.closest('[data-reaction]');if(button)sendReaction(button.dataset.reaction);});
-ui.roomInput.addEventListener('input',e=>e.target.value=e.target.value.toUpperCase().replace(/[^A-Z2-9]/g,'')); ui.roomInput.addEventListener('keydown',e=>{if(e.key==='Enter')joinRoom();});
+ui.partyInviteToggleBtn.addEventListener('click',()=>{ui.partyInvitePanel.classList.toggle('hidden');renderPartyInviteList();});ui.partyInviteList.addEventListener('click',event=>{const button=event.target.closest('[data-party-invite-id]');if(button&&!button.disabled)inviteFriendToCurrentRoom(button.dataset.partyInviteId);});
+ui.roomInput.addEventListener('input',e=>e.target.value=e.target.value.normalize('NFKC').toUpperCase().replace(/[^A-Z0-9]/g,'').slice(0,6)); ui.roomInput.addEventListener('keydown',e=>{if(e.key==='Enter')joinRoom();});
 ui.copyCode.addEventListener('click',async()=>{try{await navigator.clipboard.writeText(activeRoom);toast('房間碼已複製');}catch{toast(`房間碼：${activeRoom}`);}});
 ui.cancelWait.addEventListener('click',backToLobby); ui.backBtn.addEventListener('click',backToLobby); ui.pauseBtn.addEventListener('click',togglePause); ui.lobbyBtn.addEventListener('click',backToLobby);
 ui.againBtn.addEventListener('click',()=>{ ui.resultModal.classList.add('hidden');if(partyState){backToLobby();return;} if(roomMode==='practice'||roomMode==='ai')countdownAndStart(); else {rematchRequested=true;send({type:'rematch'});toast('等待對手準備…');} });
