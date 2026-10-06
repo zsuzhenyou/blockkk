@@ -1,0 +1,171 @@
+/* BLOCKSTORM / RED PROTOCOL — shared visual system for every screen. */
+@import url('https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;700;800;900&family=Noto+Sans+TC:wght@400;600;800;900&display=swap');
+:root:root{--bg:#d7d7d5;--panel:#f1f1ee;--panel-2:#e3e3df;--ink:#171717;--muted:#595959;--cyan:#e61e2b;--pink:#e61e2b;--blue:#262626;--orange:#e61e2b;--line:#b0b0ac;--shadow:5px 5px 0 rgba(0,0,0,.14);--red:#e61e2b;--display:'Barlow Condensed','Noto Sans TC',sans-serif;font-family:'Noto Sans TC',sans-serif;color-scheme:light}
+:root:root[data-ui-theme=dark]{--bg:#101010;--panel:#1d1d1d;--panel-2:#292929;--ink:#f0f0ec;--muted:#b5b5b0;--line:#50504e;--shadow:5px 5px 0 #080808;color-scheme:dark}
+:root body.cyber{color:var(--ink);background:var(--bg);font-family:'Noto Sans TC',sans-serif}
+:root body.cyber::before{background-image:linear-gradient(var(--line) 1px,transparent 1px),linear-gradient(90deg,var(--line) 1px,transparent 1px);background-size:80px 80px;opacity:.14;mask-image:none}
+:root body.cyber main{max-width:1600px;position:relative}
+:root body.cyber .noise{opacity:.018}
+:root body.cyber :is(button,input,select,textarea){border-radius:0;font-family:inherit}
+:root body.cyber :is(button,a,input,select,textarea):focus-visible{outline:3px solid var(--red);outline-offset:4px}
+:root body.cyber :is(h1,h2,h3,strong,b){font-family:var(--display);letter-spacing:.015em}
+:root body.cyber :is(h2,h3){color:var(--ink)}
+:root body.cyber .eyebrow{color:var(--red);font:800 13px var(--display);letter-spacing:.2em}
+:root body.cyber :is(.setting-note,.empty-state,.friend-message,.party-footer p,.party-header p,.party-settings>label,.setting-label,.auth-card label,.chat-mode-note,.private-chat-heading small){color:var(--muted);font-size:13px}
+:root body.cyber :is(input,select,textarea){background:var(--panel-2);color:var(--ink);border:1px solid var(--line);box-shadow:none}
+:root body.cyber input::placeholder{color:var(--muted);opacity:1}
+:root body.cyber .site-header{max-width:none;padding:0 28px;height:76px;background:#181818;color:#fff;border-bottom:5px solid var(--red);box-shadow:none;position:relative;z-index:2}
+:root body.cyber .brand{color:#fff;font-size:20px;font-weight:900;letter-spacing:.04em}
+:root body.cyber .brand b{font:800 13px var(--display);letter-spacing:.24em;color:#c5c5bf}
+:root body.cyber .brand-mark{transform:none;gap:3px}
+:root body.cyber .brand-mark i{background:var(--red);box-shadow:none}
+:root body.cyber .header-status,:root body.cyber .user-menu{color:#bcbcb6;font-size:11px}
+:root body.cyber .user-menu button{color:#eaeae5;font-size:12px}
+:root body.cyber .status-dot{background:var(--red);border-radius:0;box-shadow:none}
+:root body.cyber :is(.theme-mode-button,.icon-button,.modal-close){background:var(--panel-2);color:var(--ink);border:1px solid var(--line);border-radius:0}
+:root body.cyber .theme-mode-button{background:#303030;color:#fff;border-color:#666}
+/* Folded identification cards and machine-readable edge marks. */
+:root body.cyber :is(.auth-card,.player-bar,.lobby-panel,.party-header,.party-card,.party-footer,.modal-card){background:var(--panel);color:var(--ink);border:1px solid var(--line);border-top:5px solid var(--red);border-radius:16px 2px 12px 2px;box-shadow:var(--shadow);position:relative}
+:root body.cyber :is(.auth-card,.party-header,.modal-card)::before{content:'BLOCKSTORM / ACCESS SYSTEM';display:block;color:var(--muted);font:800 11px var(--display);letter-spacing:.2em;margin-bottom:20px;border-bottom:1px solid var(--line);padding-bottom:10px}
+:root body.cyber :is(.auth-card,.lobby-panel,.party-card)::after{content:'';position:absolute;right:16px;top:10px;width:58px;height:5px;background:repeating-linear-gradient(90deg,var(--red) 0 2px,transparent 2px 4px,var(--red) 4px 8px,transparent 8px 11px);pointer-events:none}
+:root body.cyber .auth-screen{gap:7vw;min-height:calc(100dvh - 76px)}
+:root body.cyber .auth-copy{position:relative}
+:root body.cyber .auth-copy::before{content:'PLAYER\A ACCESS';white-space:pre;display:block;font:900 clamp(54px,7vw,112px)/.82 var(--display);letter-spacing:-.025em;color:var(--ink);margin-bottom:24px}
+:root body.cyber .auth-copy h1{font-size:clamp(32px,4vw,56px);letter-spacing:-.04em;line-height:1.2;margin:0 0 26px}
+:root body.cyber .auth-copy h1 em{color:var(--red)}
+:root body.cyber .auth-copy>p:not(.eyebrow),:root body.cyber .auth-copy ul{color:var(--muted);font-size:14px}
+:root body.cyber .auth-copy::after{content:'';display:block;width:180px;height:20px;margin-top:36px;background:repeating-linear-gradient(125deg,var(--red) 0 12px,transparent 12px 20px)}
+:root body.cyber .auth-tabs button{color:var(--muted);font-size:18px;background:transparent}
+:root body.cyber .auth-tabs button.active{color:var(--red);border-color:var(--red)}
+:root body.cyber :is(.btn-primary,.mode-play,.friend-search button,.shop-item button,.task-reward button,.claim-all-button,.chat-compose button,.party-title-actions>button,.party-invite-row button,.invite-banner button,.join-row button){background:var(--red);color:#fff;border:1px solid var(--red);border-radius:0;box-shadow:none;font-weight:800}
+:root body.cyber :is(.btn-secondary,.row-actions button,.profile-edit-compact,.panel-tabs button,.matchmaking-toast button){background:var(--panel-2);color:var(--ink);border:1px solid var(--line);border-radius:0;box-shadow:none}
+:root body.cyber :is(button.active,.panel-tabs button.active){background:var(--red);color:#fff;border-color:var(--red)}
+:root body.cyber button:disabled{background:var(--panel-2);color:var(--muted);border-color:var(--line);opacity:.65;cursor:not-allowed;box-shadow:none}
+:root body.cyber button:not(:disabled):hover{filter:brightness(.94)}
+:root body.cyber .text-button{color:var(--muted);text-decoration-color:var(--red)}
+/* Lobby retains the open centre, upper HUD and bottom navigation. */
+:root body.cyber .arcade-lobby{background:transparent;color:var(--ink);font-family:inherit}
+:root body.cyber .player-bar{border-left:9px solid var(--red);padding:14px 20px}
+:root body.cyber .player-bar h1{font:900 30px var(--display);color:var(--ink)}
+:root body.cyber .player-bar-main small{color:var(--muted);font:700 11px var(--display);letter-spacing:.16em}
+:root body.cyber :is(.profile-avatar,.header-avatar,.public-player-avatar,.player-avatar,.leaderboard-avatar,.row-avatar,.chat-toast-avatar,.member-avatar,.party-invite-row>span,.private-friend>span:first-child){background:var(--panel-2);border:1px solid var(--line);border-radius:3px;color:var(--ink);box-shadow:none}
+:root body.cyber .profile-avatar{border:2px solid var(--red)}
+:root body.cyber .currency-chip{background:var(--panel-2);border:1px solid var(--line);border-radius:0;min-width:166px}
+:root body.cyber .currency-chip small{color:var(--muted);font-size:11px}
+:root body.cyber .currency-chip strong{color:var(--ink);font:800 30px var(--display)}
+:root body.cyber .currency-chip button{background:var(--red);color:#fff;border:0}
+:root body.cyber .currency-icon{color:var(--red);background:transparent;box-shadow:none;border:1px solid var(--red);border-radius:0}
+:root body.cyber .lobby-side-card,:root body.cyber .mode-hub{background:transparent;border:0;box-shadow:none}
+:root body.cyber :is(.rank-chip,.daily-mission){background:var(--panel);border:1px solid var(--line);border-left:5px solid var(--red);box-shadow:none;border-radius:0}
+:root body.cyber :is(.rank-chip strong,.daily-mission strong){color:var(--ink)}
+:root body.cyber :is(.rank-chip small,.rank-chip span,.daily-mission small,.daily-mission i){color:var(--muted)}
+:root body.cyber .daily-mission>span{background:var(--red);color:#fff}
+:root body.cyber .lobby-section-head h2{font:900 42px var(--display);color:var(--ink);text-shadow:none;letter-spacing:-.03em}
+:root body.cyber .lobby-section-head .eyebrow{color:var(--red);font:800 13px var(--display)}
+:root body.cyber .game-mode-card{--tile:var(--red);--card-color:var(--red);background:#1b1b1b;color:#f4f4ef;border:1px solid #555;border-top:7px solid var(--red);border-radius:14px 0 12px 0;box-shadow:4px 4px 0 var(--line);padding:20px 16px 16px;min-height:226px;isolation:isolate}
+:root body.cyber .game-mode-card:nth-child(2),:root body.cyber .game-mode-card:nth-child(3){background:#eee;--card-ink:#171717}
+:root body.cyber .game-mode-card::before{content:'';position:absolute;width:140px;height:140px;right:-64px;top:20px;background:var(--red);border-radius:50%;opacity:.15;z-index:-1;pointer-events:none}
+:root body.cyber .game-mode-card::after{content:'';position:absolute;left:16px;right:16px;top:10px;height:3px;background:repeating-linear-gradient(90deg,var(--red) 0 3px,transparent 3px 5px);opacity:1;pointer-events:none}
+:root body.cyber .game-mode-card:hover{border-color:var(--red);box-shadow:6px 6px 0 var(--line)}
+:root body.cyber .mode-icon{font:900 36px var(--display);color:var(--red);background:transparent;opacity:.5;top:28px;right:12px}
+:root body.cyber .game-mode-card small{font:800 12px var(--display);letter-spacing:.16em;color:var(--red)}
+:root body.cyber .game-mode-card h3{color:var(--card-ink,#f4f4ef);font:900 29px var(--display);text-shadow:none;letter-spacing:-.02em}
+:root body.cyber .mode-play{font-size:16px;min-height:44px}
+:root body.cyber .difficulty-label{color:#414141}
+:root body.cyber .difficulty-label select{background:#ddd;color:#171717;border-color:#888}
+:root body.cyber .join-row input{background:#292929;color:#fff;border-color:#666}
+:root body.cyber .lobby-dock{background:#1b1b1b;border:1px solid #555;border-top:5px solid var(--red);box-shadow:none;border-radius:12px 0 0 0;bottom:0;min-height:80px}
+:root body.cyber .lobby-dock button{color:#c7c7c0;border-right:1px solid #444;background:transparent}
+:root body.cyber .lobby-dock button span{color:#f1f1eb;font-family:var(--display)}
+:root body.cyber .lobby-dock button.active{background:var(--red);color:#fff}
+:root body.cyber .lobby-dock button.active span{color:#fff}
+:root body.cyber .lobby-message{color:var(--red)}
+/* Collections, missions, leaderboards, public and private chat. */
+:root body.cyber .panel-heading h2{font:900 34px var(--display);color:var(--ink)}
+:root body.cyber :is(.shop-item,.task-card,.leaderboard-row,.player-row,.party-member,.party-invite-row,.profile-overview,.profile-record-grid article,.task-summary span,.shop-wallet){background:var(--panel-2);color:var(--ink);border:1px solid var(--line);border-radius:8px 0 8px 0;box-shadow:none}
+:root body.cyber .shop-item{border-top:4px solid var(--ink);padding:18px}
+:root body.cyber .shop-item.equipped{border-color:var(--red);border-top-color:var(--red)}
+:root body.cyber .shop-item h3{font-size:22px;color:var(--ink)}
+:root body.cyber :is(.shop-item p,.shop-item small,.task-copy p,.task-copy b,.task-summary small,.leaderboard-player small,.player-row small,.party-member small,.party-invite-row small,.profile-record-grid small,.profile-record-grid span,.current-style small,.profile-overview-rank small){color:var(--muted)}
+:root body.cyber :is(.task-icon,.ready-state,.badge,.public-rank){background:var(--panel-2);color:var(--ink);border:1px solid var(--line);border-radius:0}
+:root body.cyber .task-card.complete{background:var(--panel);border-color:var(--red);border-left:5px solid var(--red)}
+:root body.cyber .task-card.locked{background:var(--panel-2);opacity:.65}
+:root body.cyber :is(.task-reward>span,.leaderboard-rating,.leaderboard-rank,.profile-overview-rank strong,.public-rank strong){color:var(--red)}
+:root body.cyber :is(.task-progress,.season-progress>i){background:var(--line);border-radius:0}
+:root body.cyber :is(.task-progress i,.season-progress>i span){background:var(--red);border-radius:0}
+:root body.cyber .leaderboard-row.me{border-left:5px solid var(--red)}
+:root body.cyber .leaderboard-row:hover{background:var(--panel);border-color:var(--red)}
+:root body.cyber .leaderboard-view{color:var(--ink);background:var(--panel);border:1px solid var(--line);border-radius:0}
+:root body.cyber .online-dot{color:var(--red)!important}
+:root body.cyber .chat-mode-note{background:var(--panel-2);border:1px solid var(--line);border-radius:0}
+:root body.cyber .chat-message b{color:var(--red)}
+:root body.cyber .chat-message span{background:var(--panel-2);color:var(--ink);border:1px solid var(--line);border-radius:0 8px 0 8px}
+:root body.cyber .private-message.mine span{background:var(--ink);color:var(--panel);border-color:var(--ink)}
+:root body.cyber .private-friend{color:var(--ink);border-radius:0}
+:root body.cyber .private-friend:hover,:root body.cyber .private-friend.active{background:var(--panel-2);color:var(--ink);border-color:var(--red)}
+:root body.cyber .private-friend small{color:var(--muted)}
+:root body.cyber .chat-compose input{background:var(--panel-2);color:var(--ink);border-color:var(--line);border-radius:0}
+/* Rooms, waiting and battle HUD. */
+:root body.cyber .party-header{display:flex;flex-wrap:wrap}
+:root body.cyber .party-header::before{flex:0 0 100%;margin:0}
+:root body.cyber .party-header h2{font-size:36px}
+:root body.cyber .party-footer{border-top-width:1px;border-left:7px solid var(--red)}
+:root body.cyber .ready-state.ready{background:var(--ink);color:var(--panel);border-color:var(--red)}
+:root body.cyber .party-title-actions>button,:root body.cyber .party-invite-row button{font-size:13px}
+:root body.cyber .party-settings select,:root body.cyber .handicap-control select{color:var(--ink);background:var(--panel-2);border-color:var(--line);border-radius:0}
+:root body.cyber .waiting h2{font:900 clamp(32px,6vw,64px) var(--display)}
+:root body.cyber .waiting p{color:var(--muted)}
+:root body.cyber .radar{border:2px solid var(--line);background:repeating-radial-gradient(circle,transparent 0 20px,var(--line) 21px 22px);box-shadow:none}
+:root body.cyber .radar span{border-top-color:var(--red)}
+:root body.cyber .radar i{background:var(--red);box-shadow:none}
+:root body.cyber .room-code{border:2px solid var(--red);border-radius:8px 0;background:var(--panel);color:var(--ink);box-shadow:var(--shadow);font-family:var(--display)}
+:root body.cyber .arena-topbar{border-bottom:3px solid var(--red);background:var(--panel);padding:12px 16px}
+:root body.cyber .match-label strong{font-size:22px;color:var(--ink)}
+:root body.cyber .match-label span{color:var(--muted)}
+:root body.cyber .board-frame{background:#111;border:2px solid #777;border-top:7px solid var(--red);border-radius:0;box-shadow:6px 6px 0 rgba(0,0,0,.2);overflow:hidden}
+:root body.cyber .rival-frame{border-top-color:#d8d8d2}
+:root body.cyber .player-head{color:var(--ink)}
+:root body.cyber .badge{font:800 12px var(--display);letter-spacing:.1em;color:var(--red)}
+:root body.cyber :is(.mini-box,.stat-box,.attack-meter){background:#1b1b1b;border:1px solid #555;border-radius:0;color:#f0f0e9}
+:root body.cyber :is(.mini-box>span,.stat-box>span){background:#242424;color:#d4d4cc;border-color:#555;font:700 13px var(--display);letter-spacing:.13em}
+:root body.cyber .stat-box strong{color:#fff;font:800 27px var(--display)}
+:root body.cyber .attack-meter div{background:repeating-linear-gradient(135deg,#e61e2b 0 9px,#9c1420 9px 13px);box-shadow:none}
+:root body.cyber .attack-meter.danger{border-color:var(--red);box-shadow:0 0 0 2px var(--red)}
+:root body.cyber .versus{color:var(--red);font:900 48px var(--display);text-shadow:none;transform:none}
+:root body.cyber .countdown{color:#fff;text-shadow:5px 5px 0 var(--red);font-family:var(--display);background:rgba(0,0,0,.65)}
+:root body.cyber .board-overlay{background:rgba(15,15,15,.92);color:#fff;border-top:6px solid var(--red)}
+:root body.cyber .board-overlay span{color:#c3c3bd}
+:root body.cyber .clear-feedback span{color:#fff;background:#c41925;padding:4px 8px}
+:root body.cyber .clear-feedback strong{font-family:var(--display);text-shadow:3px 3px #111}
+:root body.cyber .reaction-bar{background:var(--panel);border:1px solid var(--line);border-top:3px solid var(--red);border-radius:0;box-shadow:none}
+:root body.cyber .reaction-bar button{background:var(--panel-2);border-radius:0}
+:root body.cyber .battle-bubble{background:#191919;color:#fff;border-left:3px solid var(--red);border-radius:0}
+:root body.cyber .mobile-controls{background:#161616;border-top:3px solid var(--red);backdrop-filter:none}
+:root body.cyber .mobile-controls button{background:#292929;color:#fff;border:1px solid #777;border-radius:0}
+:root body.cyber .mobile-controls .drop-control{background:var(--red);color:#fff}
+/* Every overlay shares the same ID-card material. */
+:root body.cyber .modal{background:rgba(0,0,0,.72);z-index:60;backdrop-filter:blur(4px)}
+:root body.cyber .modal-card{max-height:calc(100dvh - 40px);overflow:auto;padding:28px}
+:root body.cyber .modal-card h2{font:900 38px var(--display);color:var(--ink)}
+:root body.cyber .avatar-options button{background:var(--panel-2);border-color:var(--line);border-radius:0}
+:root body.cyber .avatar-options button.selected{background:var(--panel);border:2px solid var(--red);box-shadow:inset 0 -4px var(--red)}
+:root body.cyber .profile-modal-card select{background:var(--panel-2);color:var(--ink);border-color:var(--line)}
+:root body.cyber .result-stats b{font:900 36px var(--display)}
+:root body.cyber .result-settlement{color:var(--muted);background:var(--panel-2);border:1px solid var(--line);border-radius:0}
+:root body.cyber :is(.matchmaking-toast,.lobby-chat-toast,.invite-banner){background:var(--panel);color:var(--ink);border:1px solid var(--line);border-left:6px solid var(--red);border-radius:8px 0;box-shadow:var(--shadow);bottom:96px;backdrop-filter:none}
+:root body.cyber :is(.matchmaking-toast small,.lobby-chat-toast small,.invite-banner small){color:var(--red)}
+:root body.cyber :is(.matchmaking-toast i,.lobby-chat-toast i){color:var(--muted)}
+:root body.cyber .matchmaking-spinner{border-color:var(--line);border-top-color:var(--red)}
+:root body.cyber .toast{background:var(--ink);color:var(--panel);border-left:6px solid var(--red);border-radius:0;bottom:96px;z-index:80}
+@keyframes boardClearPulse{35%{box-shadow:0 0 0 5px #e61e2b,inset 0 0 25px rgba(230,30,43,.3)}}
+@media(max-width:900px){:root body.cyber .site-header{padding-inline:16px}:root body.cyber .header-status{display:none}:root body.cyber .auth-copy::before{font-size:72px}:root body.cyber .auth-screen{gap:40px;padding-block:40px}}
+@media(max-width:680px){:root body.cyber .site-header{height:68px;padding-inline:12px}:root body.cyber .brand{font-size:16px;gap:8px}:root body.cyber .brand b{font-size:10px}:root body.cyber .user-menu{gap:7px;border:0;padding:0}:root body.cyber #userName,:root body.cyber .header-avatar{display:none}:root body.cyber .user-menu button{font-size:10px}:root body.cyber .header-actions{gap:6px}:root body.cyber .theme-mode-button{width:30px;height:32px}:root body.cyber .player-bar{padding:10px}:root body.cyber .currency-chip{min-width:0}:root body.cyber .player-bar h1{font-size:25px}:root body.cyber .game-mode-card{min-height:220px;padding:20px 12px 12px}:root body.cyber .game-mode-card h3{font-size:24px}:root body.cyber .lobby-section-head h2{font-size:34px}:root body.cyber .mode-icon{font-size:28px;opacity:.25}:root body.cyber .lobby-dock{min-height:70px}:root body.cyber .lobby-panel{padding:20px 12px}:root body.cyber .panel-heading{flex-wrap:wrap;gap:14px}:root body.cyber .panel-heading h2{font-size:28px}:root body.cyber .party-header h2{font-size:30px}:root body.cyber .modal-card{padding:22px 18px}:root body.cyber .auth-copy::before{font-size:64px}:root body.cyber .auth-card{padding:24px}:root body.cyber .auth-screen{padding:28px 16px 50px}:root body.cyber .stat-box strong{font-size:20px}}
+/* Small labels use the same palette as primary controls. */
+:root body.cyber .auth-copy li::before{color:var(--red)}
+:root body.cyber .btn-primary kbd{background:#181818;color:#fff;border-color:#555}
+:root body.cyber :is(.task-copy small,.profile-record-grid strong,.result-rating,.task-summary strong){color:var(--red)}
+:root body.cyber :is(.profile-divider,.player-id,.leaderboard-pos,.shop-wallet small,.party-section-title span){color:var(--muted)}
+:root body.cyber .task-copy h3{font-size:18px}
+:root body.cyber .task-copy p{font-size:12px;line-height:1.6}
+:root body.cyber .shop-item button{min-height:38px;font-size:13px}
+:root body.cyber :is(.theme-swatch,.background-preview){border-radius:0;border:1px solid var(--line)}

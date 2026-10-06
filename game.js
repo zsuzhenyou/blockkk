@@ -21,7 +21,7 @@ const THEMES = {
   mint: {name:'薄荷玻璃',price:650,rarity:'史詩',pattern:'glass',I:'#a6eee7',J:'#83bace',L:'#b7d2ae',O:'#e7e1a1',S:'#8bd9b0',T:'#a9b9d9',Z:'#dca8ad',G:'#49645f'}
 };
 const BACKGROUNDS = {
-  void:{name:'深空競技場',price:0,rarity:'免費',colors:['#080c16','#10192a'],pattern:'grid'},
+  void:{name:'深空競技場',price:0,rarity:'免費',colors:['#111111','#202020'],pattern:'grid'},
   aurora:{name:'極光脈衝',price:450,rarity:'稀有',colors:['#071a22','#163044'],pattern:'aurora'},
   glacier:{name:'冰晶宮殿',price:600,rarity:'史詩',colors:['#071521','#164464'],pattern:'crystal'},
   sunsetCity:{name:'暮色都市',price:650,rarity:'史詩',colors:['#1b0d27','#59253d'],pattern:'city'},
@@ -302,7 +302,7 @@ function drawBackdrop(target,width,height,backgroundId='void'){
 function drawGrid(target, source, width = 300, height = 600, theme=playerProfile.block_theme,background=playerProfile.battle_background||'void') {
   target.clearRect(0, 0, width, height);drawBackdrop(target,width,height,background);
   const size = width / COLS;
-  target.strokeStyle = 'rgba(120,155,205,.07)'; target.lineWidth = 1;
+  target.strokeStyle = 'rgba(230,230,220,.09)'; target.lineWidth = 1;
   for (let x=0;x<=COLS;x++){target.beginPath();target.moveTo(x*size,0);target.lineTo(x*size,height);target.stroke();}
   for (let y=0;y<=ROWS;y++){target.beginPath();target.moveTo(0,y*size);target.lineTo(width,y*size);target.stroke();}
   source.forEach((row,y)=>row.forEach((cell,x)=>{if(cell) drawCell(target,x,y,themeColor(cell,theme),size,1,theme);}));
@@ -316,7 +316,7 @@ function draw() {
   current.shape.forEach((row,py)=>row.forEach((cell,px)=>{if(cell && current.y+py>=0) drawCell(ctx,current.x+px,current.y+py,themeColor(current.type),30,1,playerProfile.block_theme);}));
 }
 function drawMini(target, types, canvasWidth, canvasHeight) {
-  target.clearRect(0,0,canvasWidth,canvasHeight); target.fillStyle='#0a0f1b'; target.fillRect(0,0,canvasWidth,canvasHeight);
+  target.clearRect(0,0,canvasWidth,canvasHeight); target.fillStyle='#171717'; target.fillRect(0,0,canvasWidth,canvasHeight);
   types.forEach((type,index)=>{ if(!type)return; const shape=SHAPES[type], size=18, ox=(canvasWidth-shape[0].length*size)/2, oy=index*76+13;
     shape.forEach((row,y)=>row.forEach((cell,x)=>{if(cell)drawCell(target,(ox/size)+x,(oy/size)+y,themeColor(type),size,1,playerProfile.block_theme);}));
   });
