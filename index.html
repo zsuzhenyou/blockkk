@@ -8,7 +8,7 @@
     <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%23070a12'/%3E%3Cpath d='M12 12h16v16H12zm24 0h16v16H36zM24 28h16v16H24zm0 16h16v16H24z' fill='%236cf6ff'/%3E%3C/svg%3E" />
     <title>方塊風暴｜即時對戰</title>
     <link rel="preconnect" href="https://unpkg.com" />
-    <link rel="stylesheet" href="styles.css?v=party-room-4p-1" />
+    <link rel="stylesheet" href="styles.css?v=lobby-quality-1" />
   </head>
   <body>
     <div class="noise" aria-hidden="true"></div>
@@ -124,7 +124,7 @@
           </div>
 
           <div id="tasksPanel" class="lobby-view lobby-panel tasks-panel hidden">
-            <div class="panel-heading"><div><p class="eyebrow">MISSIONS & ACHIEVEMENTS</p><h2>任務與成就</h2></div><div id="taskTabs" class="panel-tabs"><button class="active" data-task-category="daily">每日</button><button data-task-category="main">主線</button><button data-task-category="achievement">成就</button></div></div>
+            <div class="panel-heading"><div><p class="eyebrow">MISSIONS & ACHIEVEMENTS</p><h2>任務與成就</h2></div><div class="task-heading-actions"><div id="taskTabs" class="panel-tabs"><button class="active" data-task-category="daily">每日</button><button data-task-category="main">主線</button><button data-task-category="achievement">成就</button></div><button id="claimAllTasksBtn" class="claim-all-button" type="button">一鍵領取</button></div></div>
             <div id="taskSummary" class="task-summary"></div>
             <div id="taskList" class="task-list" aria-live="polite"></div>
           </div>
@@ -152,10 +152,9 @@
             <section class="party-card party-settings">
               <div class="party-section-title"><h3>房間設定</h3><span id="partyHostNote">房主可調整</span></div>
               <label>人數上限<select id="partyMaxPlayers"><option value="2">2 人</option><option value="3">3 人</option><option value="4" selected>4 人</option></select></label>
-              <label class="toggle-row"><span><b>平衡實力</b><small>依 RP 差距自動增加永久鎖定列</small></span><input id="partyBalance" type="checkbox" checked /></label>
               <label>攻擊目標<select id="partyTargetMode"><option value="random">隨機存活玩家</option><option value="rotate">輪流鎖定</option></select></label>
               <label>垃圾行延遲<select id="partyGarbageDelay"><option value="800">0.8 秒</option><option value="1200" selected>1.2 秒</option><option value="1600">1.6 秒</option></select></label>
-              <p class="setting-note">永久鎖定列會縮小該玩家可使用的盤面；關閉平衡實力後，房主可逐一設定 0–6 列。</p>
+              <p class="setting-note">房主可直接替每位玩家設定 0–6 排永久鎖定列，不受牌位或 RP 限制。</p>
             </section>
             <section class="party-card party-chat"><div class="party-section-title"><h3>房間聊天</h3><span>即時</span></div><div id="roomChatMessages" class="chat-messages" aria-live="polite"></div><form id="roomChatForm" class="chat-compose"><input id="roomChatInput" maxlength="120" autocomplete="off" placeholder="輸入房間訊息…" /><button type="submit">傳送</button></form></section>
           </div>
@@ -296,6 +295,11 @@
       <button id="acceptInviteBtn">接受</button><button id="declineInviteBtn">略過</button>
     </div>
 
+    <button id="lobbyChatToast" class="lobby-chat-toast hidden" type="button" aria-label="查看大廳新訊息">
+      <span id="lobbyChatToastAvatar" class="chat-toast-avatar">💬</span>
+      <span><small>大廳新訊息</small><strong id="lobbyChatToastName">PLAYER</strong><i id="lobbyChatToastMessage"></i></span>
+    </button>
+
     <div id="matchmakingToast" class="matchmaking-toast hidden" role="status" aria-live="polite">
       <span class="matchmaking-spinner" aria-hidden="true"></span>
       <div><small>MATCHMAKING</small><strong id="matchmakingToastTitle">正在尋找對手</strong><i id="matchmakingToastText">系統正在搜尋線上玩家…</i></div>
@@ -306,6 +310,6 @@
     <script src="https://unpkg.com/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
     <script src="config.js"></script>
     <script src="https://unpkg.com/peerjs@1.5.4/dist/peerjs.min.js"></script>
-    <script src="game.js?v=party-room-4p-1"></script>
+    <script src="game.js?v=lobby-quality-1"></script>
   </body>
 </html>
