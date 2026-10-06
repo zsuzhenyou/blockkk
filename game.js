@@ -73,18 +73,20 @@ const SHAPES = {
 };
 const PIECES = Object.keys(SHAPES);
 const $ = (id) => document.getElementById(id);
-const ui = Object.fromEntries(['auth','lobby','waiting','arena','hostBtn','joinBtn','matchBtn','rankedMatchBtn','practiceBtn','guestPracticeBtn','aiDifficulty','roomInput','lobbyMessage','roomCode','copyCode','waitingTitle','waitingText','cancelWait','backBtn','pauseBtn','matchMode','matchRoom','networkStatus','userMenu','userAvatar','userName','settingsBtn','signOutBtn','themeModeBtn','matchmakingToast','matchmakingToastTitle','matchmakingToastText','cancelMatchBtn','loginTab','signupTab','authForm','accountInput','passwordInput','authSubmit','authMessage','profileAvatar','profileName','profilePlayerId','profileWins','profileLosses','profileWinrate','profileThemeName','profileRank','profileRating','profileEditBtn','profileModal','settingsProfileAvatar','settingsProfileName','settingsProfileId','settingsProfileRank','settingsProfileRating','profileRankWinrate','profileRankMatches','profileRankRecord','profileCasualWinrate','profileCasualMatches','profileCasualRecord','avatarOptions','themeSelect','backgroundSelect','saveProfileBtn','closeProfileBtn','friendCount','friendNotice','friendSearchInput','friendSearchBtn','friendMessage','requestSection','incomingList','friendsList','lobbyHome','leaderboardPanel','friendsPanel','shopPanel','tasksPanel','taskTabs','taskSummary','taskList','shopGrid','coinBalance','gemBalance','shopCoinBalance','shopGemBalance','dailyMission','dailyMissionTitle','dailyMissionProgress','globalLeaderboard','friendLeaderboard','playerModal','closePlayerBtn','viewPlayerAvatar','viewPlayerName','viewPlayerId','viewPlayerRank','viewPlayerRating','viewRankWinrate','viewRankMatches','viewRankRecord','viewCasualWinrate','viewCasualMatches','viewCasualRecord','viewPlayerExtra','addPlayerFriendBtn','inviteBanner','inviteAvatar','inviteName','acceptInviteBtn','declineInviteBtn','localAvatar','rivalAvatar','gameCanvas','holdCanvas','nextCanvas','rivalCanvas','score','lines','rivalScore','rivalLines','rivalName','rivalBadge','localBadge','attackMeter','gameOverlay','overlayTitle','overlayText','countdown','clearFeedback','resultModal','resultTitle','resultText','resultScore','resultLines','resultRatingBox','resultRating','resultSettlement','againBtn','lobbyBtn','toast'].map(k => [k, $(k)]));
+const ui = Object.fromEntries(['auth','lobby','waiting','partyRoom','arena','hostBtn','joinBtn','matchBtn','rankedMatchBtn','practiceBtn','guestPracticeBtn','aiDifficulty','roomInput','lobbyMessage','roomCode','copyCode','waitingTitle','waitingText','cancelWait','partyRoomTitle','partyCode','leavePartyBtn','partyCount','partyMembers','partyMaxPlayers','partyBalance','partyTargetMode','partyGarbageDelay','partyHostNote','partyStatus','partyReadyBtn','partyStartBtn','roomChatMessages','roomChatForm','roomChatInput','lobbyChatMessages','lobbyChatForm','lobbyChatInput','chatPanel','backBtn','pauseBtn','matchMode','matchRoom','networkStatus','userMenu','userAvatar','userName','settingsBtn','signOutBtn','themeModeBtn','matchmakingToast','matchmakingToastTitle','matchmakingToastText','cancelMatchBtn','loginTab','signupTab','authForm','accountInput','passwordInput','authSubmit','authMessage','profileAvatar','profileName','profilePlayerId','profileWins','profileLosses','profileWinrate','profileThemeName','profileRank','profileRating','profileEditBtn','profileModal','settingsProfileAvatar','settingsProfileName','settingsProfileId','settingsProfileRank','settingsProfileRating','profileRankWinrate','profileRankMatches','profileRankRecord','profileCasualWinrate','profileCasualMatches','profileCasualRecord','avatarOptions','themeSelect','backgroundSelect','saveProfileBtn','closeProfileBtn','friendCount','friendNotice','friendSearchInput','friendSearchBtn','friendMessage','requestSection','incomingList','friendsList','lobbyHome','leaderboardPanel','friendsPanel','shopPanel','tasksPanel','taskTabs','taskSummary','taskList','shopGrid','coinBalance','gemBalance','shopCoinBalance','shopGemBalance','dailyMission','dailyMissionTitle','dailyMissionProgress','globalLeaderboard','friendLeaderboard','playerModal','closePlayerBtn','viewPlayerAvatar','viewPlayerName','viewPlayerId','viewPlayerRank','viewPlayerRating','viewRankWinrate','viewRankMatches','viewRankRecord','viewCasualWinrate','viewCasualMatches','viewCasualRecord','viewPlayerExtra','addPlayerFriendBtn','inviteBanner','inviteAvatar','inviteName','acceptInviteBtn','declineInviteBtn','localAvatar','rivalAvatar','gameCanvas','holdCanvas','nextCanvas','opponentGrid','rivalCanvas','rivalScore','rivalLines','rivalName','rivalBadge','localBadge','attackMeter','gameOverlay','overlayTitle','overlayText','countdown','clearFeedback','battleSocial','battleChatFeed','resultModal','resultTitle','resultText','resultScore','resultLines','resultRatingBox','resultRating','resultSettlement','againBtn','lobbyBtn','toast'].map(k => [k, $(k)]));
 const ctx = ui.gameCanvas.getContext('2d');
 const holdCtx = ui.holdCanvas.getContext('2d');
 const nextCtx = ui.nextCanvas.getContext('2d');
-const rivalCtx = ui.rivalCanvas.getContext('2d');
+let rivalCtx = ui.rivalCanvas.getContext('2d');
 
 let board, current, queue, holdPiece, canHold, score, lines, level, dropMs, lastDrop, raf, lockTimer=null, lockResetCount=0;
 let running = false, paused = false, gameEnded = false, pendingGarbage = 0, garbageQueue=[], roomMode = 'practice', combo=-1, backToBack=false, lastActionRotation=false,lastRotationKickIndex=0, bestComboThisGame=0, tetrisesThisGame=0, perfectClearsThisGame=0;
-let peer = null, connection = null, isHost = false, activeRoom = '', lastStateSent = 0;
+let peer = null, connection = null, connections = new Map(), isHost = false, activeRoom = '', lastStateSent = 0;
 let peerReady = false, remoteReady = false, rematchRequested = false;
 let db = null, session = null, playerName = 'PLAYER', authMode = 'login';
 let currentRoomId = null, matchPoll = null, matchmaking = false, matchmakingMode = 'normal';
+let partyState=null,partyReady=false,partyPoll=null,lobbyChatPoll=null,lockedRows=0,targetCursor=0;
+let opponents=new Map(),eliminatedPlayers=new Set(),roomChat=[];
 let playerProfile = {avatar:'⚡',block_theme:'neon',battle_background:'void',wins:0,losses:0,rating:1000,ranked_wins:0,ranked_losses:0}, rivalTheme='neon',rivalBackground='void', socialPoll=null, pendingInvite=null, selectedAvatar='⚡';
 let aiBoard = null, aiTimer = null, aiTicks = 0, aiDifficulty = 'normal', aiQueue = [], aiScore = 0, aiLines = 0;
 let leaderboardPlayers = new Map(), viewedPlayer = null, socialFriendNames = new Set();
@@ -101,6 +103,11 @@ function setUiTheme(theme){
 setUiTheme(localStorage.getItem('blockstorm-ui-theme')||(matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light'));
 
 function emptyBoard() { return Array.from({length: ROWS}, () => Array(COLS).fill(null)); }
+function applyLockedFloor(target=board,count=lockedRows){
+  const rows=Math.max(0,Math.min(6,Number(count)||0));
+  for(let y=ROWS-rows;y<ROWS;y++)target[y]=Array(COLS).fill('X');
+  return target;
+}
 function shuffledBag() {
   const bag = [...PIECES];
   for (let i = bag.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [bag[i], bag[j]] = [bag[j], bag[i]]; }
@@ -190,11 +197,11 @@ function lockPiece() {
 }
 function clearLines(tSpin=false) {
   const full = [];
-  board.forEach((row, i) => { if (row.every(Boolean)) full.push(i); });
+  board.forEach((row, i) => { if (row.every(Boolean)&&!row.includes('X')) full.push(i); });
   if (!full.length) {combo=-1;if(tSpin){score+=(tSpin==='mini'?100:400)*level;showClearFeedback(tSpin==='mini'?'T-SPIN MINI':'T-SPIN','旋轉技巧');}return;}
   full.forEach(i => board.splice(i, 1));
   while (board.length < ROWS) board.unshift(Array(COLS).fill(null));
-  const n = full.length,perfectClear=board.every(row=>row.every(cell=>!cell));
+  const n = full.length,perfectClear=lockedRows===0&&board.every(row=>row.every(cell=>!cell));
   lines += n; level = Math.floor(lines / 10) + 1; dropMs = Math.max(90, 820 - (level - 1) * 62);
   combo++;
   bestComboThisGame=Math.max(bestComboThisGame,combo);
@@ -216,7 +223,7 @@ function clearLines(tSpin=false) {
 function dispatchAttack(amount){
   if(!amount)return 0;
   const remaining=cancelPendingGarbage(amount);
-  if(remaining&&roomMode==='online')send({type:'attack',lines:remaining});
+  if(remaining&&roomMode==='online')send({type:'attack',lines:remaining,from:session?.user?.id});
   if(remaining&&roomMode==='ai')setTimeout(()=>{if(!gameEnded&&roomMode==='ai')attackAi(remaining);},650);
   return remaining;
 }
@@ -224,13 +231,15 @@ function addGarbage(amount) {
   const gap = Math.floor(Math.random() * COLS);
   for (let n = 0; n < amount; n++) {
     board.shift();
-    board.push(Array.from({length: COLS}, (_, i) => i === gap ? null : 'G'));
+    const row=Array.from({length: COLS}, (_, i) => i === gap ? null : 'G');
+    if(lockedRows){board.splice(ROWS-lockedRows,0,row);board.pop();}else board.push(row);
   }
   if (board[0].some(Boolean)) endGame(false, '對手的攻擊讓你出局');
 }
 function receiveAttack(amount) {
   const accepted=Math.min(amount,Math.max(0,12-pendingGarbage));if(!accepted)return;
-  garbageQueue.push({lines:accepted,readyAt:performance.now()+GARBAGE_DELAY_MS});pendingGarbage+=accepted;updateAttackMeter();setTimeout(updateAttackMeter,GARBAGE_DELAY_MS+20);toast(`警告：${accepted} 行攻擊，1.2 秒後生效`);
+  const delay=roomMode==='online'&&partyState?Number(partyState.settings?.garbage_delay||1200):GARBAGE_DELAY_MS;
+  garbageQueue.push({lines:accepted,readyAt:performance.now()+delay});pendingGarbage+=accepted;updateAttackMeter();setTimeout(updateAttackMeter,delay+20);toast(`警告：${accepted} 行攻擊，${(delay/1000).toFixed(1)} 秒後生效`);
 }
 function cancelPendingGarbage(amount){
   let left=amount;
@@ -268,7 +277,7 @@ function drawCell(target, x, y, color, size, alpha = 1, themeId=playerProfile.bl
   else {target.fillStyle='rgba(255,255,255,.16)';target.fillRect(px+1,py+1,w-2,Math.max(1.5,size*.065));}
   target.restore();
 }
-function themeColor(type, theme=playerProfile.block_theme) { return (THEMES[theme]||THEMES.neon)[type]||COLORS.G; }
+function themeColor(type, theme=playerProfile.block_theme) { return type==='X'?'#5b5853':(THEMES[theme]||THEMES.neon)[type]||COLORS.G; }
 function drawBackdrop(target,width,height,backgroundId='void'){
   const bg=BACKGROUNDS[backgroundId]||BACKGROUNDS.void,gradient=target.createLinearGradient(0,0,width,height);gradient.addColorStop(0,bg.colors[0]);gradient.addColorStop(1,bg.colors[1]);target.fillStyle=gradient;target.fillRect(0,0,width,height);
   target.save();target.globalAlpha=.065;
@@ -309,10 +318,11 @@ function drawMini(target, types, canvasWidth, canvasHeight) {
 }
 function drawSidePanels() { drawMini(holdCtx,[holdPiece],100,100); drawMini(nextCtx,queue.slice(0,3),100,250); }
 function drawRival(remoteBoard) { drawGrid(rivalCtx, remoteBoard || emptyBoard(),300,600,rivalTheme,rivalBackground); }
+function liveBoard(){const next=board.map(row=>[...row]);if(current)current.shape.forEach((row,py)=>row.forEach((cell,px)=>{const y=current.y+py,x=current.x+px;if(cell&&y>=0&&y<ROWS&&x>=0&&x<COLS)next[y][x]=current.type;}));return next;}
 function updateStats() { ui.score.textContent = score.toLocaleString(); ui.lines.textContent = lines; }
 
 function resetGame() {
-  cancelAnimationFrame(raf); clearLockDelay(true); clearInterval(aiTimer); aiTimer=null; board = emptyBoard(); queue = []; holdPiece = null; score = 0; lines = 0; level = 1; dropMs = 820; lastDrop = performance.now(); pendingGarbage = 0;garbageQueue=[];combo=-1;backToBack=false;lastActionRotation=false;bestComboThisGame=0;tetrisesThisGame=0;perfectClearsThisGame=0; gameEnded = false; paused = false; running = false; canHold = true;
+  cancelAnimationFrame(raf); clearLockDelay(true); clearInterval(aiTimer); aiTimer=null; board = applyLockedFloor(emptyBoard(),lockedRows); queue = []; holdPiece = null; score = 0; lines = 0; level = 1; dropMs = 820; lastDrop = performance.now(); pendingGarbage = 0;garbageQueue=[];combo=-1;backToBack=false;lastActionRotation=false;bestComboThisGame=0;tetrisesThisGame=0;perfectClearsThisGame=0; gameEnded = false; paused = false; running = false; canHold = true;
   if(roomMode==='ai'){aiBoard=emptyBoard();aiQueue=[];aiTicks=0;aiScore=0;aiLines=0;ui.rivalScore.textContent='0';ui.rivalLines.textContent='0';drawRival(aiBoard);}
   fillQueue(); spawn(); updateStats(); updateAttackMeter(); ui.gameOverlay.classList.add('hidden'); ui.resultModal.classList.add('hidden'); ui.localBadge.textContent = 'READY'; draw(); drawRival();
 }
@@ -333,9 +343,9 @@ function togglePause() {
   if (roomMode === 'online') { toast('線上對戰不能暫停'); return; }
   paused = !paused;if(paused)clearLockDelay();else if(isGrounded())scheduleLockDelay();ui.gameOverlay.classList.toggle('hidden', !paused); ui.overlayTitle.textContent = paused ? '暫停' : ''; ui.overlayText.textContent = '按 P 繼續';
 }
-function endGame(won, reason) {
+function endGame(won, reason, suppressNetwork=false) {
   if (gameEnded) return; gameEnded = true; running = false; clearLockDelay(); stopAllHeld(); cancelAnimationFrame(raf); clearInterval(aiTimer); aiTimer=null; ui.localBadge.textContent = won ? 'WIN' : 'KO';
-  if (!won && roomMode === 'online') send({type:'gameover'});
+  if (!won && roomMode === 'online'&&!suppressNetwork){if(partyState)reportPartyKO();else send({type:'gameover'});}
   showResult(won, reason);
   if(session&&(roomMode==='online'||roomMode==='ai'))recordGameProgress(won);
   if (roomMode === 'online' && db && session) {
@@ -351,13 +361,18 @@ function endGame(won, reason) {
 function showResult(won, reason) {
   ui.resultTitle.textContent = roomMode === 'practice' ? '本局結束' : (won ? '勝利' : '落敗');
   ui.resultText.textContent = reason || (won ? '對手已經到達極限。' : '調整節奏，再戰一次。');
-  ui.resultScore.textContent = score.toLocaleString(); ui.resultLines.textContent = lines; ui.resultRating.textContent=roomMode==='online'&&matchmakingMode==='ranked'?'結算中…':'—'; ui.resultSettlement.textContent=roomMode==='ai'?`AI：${aiScore.toLocaleString()} 分 · ${aiLines} 行`:''; ui.resultModal.classList.remove('hidden');
+  ui.resultScore.textContent = score.toLocaleString(); ui.resultLines.textContent = lines; ui.resultRating.textContent=roomMode==='online'&&matchmakingMode==='ranked'?'結算中…':'—'; ui.resultSettlement.textContent=roomMode==='ai'?`AI：${aiScore.toLocaleString()} 分 · ${aiLines} 行`:partyState?'好友房間採最後存活者獲勝。':'';ui.againBtn.textContent=partyState?'結束並回大廳':'再來一場'; ui.resultModal.classList.remove('hidden');
 }
 
-function showSection(section) { ['auth','lobby','waiting','arena'].forEach(k=>ui[k].classList.toggle('hidden', k!==section)); }
-function startPractice() { disconnect(false); roomMode='practice'; ui.matchMode.textContent='單人練習'; ui.matchRoom.textContent=''; ui.rivalName.textContent='你的紀錄'; ui.rivalBadge.textContent='SOLO'; ui.rivalBadge.classList.add('muted'); showSection('arena'); countdownAndStart(); }
+function showSection(section) { ['auth','lobby','waiting','partyRoom','arena'].forEach(k=>ui[k].classList.toggle('hidden', k!==section)); }
+function ensureSingleOpponent(){
+  if(ui.opponentGrid.querySelector('#rivalCanvas'))return;
+  ui.opponentGrid.classList.remove('multi');ui.opponentGrid.dataset.players='';ui.opponentGrid.innerHTML='<article class="player-zone rival-zone" data-opponent-slot="0"><div class="player-head"><span id="rivalAvatar" class="player-avatar rival-avatar">?</span><div><small>PLAYER 02</small><strong id="rivalName">等待中</strong></div><span id="rivalBadge" class="badge muted">OFFLINE</span></div><div class="rival-wrap"><div class="board-frame rival-frame"><canvas id="rivalCanvas" width="300" height="600" aria-label="對手的遊戲盤面"></canvas></div><div class="rival-stats"><span>SCORE <b id="rivalScore">0</b></span><span>LINES <b id="rivalLines">0</b></span></div></div></article>';
+  ['rivalAvatar','rivalName','rivalBadge','rivalCanvas','rivalScore','rivalLines'].forEach(id=>ui[id]=$(id));rivalCtx=ui.rivalCanvas.getContext('2d');
+}
+function startPractice() { disconnect(false);ensureSingleOpponent(); roomMode='practice'; ui.matchMode.textContent='單人練習'; ui.matchRoom.textContent=''; ui.rivalName.textContent='你的紀錄'; ui.rivalBadge.textContent='SOLO'; ui.rivalBadge.classList.add('muted'); showSection('arena'); countdownAndStart(); }
 function startAiBattle() {
-  disconnect(false); roomMode='ai'; aiDifficulty=ui.aiDifficulty?.value||'normal'; aiBoard=emptyBoard(); aiQueue=[]; aiTicks=0; aiScore=0; aiLines=0;
+  disconnect(false);ensureSingleOpponent(); roomMode='ai'; aiDifficulty=ui.aiDifficulty?.value||'normal'; aiBoard=emptyBoard(); aiQueue=[]; aiTicks=0; aiScore=0; aiLines=0;
   ui.matchMode.textContent=`單人模式 · ${AI_LEVELS[aiDifficulty].name}`; ui.matchRoom.textContent='SOLO BATTLE'; ui.rivalName.textContent=`${AI_LEVELS[aiDifficulty].name} AI`; ui.rivalAvatar.textContent='🤖'; ui.rivalBadge.textContent=aiDifficulty.toUpperCase(); ui.rivalBadge.classList.remove('muted'); ui.rivalScore.textContent='0'; ui.rivalLines.textContent='0';
   showSection('arena'); drawRival(aiBoard); countdownAndStart();
 }
@@ -404,7 +419,7 @@ function requireLogin() {
 function preparePeer(onOpen) {
   disconnect(false); peer=createPeer(); if(!peer)return;
   peer.on('open',()=>onOpen(peer.id));
-  peer.on('connection', conn=>{ if(connection?.open){conn.close();return;} setupConnection(conn); });
+  peer.on('connection', conn=>{ if(partyState||currentRoomId&&!matchmaking)setupPartyConnection(conn);else{if(connection?.open){conn.close();return;}setupConnection(conn);} });
   peer.on('error', handlePeerError);
 }
 async function callRpc(name, params={}) {
@@ -423,7 +438,7 @@ function beginPolling() {
 }
 async function hostRoom() {
   if(!requireLogin())return; setLobbyMessage('正在建立私人房間…');
-  preparePeer(async peerId=>{ try { const room=await callRpc('create_private_room',{p_peer_id:peerId}); isHost=true; currentRoomId=room.room_id; activeRoom=room.code; showWaiting('private',activeRoom); setNetwork('私人房間上線'); beginPolling(); } catch(error){ onlineError(error); } });
+  preparePeer(async peerId=>{ try { const room=await callRpc('create_party_room',{p_peer_id:peerId}); isHost=true;matchmaking=false;gameEnded=false; currentRoomId=room.room_id; activeRoom=room.code; partyState=room;showPartyRoom();setNetwork('好友房間已建立');beginPartyPolling(); } catch(error){ onlineError(error); } });
 }
 async function findOpponent(mode='normal') {
   if(!requireLogin())return; setLobbyMessage('正在加入配對佇列…');
@@ -433,7 +448,7 @@ async function findOpponent(mode='normal') {
 async function joinRoom() {
   if(!requireLogin())return; const code=ui.roomInput.value.trim().toUpperCase(); if(code.length!==6){setLobbyMessage('請輸入 6 位房間碼。');return;}
   setLobbyMessage('正在加入私人房間…');
-  preparePeer(async peerId=>{ try { const room=await callRpc('join_private_room',{p_code:code,p_peer_id:peerId}); handleMatchedRoom(room); } catch(error){ onlineError(error); } });
+  preparePeer(async peerId=>{ try { const room=await callRpc('join_party_room',{p_code:code,p_peer_id:peerId});isHost=false;matchmaking=false;gameEnded=false;currentRoomId=room.room_id;activeRoom=room.code;partyState=room;showPartyRoom();setupPartyConnection(peer.connect(room.host_peer_id,{reliable:true,metadata:{userId:session.user.id}}));setNetwork('已加入好友房間');beginPartyPolling(); } catch(error){ onlineError(error); } });
 }
 function handleMatchedRoom(room) {
   if(currentRoomId===room.room_id && (connection?.open || roomMode==='online'))return;
@@ -454,8 +469,53 @@ function setupConnection(conn) {
   conn.on('close',()=>{ peerReady=false; setNetwork('對手已離線',false); if(running) endGame(true,'對手離開了房間。'); });
   conn.on('error',()=>toast('連線發生問題'));
 }
+function partyHello(){return {type:'party-hello',userId:session.user.id,username:playerName,avatar:playerProfile.avatar,theme:playerProfile.block_theme,background:playerProfile.battle_background,rating:playerProfile.rating};}
+function setupPartyConnection(conn){
+  const tempKey=conn.metadata?.userId||conn.peer;connections.set(tempKey,conn);
+  if(!connection&&!isHost)connection=conn;
+  conn.on('open',()=>{peerReady=true;conn.send(partyHello());if(isHost)conn.send({type:'party-sync',party:partyState,chat:roomChat});});
+  conn.on('data',data=>handlePartyData(data,conn));
+  conn.on('close',()=>{for(const [id,item] of connections)if(item===conn){connections.delete(id);opponents.delete(id);}renderOpponentBoards();if(running&&isHost)checkPartyWinner();});
+  conn.on('error',()=>toast('有玩家連線發生問題'));
+}
+function broadcastParty(data,except=null){connections.forEach(conn=>{if(conn!==except&&conn.open)conn.send(data);});}
+function connectionFor(userId){return connections.get(userId)||[...connections.values()].find(conn=>conn.memberId===userId);}
+function handlePartyData(data,conn){
+  if(!data?.type)return;
+  if(data.type==='party-hello'){
+    conn.memberId=data.userId;connections.delete(conn.peer);connections.set(data.userId,conn);opponents.set(data.userId,{...data,board:emptyBoard(),score:0,lines:0,alive:true});renderOpponentBoards();
+    if(isHost){conn.send({type:'party-sync',party:partyState,chat:roomChat});broadcastParty({type:'party-player',player:data},conn);}
+  }
+  if(data.type==='party-sync'){partyState=data.party||partyState;roomChat=data.chat||roomChat;renderPartyRoom();renderRoomChat();}
+  if(data.type==='party-player'&&data.player?.userId){opponents.set(data.player.userId,{...data.player,board:emptyBoard(),score:0,lines:0,alive:true});renderOpponentBoards();}
+  if(data.type==='state'){
+    const id=data.userId||conn.memberId;if(id&&id!==session.user.id){opponents.set(id,{...(opponents.get(id)||{}),...data,alive:!eliminatedPlayers.has(id)});renderOpponentBoards();if(isHost)broadcastParty({...data,userId:id},conn);}
+  }
+  if(data.type==='attack'){if(isHost)routePartyAttack(data.from||conn.memberId,data.lines||0);}
+  if(data.type==='attack-target')receiveAttack(data.lines||0);
+  if(data.type==='party-chat'){if(isHost){appendRoomChat(data);broadcastParty(data);}else appendRoomChat(data);}
+  if(data.type==='reaction'){if(isHost)broadcastParty(data);showReaction(data);}
+  if(data.type==='party-start'){partyState=data.party||partyState;startPartyMatch();}
+  if(data.type==='party-ko'){if(isHost){eliminatedPlayers.add(data.userId);broadcastParty(data);checkPartyWinner();}else{eliminatedPlayers.add(data.userId);markOpponentEliminated(data.userId);}}
+  if(data.type==='party-winner'){if(data.userId===session.user.id&&!gameEnded)endGame(true,'你是最後存活的玩家！',true);else if(!gameEnded)endGame(false,`${data.username||'對手'} 成為最後存活者。`,true);}
+}
+function choosePartyTarget(from){
+  const candidates=(partyState?.members||[]).map(m=>m.id).filter(id=>id!==from&&!eliminatedPlayers.has(id));if(!candidates.length)return null;
+  if(partyState?.settings?.target_mode==='rotate')return candidates[targetCursor++%candidates.length];
+  return candidates[Math.floor(Math.random()*candidates.length)];
+}
+function routePartyAttack(from,amount){const target=choosePartyTarget(from);if(!target||!amount)return;if(target===session.user.id)receiveAttack(amount);else connectionFor(target)?.send({type:'attack-target',lines:amount,from});}
+function checkPartyWinner(){const alive=(partyState?.members||[]).filter(m=>!eliminatedPlayers.has(m.id));if(alive.length===1){const winner=alive[0];broadcastParty({type:'party-winner',userId:winner.id,username:winner.username});if(winner.id===session.user.id&&!gameEnded)endGame(true,'你是最後存活的玩家！',true);}}
+function reportPartyKO(){if(eliminatedPlayers.has(session?.user?.id))return;eliminatedPlayers.add(session.user.id);if(isHost){broadcastParty({type:'party-ko',userId:session.user.id});checkPartyWinner();}else connection?.send({type:'party-ko',userId:session.user.id});}
+function markOpponentEliminated(userId){const item=opponents.get(userId);if(item)item.alive=false;renderOpponentBoards();}
+function renderOpponentBoards(){
+  if(roomMode!=='online'||!partyState)return;
+  const players=(partyState.members||[]).filter(m=>m.id!==session.user.id).slice(0,3),signature=players.map(member=>member.id).join('|');ui.opponentGrid.classList.toggle('multi',players.length>1);
+  if(ui.opponentGrid.dataset.players!==signature){ui.opponentGrid.dataset.players=signature;ui.opponentGrid.innerHTML=players.map((member,index)=>`<article class="player-zone rival-zone" data-player-id="${member.id}"><div class="player-head"><span class="player-avatar rival-avatar">${escapeHtml(member.avatar||'?')}</span><div><small>PLAYER ${String(index+2).padStart(2,'0')}</small><strong>${escapeHtml(member.username)}</strong></div><span class="badge" data-role="status">LIVE</span></div><div class="rival-wrap"><div class="board-frame rival-frame"><canvas width="300" height="600" aria-label="${escapeHtml(member.username)} 的盤面"></canvas></div><div class="rival-stats"><span>SCORE <b data-role="score">0</b></span><span>LINES <b data-role="lines">0</b></span></div></div></article>`).join('');}
+  players.forEach(member=>{const card=ui.opponentGrid.querySelector(`[data-player-id="${member.id}"]`),state=opponents.get(member.id),out=eliminatedPlayers.has(member.id);if(!card)return;card.classList.toggle('eliminated',out);card.querySelector('[data-role="status"]').textContent=out?'KO':'LIVE';card.querySelector('[data-role="score"]').textContent=Number(state?.score||0).toLocaleString();card.querySelector('[data-role="lines"]').textContent=state?.lines||0;const canvas=card.querySelector('canvas');drawGrid(canvas.getContext('2d'),state?.board||emptyBoard(),300,600,state?.theme||'neon',state?.background||'void');});
+}
 function beginOnlineMatch() {
-  roomMode='online'; ui.matchMode.textContent=matchmaking?(matchmakingMode==='ranked'?'牌位競技':'一般配對'):'私人對戰'; ui.matchRoom.textContent=`ROOM ${activeRoom}`; if(ui.rivalName.textContent==='等待中')ui.rivalName.textContent='對手'; ui.rivalBadge.textContent=matchmakingMode==='ranked'?'RANKED':'ONLINE'; ui.rivalBadge.classList.remove('muted'); showSection('arena'); countdownAndStart();
+  ensureSingleOpponent();roomMode='online'; ui.matchMode.textContent=matchmaking?(matchmakingMode==='ranked'?'牌位競技':'一般配對'):'私人對戰'; ui.matchRoom.textContent=`ROOM ${activeRoom}`; if(ui.rivalName.textContent==='等待中')ui.rivalName.textContent='對手'; ui.rivalBadge.textContent=matchmakingMode==='ranked'?'RANKED':'ONLINE'; ui.rivalBadge.classList.remove('muted'); showSection('arena'); countdownAndStart();
 }
 function handleData(data) {
   if(!data || !data.type)return;
@@ -466,10 +526,38 @@ function handleData(data) {
   if(data.type==='rematch'){ remoteReady=true; if(rematchRequested || isHost){ rematchRequested=false; remoteReady=false; send({type:'start'}); countdownAndStart(); } else toast('對手想再來一場'); }
   if(data.type==='start'){ rematchRequested=false; remoteReady=false; countdownAndStart(); }
 }
-function send(data){ if(connection?.open) connection.send(data); }
-function sendState(force=false){ const now=performance.now(); if(!force && now-lastStateSent<170)return; lastStateSent=now; send({type:'state',board,score,lines}); }
+function send(data){if(partyState&&roomMode==='online'){if(isHost){if(data.type==='attack')routePartyAttack(data.from||session.user.id,data.lines||0);else broadcastParty(data);}else if(connection?.open)connection.send(data);return;}if(connection?.open) connection.send(data);}
+function sendState(force=false){ const now=performance.now(); if(!force && now-lastStateSent<170)return; lastStateSent=now;const data={type:'state',userId:session?.user?.id,board:liveBoard(),score,lines,theme:playerProfile.block_theme,background:playerProfile.battle_background};if(partyState&&roomMode==='online'){if(isHost)broadcastParty(data);else send(data);}else send(data); }
+function showPartyRoom(){showSection('partyRoom');ui.partyCode.textContent=activeRoom;renderPartyRoom();}
+function renderPartyRoom(){
+  if(!partyState)return;const members=partyState.members||[],hostId=partyState.host_id,settings=partyState.settings||{};ui.partyCount.textContent=`${members.length} / ${partyState.max_players||4}`;ui.partyCode.textContent=partyState.code||activeRoom;
+  ui.partyMaxPlayers.value=String(partyState.max_players||4);ui.partyBalance.checked=settings.balance!==false;ui.partyTargetMode.value=settings.target_mode||'random';ui.partyGarbageDelay.value=String(settings.garbage_delay||1200);
+  [ui.partyMaxPlayers,ui.partyBalance,ui.partyTargetMode,ui.partyGarbageDelay].forEach(control=>control.disabled=!isHost);ui.partyHostNote.textContent=isHost?'你是房主，可調整設定':'等待房主設定';
+  ui.partyMembers.innerHTML=members.map(member=>{const host=member.id===hostId,self=member.id===session.user.id,disabled=!isHost||settings.balance!==false||host;return `<div class="party-member" data-member-id="${member.id}"><span class="member-avatar">${escapeHtml(member.avatar||'⚡')}</span><div><strong>${escapeHtml(member.username)}${host?' · 房主':''}${self?'（你）':''}</strong><small>${rankFor(member.rating).name} · ${member.rating||1000} RP</small></div><span class="ready-state ${member.ready?'ready':''}">${member.ready?'已準備':'未準備'}</span><label class="handicap-control">鎖定列 <select data-handicap-id="${member.id}" ${disabled?'disabled':''}>${Array.from({length:7},(_,i)=>`<option value="${i}" ${Number(member.handicap_rows||0)===i?'selected':''}>${i}</option>`).join('')}</select></label></div>`;}).join('');
+  const self=members.find(member=>member.id===session.user.id);partyReady=Boolean(self?.ready);ui.partyReadyBtn.classList.toggle('hidden',isHost);ui.partyReadyBtn.textContent=partyReady?'取消準備':'我已準備';ui.partyStartBtn.classList.toggle('hidden',!isHost);ui.partyStartBtn.disabled=members.length<2||members.some(member=>!member.ready);ui.partyStatus.textContent=members.length<2?'至少還需要一位玩家。':members.some(member=>!member.ready)?'等待所有玩家準備。':'所有玩家已準備，可以開始遊戲。';
+}
+async function refreshPartyRoom(){if(!currentRoomId||!partyState)return;try{const next=await callRpc('get_party_room',{p_room_id:currentRoomId});partyState=next;renderPartyRoom();if(next.state==='playing'&&!running&&!gameEnded)startPartyMatch();}catch(error){console.warn('Party room unavailable',error.message);}}
+function beginPartyPolling(){clearInterval(partyPoll);partyPoll=setInterval(refreshPartyRoom,1300);}
+async function savePartySettings(){
+  if(!isHost||!partyState)return;const members=partyState.members||[],balance=ui.partyBalance.checked,handicaps={};
+  if(balance){const floor=Math.min(...members.map(member=>Number(member.rating)||1000));members.forEach(member=>handicaps[member.id]=Math.min(4,Math.floor(((Number(member.rating)||1000)-floor)/250)));}
+  else members.forEach(member=>{const select=ui.partyMembers.querySelector(`[data-handicap-id="${member.id}"]`);handicaps[member.id]=Number(select?.value??member.handicap_rows??0);});
+  try{partyState=await callRpc('update_party_settings',{p_room_id:currentRoomId,p_max_players:Number(ui.partyMaxPlayers.value),p_settings:{balance,target_mode:ui.partyTargetMode.value,garbage_delay:Number(ui.partyGarbageDelay.value)},p_handicaps:handicaps});renderPartyRoom();broadcastParty({type:'party-sync',party:partyState,chat:roomChat});}catch(error){toast(error.message||'無法更新房間設定');}
+}
+async function togglePartyReady(){try{partyState=await callRpc('set_party_ready',{p_room_id:currentRoomId,p_ready:!partyReady});renderPartyRoom();}catch(error){toast(error.message||'無法更新準備狀態');}}
+async function startPartyRoom(){try{await savePartySettings();partyState=await callRpc('start_party_room',{p_room_id:currentRoomId});clearInterval(partyPoll);broadcastParty({type:'party-start',party:partyState});startPartyMatch();}catch(error){toast(error.message||'目前還不能開始');}}
+function startPartyMatch(){if(running||ui.countdown&&!ui.countdown.classList.contains('hidden'))return;clearInterval(partyPoll);roomMode='online';matchmaking=false;lockedRows=Number((partyState?.members||[]).find(member=>member.id===session.user.id)?.handicap_rows||0);eliminatedPlayers.clear();opponents.clear();(partyState?.members||[]).filter(member=>member.id!==session.user.id).forEach(member=>opponents.set(member.id,{...member,userId:member.id,board:emptyBoard(),score:0,lines:0,theme:'neon',background:'void',alive:true}));ui.matchMode.textContent='好友多人對戰';ui.matchRoom.textContent=`ROOM ${activeRoom} · ${partyState.members.length}P`;showSection('arena');ui.battleSocial.classList.remove('hidden');renderOpponentBoards();countdownAndStart();}
+async function leavePartyRoom(){backToLobby();}
+function appendRoomChat(message){roomChat.push({username:message.username||'PLAYER',message:String(message.message||'').slice(0,120)});roomChat=roomChat.slice(-40);renderRoomChat();if(roomMode==='online')showBattleBubble(`${message.username}: ${message.message}`);}
+function renderRoomChat(){ui.roomChatMessages.innerHTML=roomChat.length?roomChat.map(item=>`<div class="chat-message"><b>${escapeHtml(item.username)}</b><span>${escapeHtml(item.message)}</span></div>`).join(''):'<p class="empty-state">房間內還沒有訊息。</p>';ui.roomChatMessages.scrollTop=ui.roomChatMessages.scrollHeight;}
+function sendRoomChat(event){event.preventDefault();const message=ui.roomChatInput.value.trim();if(!message)return;const data={type:'party-chat',username:playerName,message};ui.roomChatInput.value='';if(isHost){appendRoomChat(data);broadcastParty(data);}else connection?.send(data);}
+function showBattleBubble(text){const item=document.createElement('div');item.className='battle-bubble';item.textContent=text;ui.battleChatFeed.append(item);setTimeout(()=>item.remove(),4200);}
+function sendReaction(reaction){const data={type:'reaction',reaction,username:playerName};if(isHost){showReaction(data);broadcastParty(data);}else connection?.send(data);}
+function showReaction(data){const item=document.createElement('div');item.className='floating-reaction';item.textContent=data.reaction;document.body.append(item);showBattleBubble(`${data.username}：${data.reaction}`);setTimeout(()=>item.remove(),1900);}
+async function refreshLobbyChat(){if(!db||!session)return;try{const messages=await callRpc('get_lobby_messages');ui.lobbyChatMessages.innerHTML=messages.length?messages.map(item=>`<div class="chat-message"><b>${escapeHtml(item.username)}</b><span>${escapeHtml(item.message)}</span></div>`).join(''):'<p class="empty-state">還沒有訊息，來打聲招呼吧。</p>';ui.lobbyChatMessages.scrollTop=ui.lobbyChatMessages.scrollHeight;}catch(error){console.warn('Lobby chat unavailable',error.message);}}
+async function sendLobbyChat(event){event.preventDefault();const message=ui.lobbyChatInput.value.trim();if(!message)return;ui.lobbyChatInput.value='';try{await callRpc('send_lobby_message',{p_message:message});await refreshLobbyChat();}catch(error){toast(error.message||'訊息傳送失敗');}}
 function handlePeerError(error){ const known={'unavailable-id':'這個房間碼已被使用，請重新建立。','peer-unavailable':'找不到房間，請確認代碼是否正確。',network:'連線服務暫時無法使用。'}; setLobbyMessage(known[error.type]||'無法建立連線，請稍後再試。'); setNetwork('連線失敗',false); showSection('lobby'); }
-function disconnect(notifyBackend=true){ clearLockDelay(true);stopAllHeld();clearInterval(matchPoll); clearInterval(aiTimer); matchPoll=null; aiTimer=null;ui.matchmakingToast.classList.add('hidden'); if(notifyBackend&&db&&session)callRpc('leave_online',{p_room_id:currentRoomId}).catch(()=>{}); if(connection){connection.close();connection=null;} if(peer){peer.destroy();peer=null;} peerReady=false; activeRoom=''; currentRoomId=null;matchmaking=false; cancelAnimationFrame(raf); running=false; }
+function disconnect(notifyBackend=true){ clearLockDelay(true);stopAllHeld();clearInterval(matchPoll);clearInterval(partyPoll); clearInterval(aiTimer); matchPoll=null;partyPoll=null; aiTimer=null;ui.matchmakingToast.classList.add('hidden');ui.battleSocial.classList.add('hidden');if(notifyBackend&&db&&session&&currentRoomId){const rpc=partyState?'leave_party_room':'leave_online';callRpc(rpc,{p_room_id:currentRoomId}).catch(()=>{});}connections.forEach(conn=>conn.close());connections.clear();if(connection){connection.close();connection=null;} if(peer){peer.destroy();peer=null;} peerReady=false; activeRoom=''; currentRoomId=null;matchmaking=false;partyState=null;opponents.clear();eliminatedPlayers.clear();roomChat=[];lockedRows=0; cancelAnimationFrame(raf); running=false; }
 function cancelMatchmaking(){disconnect();showSection('lobby');switchLobbyView('home');setLobbyMessage('已停止配對。');setNetwork('玩家大廳已連線');}
 function backToLobby(){ disconnect(); ui.resultModal.classList.add('hidden'); showSection(session?'lobby':'auth'); ui.roomInput.value=''; setLobbyMessage(); setNetwork('連線服務待命'); }
 function toast(message){ ui.toast.textContent=message; ui.toast.classList.add('show'); clearTimeout(toast.timer); toast.timer=setTimeout(()=>ui.toast.classList.remove('show'),1800); }
@@ -516,9 +604,9 @@ async function addViewedPlayerFriend() {
   catch(error){ui.addPlayerFriendBtn.disabled=false;toast(error.message||'無法送出好友邀請');}
 }
 function switchLobbyView(view) {
-  ui.lobbyHome.classList.toggle('hidden',view!=='home'); ui.leaderboardPanel.classList.toggle('hidden',view!=='leaderboard'); ui.friendsPanel.classList.toggle('hidden',view!=='friends');ui.shopPanel.classList.toggle('hidden',view!=='shop');ui.tasksPanel.classList.toggle('hidden',view!=='tasks');
+  ui.lobbyHome.classList.toggle('hidden',view!=='home'); ui.leaderboardPanel.classList.toggle('hidden',view!=='leaderboard'); ui.friendsPanel.classList.toggle('hidden',view!=='friends');ui.shopPanel.classList.toggle('hidden',view!=='shop');ui.tasksPanel.classList.toggle('hidden',view!=='tasks');ui.chatPanel.classList.toggle('hidden',view!=='chat');
   document.querySelectorAll('[data-lobby-view]').forEach(button=>button.classList.toggle('active',button.dataset.lobbyView===view));
-  if(view==='leaderboard')refreshLeaderboards();if(view==='shop')refreshShop();if(view==='tasks')refreshProgression();if(view==='profile')openProfileSettings();
+  if(view==='leaderboard')refreshLeaderboards();if(view==='shop')refreshShop();if(view==='tasks')refreshProgression();if(view==='chat')refreshLobbyChat();if(view==='profile')openProfileSettings();
 }
 function renderEconomy(){
   ui.coinBalance.textContent=Number(shopState.coins||0).toLocaleString();ui.gemBalance.textContent=Number(shopState.gems||0).toLocaleString();ui.shopCoinBalance.textContent=Number(shopState.coins||0).toLocaleString();ui.shopGemBalance.textContent=Number(shopState.gems||0).toLocaleString();
@@ -605,7 +693,7 @@ async function sendFriendRequest() {
 async function respondFriend(id,accept) { try{await callRpc('respond_friend_request',{p_friendship_id:id,p_accept:accept});await refreshSocial();}catch(error){toast(error.message);} }
 async function inviteFriend(friendId) {
   if(!requireLogin())return; setLobbyMessage('正在建立好友對戰房間…');
-  preparePeer(async peerId=>{ try { const room=await callRpc('create_private_room',{p_peer_id:peerId}); await callRpc('send_battle_invite',{p_friend_id:friendId,p_room_code:room.code}); isHost=true; currentRoomId=room.room_id; activeRoom=room.code; showWaiting('private',activeRoom); ui.waitingText.textContent='好友邀請已送出'; setNetwork('等待好友接受邀請'); beginPolling(); } catch(error){onlineError(error);} });
+  preparePeer(async peerId=>{ try { const room=await callRpc('create_party_room',{p_peer_id:peerId}); await callRpc('send_battle_invite',{p_friend_id:friendId,p_room_code:room.code}); isHost=true;matchmaking=false;gameEnded=false;currentRoomId=room.room_id;activeRoom=room.code;partyState=room;showPartyRoom();setNetwork('好友邀請已送出');beginPartyPolling(); } catch(error){onlineError(error);} });
 }
 async function respondBattleInvite(accept) {
   if(!pendingInvite)return;
@@ -639,8 +727,8 @@ function translateAuthError(message='') {
   if(/invalid login credentials/i.test(message))return '角色帳號或密碼不正確。'; if(/already registered|user already registered/i.test(message))return '這個角色帳號已被使用。'; if(/password/i.test(message)&&/characters/i.test(message))return '密碼至少需要 8 個字元。'; return message;
 }
 async function applySession(nextSession) {
-  session=nextSession; clearInterval(socialPoll); socialPoll=null; if(!session){ui.userMenu.classList.add('hidden');ui.inviteBanner.classList.add('hidden');showSection('auth');return;}
-  const {data}=await db.from('profiles').select('username,avatar,block_theme,battle_background,wins,losses,rating,ranked_wins,ranked_losses').eq('id',session.user.id).single(); playerName=data?.username||session.user.user_metadata?.username||'PLAYER'; playerProfile={...playerProfile,...data,id:session.user.id}; ui.userName.textContent=playerName; ui.userMenu.classList.remove('hidden'); ui.rivalName.textContent='等待中'; showSection('lobby'); switchLobbyView('home'); setNetwork('玩家大廳已連線'); renderProfile(); await Promise.all([refreshSocial(),refreshShop(),refreshProgression()]); socialPoll=setInterval(refreshSocial,4000);
+  session=nextSession; clearInterval(socialPoll);clearInterval(lobbyChatPoll); socialPoll=null;lobbyChatPoll=null; if(!session){ui.userMenu.classList.add('hidden');ui.inviteBanner.classList.add('hidden');showSection('auth');return;}
+  const {data}=await db.from('profiles').select('username,avatar,block_theme,battle_background,wins,losses,rating,ranked_wins,ranked_losses').eq('id',session.user.id).single(); playerName=data?.username||session.user.user_metadata?.username||'PLAYER'; playerProfile={...playerProfile,...data,id:session.user.id}; ui.userName.textContent=playerName; ui.userMenu.classList.remove('hidden'); ui.rivalName.textContent='等待中'; showSection('lobby'); switchLobbyView('home'); setNetwork('玩家大廳已連線'); renderProfile(); await Promise.all([refreshSocial(),refreshShop(),refreshProgression(),refreshLobbyChat()]); socialPoll=setInterval(refreshSocial,4000);lobbyChatPoll=setInterval(refreshLobbyChat,3500);
 }
 async function initOnlineServices() {
   const config=window.BLOCKSTORM_CONFIG||{}; if(!config.supabaseUrl||!config.supabaseAnonKey||!window.supabase){showSection('auth');ui.authMessage.textContent='尚未連接線上服務；目前仍可使用離線練習。';setNetwork('等待後端設定',false);return;}
@@ -649,10 +737,11 @@ async function initOnlineServices() {
 
 ui.hostBtn.addEventListener('click',hostRoom); ui.joinBtn.addEventListener('click',joinRoom); ui.matchBtn.addEventListener('click',()=>findOpponent('normal')); ui.rankedMatchBtn.addEventListener('click',()=>findOpponent('ranked')); ui.practiceBtn.addEventListener('click',startAiBattle); ui.guestPracticeBtn.addEventListener('click',startPractice);
 ui.themeModeBtn.addEventListener('click',()=>setUiTheme(document.documentElement.dataset.uiTheme==='dark'?'light':'dark'));ui.cancelMatchBtn.addEventListener('click',cancelMatchmaking);
+ui.partyCode.addEventListener('click',async()=>{try{await navigator.clipboard.writeText(activeRoom);toast('房間碼已複製');}catch{toast(`房間碼：${activeRoom}`);}});ui.leavePartyBtn.addEventListener('click',leavePartyRoom);ui.partyReadyBtn.addEventListener('click',togglePartyReady);ui.partyStartBtn.addEventListener('click',startPartyRoom);[ui.partyMaxPlayers,ui.partyBalance,ui.partyTargetMode,ui.partyGarbageDelay].forEach(control=>control.addEventListener('change',savePartySettings));ui.partyMembers.addEventListener('change',event=>{if(event.target.matches('[data-handicap-id]'))savePartySettings();});ui.roomChatForm.addEventListener('submit',sendRoomChat);ui.lobbyChatForm.addEventListener('submit',sendLobbyChat);document.querySelector('.reaction-bar').addEventListener('click',event=>{const button=event.target.closest('[data-reaction]');if(button)sendReaction(button.dataset.reaction);});
 ui.roomInput.addEventListener('input',e=>e.target.value=e.target.value.toUpperCase().replace(/[^A-Z2-9]/g,'')); ui.roomInput.addEventListener('keydown',e=>{if(e.key==='Enter')joinRoom();});
 ui.copyCode.addEventListener('click',async()=>{try{await navigator.clipboard.writeText(activeRoom);toast('房間碼已複製');}catch{toast(`房間碼：${activeRoom}`);}});
 ui.cancelWait.addEventListener('click',backToLobby); ui.backBtn.addEventListener('click',backToLobby); ui.pauseBtn.addEventListener('click',togglePause); ui.lobbyBtn.addEventListener('click',backToLobby);
-ui.againBtn.addEventListener('click',()=>{ ui.resultModal.classList.add('hidden'); if(roomMode==='practice'||roomMode==='ai')countdownAndStart(); else {rematchRequested=true;send({type:'rematch'});toast('等待對手準備…');} });
+ui.againBtn.addEventListener('click',()=>{ ui.resultModal.classList.add('hidden');if(partyState){backToLobby();return;} if(roomMode==='practice'||roomMode==='ai')countdownAndStart(); else {rematchRequested=true;send({type:'rematch'});toast('等待對手準備…');} });
 ui.loginTab.addEventListener('click',()=>selectAuthMode('login')); ui.signupTab.addEventListener('click',()=>selectAuthMode('signup')); ui.authForm.addEventListener('submit',submitAuth); ui.signOutBtn.addEventListener('click',async()=>{disconnect();await db?.auth.signOut();});
 ui.settingsBtn.addEventListener('click',openProfileSettings); ui.profileEditBtn.addEventListener('click',openProfileSettings); ui.closeProfileBtn.addEventListener('click',()=>{ui.profileModal.classList.add('hidden');renderProfile();}); ui.saveProfileBtn.addEventListener('click',saveProfileSettings);
 document.querySelectorAll('[data-open-shop]').forEach(button=>button.addEventListener('click',()=>switchLobbyView('shop')));

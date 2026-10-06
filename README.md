@@ -12,7 +12,7 @@
 
 ## 功能
 
-- 1 對 1 即時對戰與房間碼
+- 1 對 1 公開配對，以及最多 4 人的好友房間
 - 角色帳號＋密碼註冊與登入（玩家不需提供 Email）
 - 公開快速配對佇列，搜尋狀態固定在大廳右下角並可隨時停止
 - 簡約遊戲主選單：個人資訊、貨幣欄、賽季摘要與集中模式選擇
@@ -21,6 +21,9 @@
 - 14 款柔和方塊造型、12 款遊戲背板、專屬紋理與永久收藏
 - 整合式個人資料表：固定玩家 ID、段位、牌位／一般勝率與場次
 - 好友搜尋、好友邀請與好友對戰
+- 好友房間設定／準備階段、實力平衡與每位玩家 0–6 排永久鎖定列
+- 多人最後存活制、隨機／輪流攻擊目標與其他玩家即時盤面
+- 大廳聊天室、房間聊天室與遊戲中快速表情
 - 全站與好友排行榜
 - 排行榜玩家公開資料與快速加入好友
 - 一般配對與七階牌位配對
@@ -60,7 +63,7 @@ GitHub 完成部署後，網站會出現在 `https://你的帳號.github.io/你�
 GitHub Pages 只負責網站檔案；帳號、房間及配對資料由 Supabase 處理。
 
 1. 在 Supabase 建立一個專案。
-2. 開啟 **SQL Editor**，依序執行 `supabase/schema.sql`、`supabase/social.sql`、`supabase/ranked.sql`、`supabase/economy.sql`、`supabase/progression.sql` 與 `supabase/cosmetics_v2.sql`。
+2. 開啟 **SQL Editor**，依序執行 `supabase/schema.sql`、`supabase/social.sql`、`supabase/ranked.sql`、`supabase/economy.sql`、`supabase/progression.sql`、`supabase/cosmetics_v2.sql` 與 `supabase/multiplayer_rooms.sql`。
 3. 到 **Project Settings → API**，複製 Project URL 與 publishable/anon key。
 4. 將兩個值填入 `config.js`。請勿把 `service_role` key 放進網頁。
 5. 到 **Authentication → URL Configuration**，把本機網址及 GitHub Pages 網址加入允許清單。

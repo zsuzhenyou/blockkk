@@ -8,7 +8,7 @@
     <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%23070a12'/%3E%3Cpath d='M12 12h16v16H12zm24 0h16v16H36zM24 28h16v16H24zm0 16h16v16H24z' fill='%236cf6ff'/%3E%3C/svg%3E" />
     <title>方塊風暴｜即時對戰</title>
     <link rel="preconnect" href="https://unpkg.com" />
-    <link rel="stylesheet" href="styles.css?v=themes-matchmaking-3" />
+    <link rel="stylesheet" href="styles.css?v=party-room-4p-1" />
   </head>
   <body>
     <div class="noise" aria-hidden="true"></div>
@@ -111,6 +111,12 @@
             <section class="social-section"><h3>所有好友</h3><div id="friendsList" class="player-list"><p class="empty-state">還沒有好友，搜尋角色帳號加入。</p></div></section>
           </div>
 
+          <div id="chatPanel" class="lobby-view lobby-panel chat-panel hidden">
+            <div class="panel-heading"><div><p class="eyebrow">LOBBY CHAT</p><h2>大廳聊天室</h2></div><span>所有線上玩家</span></div>
+            <div id="lobbyChatMessages" class="chat-messages" aria-live="polite"><p class="empty-state">還沒有訊息，來打聲招呼吧。</p></div>
+            <form id="lobbyChatForm" class="chat-compose"><input id="lobbyChatInput" maxlength="120" autocomplete="off" placeholder="輸入訊息…" /><button type="submit">傳送</button></form>
+          </div>
+
           <div id="shopPanel" class="lobby-view lobby-panel shop-panel hidden">
             <div class="panel-heading"><div><p class="eyebrow">COSMETIC SHOP</p><h2>造型商店</h2></div><div class="panel-tabs"><button class="active" data-shop-category="block">方塊造型</button><button data-shop-category="background">遊戲背板</button></div></div>
             <div class="shop-wallet"><span class="currency-icon coin">●</span><div><small>方塊幣</small><strong><b id="shopCoinBalance">0</b></strong></div><span class="currency-icon gem">◆</span><div><small>星晶</small><strong><b id="shopGemBalance">0</b></strong></div></div>
@@ -129,8 +135,31 @@
             <button data-lobby-view="tasks"><span>✓</span><b>任務</b></button>
             <button data-lobby-view="leaderboard"><span>♛</span><b>排行榜</b></button>
             <button data-lobby-view="friends"><span>♟</span><b>好友</b><i id="friendNotice" class="notice-dot hidden"></i></button>
+            <button data-lobby-view="chat"><span>☵</span><b>聊天</b></button>
             <button data-lobby-view="profile"><span>⚙</span><b>個人資料</b></button>
           </nav>
+        </div>
+      </section>
+
+      <section id="partyRoom" class="party-room hidden" aria-labelledby="partyRoomTitle">
+        <div class="party-shell">
+          <header class="party-header">
+            <div><p class="eyebrow">PRIVATE ROOM</p><h2 id="partyRoomTitle">好友房間</h2><p>房間碼 <button id="partyCode" type="button">------</button></p></div>
+            <button id="leavePartyBtn" class="text-button" type="button">離開房間</button>
+          </header>
+          <div class="party-layout">
+            <section class="party-card"><div class="party-section-title"><h3>玩家</h3><span id="partyCount">1 / 4</span></div><div id="partyMembers" class="party-members"></div></section>
+            <section class="party-card party-settings">
+              <div class="party-section-title"><h3>房間設定</h3><span id="partyHostNote">房主可調整</span></div>
+              <label>人數上限<select id="partyMaxPlayers"><option value="2">2 人</option><option value="3">3 人</option><option value="4" selected>4 人</option></select></label>
+              <label class="toggle-row"><span><b>平衡實力</b><small>依 RP 差距自動增加永久鎖定列</small></span><input id="partyBalance" type="checkbox" checked /></label>
+              <label>攻擊目標<select id="partyTargetMode"><option value="random">隨機存活玩家</option><option value="rotate">輪流鎖定</option></select></label>
+              <label>垃圾行延遲<select id="partyGarbageDelay"><option value="800">0.8 秒</option><option value="1200" selected>1.2 秒</option><option value="1600">1.6 秒</option></select></label>
+              <p class="setting-note">永久鎖定列會縮小該玩家可使用的盤面；關閉平衡實力後，房主可逐一設定 0–6 列。</p>
+            </section>
+            <section class="party-card party-chat"><div class="party-section-title"><h3>房間聊天</h3><span>即時</span></div><div id="roomChatMessages" class="chat-messages" aria-live="polite"></div><form id="roomChatForm" class="chat-compose"><input id="roomChatInput" maxlength="120" autocomplete="off" placeholder="輸入房間訊息…" /><button type="submit">傳送</button></form></section>
+          </div>
+          <footer class="party-footer"><p id="partyStatus">等待其他玩家加入並準備。</p><button id="partyReadyBtn" class="btn btn-secondary" type="button">我已準備</button><button id="partyStartBtn" class="btn btn-primary" type="button">開始遊戲 <b>→</b></button></footer>
         </div>
       </section>
 
@@ -181,20 +210,17 @@
 
           <div class="versus" aria-hidden="true"><span>V</span><span>S</span></div>
 
-          <article class="player-zone rival-zone">
-            <div class="player-head">
-              <span id="rivalAvatar" class="player-avatar rival-avatar">?</span>
-              <div><small>PLAYER 02</small><strong id="rivalName">等待中</strong></div>
-              <span id="rivalBadge" class="badge muted">OFFLINE</span>
-            </div>
-            <div class="rival-wrap">
-              <div class="board-frame rival-frame"><canvas id="rivalCanvas" width="300" height="600" aria-label="對手的遊戲盤面"></canvas></div>
-              <div class="rival-stats">
-                <span>SCORE <b id="rivalScore">0</b></span>
-                <span>LINES <b id="rivalLines">0</b></span>
-              </div>
-            </div>
-          </article>
+          <section id="opponentGrid" class="opponent-grid" aria-label="其他玩家盤面">
+            <article class="player-zone rival-zone" data-opponent-slot="0">
+              <div class="player-head"><span id="rivalAvatar" class="player-avatar rival-avatar">?</span><div><small>PLAYER 02</small><strong id="rivalName">等待中</strong></div><span id="rivalBadge" class="badge muted">OFFLINE</span></div>
+              <div class="rival-wrap"><div class="board-frame rival-frame"><canvas id="rivalCanvas" width="300" height="600" aria-label="對手的遊戲盤面"></canvas></div><div class="rival-stats"><span>SCORE <b id="rivalScore">0</b></span><span>LINES <b id="rivalLines">0</b></span></div></div>
+            </article>
+          </section>
+        </div>
+
+        <div id="battleSocial" class="battle-social hidden">
+          <div id="battleChatFeed" class="battle-chat-feed" aria-live="polite"></div>
+          <div class="reaction-bar" aria-label="快速表情"><button data-reaction="👍">👍</button><button data-reaction="🔥">🔥</button><button data-reaction="😮">😮</button><button data-reaction="😂">😂</button><button data-reaction="💪">💪</button><button data-reaction="GG">GG</button></div>
         </div>
 
         <div class="mobile-controls" aria-label="觸控操作">
@@ -280,6 +306,6 @@
     <script src="https://unpkg.com/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
     <script src="config.js"></script>
     <script src="https://unpkg.com/peerjs@1.5.4/dist/peerjs.min.js"></script>
-    <script src="game.js?v=themes-matchmaking-3"></script>
+    <script src="game.js?v=party-room-4p-1"></script>
   </body>
 </html>
