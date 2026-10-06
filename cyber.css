@@ -169,3 +169,65 @@
 :root body.cyber .task-copy p{font-size:12px;line-height:1.6}
 :root body.cyber .shop-item button{min-height:38px;font-size:13px}
 :root body.cyber :is(.theme-swatch,.background-preview){border-radius:0;border:1px solid var(--line)}
+
+/* TYPE / 02 — English display lettering with small Traditional Chinese pixels. */
+@font-face{font-family:Ark Pixel;src:url('./ark-pixel-zh-tw.woff2') format('woff2');font-weight:100 900;font-display:swap}
+:root:root{--pixel:'Ark Pixel','Noto Sans TC',sans-serif}
+:root body.cyber{font-family:var(--pixel);font-size:12px}
+:root body.cyber [data-en][data-en]{font-family:var(--pixel);font-size:12px;font-weight:400;line-height:1.5;letter-spacing:0}
+:root body.cyber [data-en]::before{content:attr(data-en);display:block;font:900 26px/.95 var(--display);letter-spacing:.015em;margin-bottom:5px;overflow-wrap:anywhere}
+:root body.cyber button[data-en]{display:flex;flex-direction:column;justify-content:center;align-items:center;gap:0;padding-block:8px;min-height:52px}
+:root body.cyber button[data-en]>b{display:none}
+:root body.cyber :is(h2,h3)[data-en]{margin-block:0 16px}
+:root body.cyber h2[data-en]::before{font-size:clamp(38px,4.5vw,64px);letter-spacing:-.025em}
+:root body.cyber h3[data-en]::before{font-size:28px}
+:root body.cyber .game-mode-card h3[data-en]::before{font-size:46px}
+:root body.cyber .game-mode-card h3[data-en]{margin:9px 0 16px}
+:root body.cyber .game-mode-card{min-height:274px}
+:root body.cyber .game-mode-card .mode-icon{font-size:23px;top:24px}
+:root body.cyber .mode-play[data-en]::before{font-size:25px}
+:root body.cyber .lobby-dock b[data-en]{font-size:10px}
+:root body.cyber .lobby-dock b[data-en]::before{font-size:22px}
+:root body.cyber .lobby-dock button{padding-block:10px}
+:root body.cyber .lobby-dock button>span{display:none}
+:root body.cyber :is(.panel-tabs,.user-menu,.party-title-actions) button[data-en]::before{font-size:21px}
+:root body.cyber .user-menu button[data-en]{min-height:42px;font-size:10px;padding:4px}
+:root body.cyber .brand>span:last-child{display:flex;flex-direction:column-reverse;font:10px/1.4 var(--pixel);gap:3px}
+:root body.cyber .brand b{font:900 30px/.9 var(--display);letter-spacing:.035em;color:#fff}
+:root body.cyber .auth-copy h1{font:400 16px/1.8 var(--pixel);letter-spacing:0;margin-bottom:22px}
+:root body.cyber .auth-copy h1 br{display:none}
+:root body.cyber .auth-copy h1 em{font-style:normal}
+:root body.cyber .auth-copy::before{font-size:clamp(72px,9vw,140px)}
+:root body.cyber .auth-copy>p:not(.eyebrow),:root body.cyber .auth-copy ul{font-size:12px;line-height:1.8}
+:root body.cyber .shop-item h3[data-en]::before,:root body.cyber .task-copy h3[data-en]::before{font-size:26px}
+:root body.cyber .shop-item h3[data-en],:root body.cyber .task-copy h3[data-en]{margin-bottom:9px}
+:root body.cyber .task-reward button[data-en]::before{font-size:19px}
+:root body.cyber .task-reward button[data-en]{min-width:95px}
+:root body.cyber .match-label strong[data-en]::before{font-size:24px}
+:root body.cyber .panel-heading{gap:18px;flex-wrap:wrap}
+:root body.cyber .panel-heading .eyebrow{letter-spacing:.3em;font-size:10px}
+:root body.cyber .modal-card h2[data-en]::before{font-size:52px}
+@media(max-width:680px){
+ :root body.cyber .brand b{font-size:24px}
+ :root body.cyber .brand>span:last-child{font-size:10px}
+ :root body.cyber .game-mode-card{min-height:268px;padding-inline:12px}
+ :root body.cyber .game-mode-card h3[data-en]::before{font-size:36px}
+ :root body.cyber .game-mode-card .mode-icon{display:none}
+ :root body.cyber .lobby-dock b[data-en]::before{font-size:16px;letter-spacing:0}
+ :root body.cyber .lobby-dock b[data-en]{font-size:10px}
+ :root body.cyber .panel-tabs button[data-en]::before{font-size:18px}
+ :root body.cyber .modal-card h2[data-en]::before{font-size:40px}
+ :root body.cyber .user-menu button[data-en]::before{font-size:15px}
+ :root body.cyber .user-menu button[data-en]{font-size:10px}
+ :root body.cyber .task-copy h3[data-en]::before{font-size:22px}
+ :root body.cyber #guestPracticeBtn[data-en]::before{font-size:23px}
+}
+@media(min-width:681px){
+ :root body.cyber .game-mode-card{min-height:220px;padding:16px 16px 12px;gap:4px}
+ :root body.cyber .game-mode-card h3[data-en]{margin:6px 0 8px}
+ :root body.cyber .game-mode-card h3[data-en]::before{font-size:40px}
+ :root body.cyber .join-row button[data-en]{min-height:36px;padding-block:3px;font-size:10px}
+ :root body.cyber .join-row button[data-en]::before{font-size:18px;margin-bottom:2px}
+ :root body.cyber .lobby-section-head h2[data-en]{margin-bottom:4px}
+ :root body.cyber .lobby-section-head h2[data-en]::before{font-size:46px}
+}

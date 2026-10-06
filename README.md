@@ -90,3 +90,6 @@ GitHub Pages 只負責網站檔案；帳號、房間及配對資料由 Supabase 
 ## 授權
 
 MIT
+
+### Typography / TYPE 02
+English display labels are paired with small Traditional Chinese labels across static and dynamic game panels. `typography.js` leaves game text/state intact. Traditional Chinese uses bundled [Ark Pixel Font](https://github.com/TakWolf/ark-pixel-font), 12px proportional zh-TW, under SIL OFL 1.1 (see `FONT-LICENSE.txt`).

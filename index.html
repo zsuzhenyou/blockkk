@@ -9,7 +9,7 @@
     <title>方塊風暴｜即時對戰</title>
     <link rel="preconnect" href="https://unpkg.com" />
     <link rel="stylesheet" href="styles.css?v=arcade-lobby-1" />
-    <link rel="stylesheet" href="cyber.css?v=red-protocol-1" />
+    <link rel="stylesheet" href="cyber.css?v=type-1?v=red-protocol-1" />
   </head>
   <body class="cyber">
     <div class="noise" aria-hidden="true"></div>
@@ -88,10 +88,10 @@
               <section class="mode-hub" aria-labelledby="modeTitle">
                 <div class="lobby-section-head"><div><p class="eyebrow">PLAY</p><h2 id="modeTitle">開始遊戲</h2></div></div>
                 <div class="game-mode-grid">
-                  <article class="game-mode-card normal-mode"><span class="mode-icon">VS</span><div><small>CASUAL</small><h3>一般配對</h3></div><button id="matchBtn" class="mode-play">開始配對 <b>→</b></button></article>
-                  <article class="game-mode-card ranked-mode"><span class="mode-icon">◆</span><div><small>RANKED</small><h3>牌位競技</h3></div><button id="rankedMatchBtn" class="mode-play">牌位配對 <b>→</b></button></article>
-                  <article class="game-mode-card ai-mode"><span class="mode-icon">1P</span><div><small>SOLO</small><h3>單人模式</h3><label class="difficulty-label">難度<select id="aiDifficulty"><option value="easy">簡單</option><option value="normal" selected>普通</option><option value="hard">困難</option><option value="expert">專家</option></select></label></div><button id="practiceBtn" class="mode-play">開始遊戲 <b>→</b></button></article>
-                  <article class="game-mode-card private-mode"><span class="mode-icon">#</span><div><small>PRIVATE</small><h3>好友房間</h3></div><button id="hostBtn" class="mode-play">建立房間 <b>＋</b></button><div class="join-row"><label for="roomInput" class="sr-only">房間代碼</label><input id="roomInput" maxlength="6" autocomplete="off" autocapitalize="characters" inputmode="text" spellcheck="false" pattern="[A-Za-z0-9]{6}" placeholder="輸入房間碼" /><button id="joinBtn">加入</button></div></article>
+                  <article class="game-mode-card normal-mode"><span class="mode-icon">VS</span><div><small>MODE / 01</small><h3>一般配對</h3></div><button id="matchBtn" class="mode-play">開始配對 <b>→</b></button></article>
+                  <article class="game-mode-card ranked-mode"><span class="mode-icon">◆</span><div><small>MODE / 02</small><h3>牌位競技</h3></div><button id="rankedMatchBtn" class="mode-play">牌位配對 <b>→</b></button></article>
+                  <article class="game-mode-card ai-mode"><span class="mode-icon">1P</span><div><small>MODE / 03</small><h3>單人模式</h3><label class="difficulty-label">難度<select id="aiDifficulty"><option value="easy">簡單</option><option value="normal" selected>普通</option><option value="hard">困難</option><option value="expert">專家</option></select></label></div><button id="practiceBtn" class="mode-play">開始遊戲 <b>→</b></button></article>
+                  <article class="game-mode-card private-mode"><span class="mode-icon">#</span><div><small>MODE / 04</small><h3>好友房間</h3></div><button id="hostBtn" class="mode-play">建立房間 <b>＋</b></button><div class="join-row"><label for="roomInput" class="sr-only">房間代碼</label><input id="roomInput" maxlength="6" autocomplete="off" autocapitalize="characters" inputmode="text" spellcheck="false" pattern="[A-Za-z0-9]{6}" placeholder="輸入房間碼" /><button id="joinBtn">加入</button></div></article>
                 </div>
               </section>
             </div>
@@ -311,5 +311,6 @@
     <script src="config.js"></script>
     <script src="https://unpkg.com/peerjs@1.5.4/dist/peerjs.min.js"></script>
     <script src="game.js?v=red-protocol-1"></script>
+    <script src="typography.js?v=type-1"></script>
   </body>
 </html>
