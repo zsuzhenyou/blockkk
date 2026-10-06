@@ -63,7 +63,7 @@ GitHub 完成部署後，網站會出現在 `https://你的帳號.github.io/你�
 GitHub Pages 只負責網站檔案；帳號、房間及配對資料由 Supabase 處理。
 
 1. 在 Supabase 建立一個專案。
-2. 開啟 **SQL Editor**，依序執行 `supabase/schema.sql`、`supabase/social.sql`、`supabase/ranked.sql`、`supabase/economy.sql`、`supabase/progression.sql`、`supabase/cosmetics_v2.sql` 與 `supabase/multiplayer_rooms.sql`。
+2. 開啟 **SQL Editor**，依序執行 `supabase/schema.sql`、`supabase/social.sql`、`supabase/ranked.sql`、`supabase/economy.sql`、`supabase/progression.sql`、`supabase/cosmetics_v2.sql`、`supabase/multiplayer_rooms.sql` 與 `supabase/private_chat.sql`。
 3. 到 **Project Settings → API**，複製 Project URL 與 publishable/anon key。
 4. 將兩個值填入 `config.js`。請勿把 `service_role` key 放進網頁。
 5. 到 **Authentication → URL Configuration**，把本機網址及 GitHub Pages 網址加入允許清單。
