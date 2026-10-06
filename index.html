@@ -8,7 +8,7 @@
     <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%23070a12'/%3E%3Cpath d='M12 12h16v16H12zm24 0h16v16H36zM24 28h16v16H24zm0 16h16v16H24z' fill='%236cf6ff'/%3E%3C/svg%3E" />
     <title>方塊風暴｜即時對戰</title>
     <link rel="preconnect" href="https://unpkg.com" />
-    <link rel="stylesheet" href="styles.css?v=chat-speed-duel-1" />
+    <link rel="stylesheet" href="styles.css?v=arcade-lobby-1" />
   </head>
   <body>
     <div class="noise" aria-hidden="true"></div>
@@ -59,7 +59,7 @@
         </div>
       </section>
 
-      <section id="lobby" class="lobby hidden" aria-labelledby="lobbyTitle">
+      <section id="lobby" class="lobby arcade-lobby hidden" aria-labelledby="lobbyTitle">
         <div class="lobby-shell">
           <header class="player-bar">
             <div class="player-bar-main">
@@ -85,12 +85,12 @@
               </aside>
 
               <section class="mode-hub" aria-labelledby="modeTitle">
-                <div class="lobby-section-head"><div><p class="eyebrow">PLAY</p><h2 id="modeTitle">選擇遊戲模式</h2></div><p>選擇玩法，開始下一場對決。</p></div>
+                <div class="lobby-section-head"><div><p class="eyebrow">PLAY</p><h2 id="modeTitle">開始遊戲</h2></div></div>
                 <div class="game-mode-grid">
-                  <article class="game-mode-card normal-mode"><span class="mode-icon">VS</span><div><small>CASUAL</small><h3>一般配對</h3><p>輕鬆與線上玩家對戰，不影響牌位積分。</p></div><button id="matchBtn" class="mode-play">開始配對 <b>→</b></button></article>
-                  <article class="game-mode-card ranked-mode"><span class="mode-icon">◆</span><div><small>RANKED</small><h3>牌位競技</h3><p>與相近牌位玩家對戰，勝負會改變 RP。</p></div><button id="rankedMatchBtn" class="mode-play">牌位配對 <b>→</b></button></article>
-                  <article class="game-mode-card ai-mode"><span class="mode-icon">1P</span><div><small>SOLO</small><h3>單人模式</h3><p>與電腦對手練習攻擊、防守和堆疊節奏。</p><label class="difficulty-label">難度<select id="aiDifficulty"><option value="easy">簡單</option><option value="normal" selected>普通</option><option value="hard">困難</option><option value="expert">專家</option></select></label></div><button id="practiceBtn" class="mode-play">開始遊戲 <b>→</b></button></article>
-                  <article class="game-mode-card private-mode"><span class="mode-icon">#</span><div><small>PRIVATE</small><h3>好友房間</h3><p>建立房間邀請好友，或輸入六位代碼加入。</p></div><button id="hostBtn" class="mode-play">建立房間 <b>＋</b></button><div class="join-row"><label for="roomInput" class="sr-only">房間代碼</label><input id="roomInput" maxlength="6" autocomplete="off" autocapitalize="characters" inputmode="text" spellcheck="false" pattern="[A-Za-z0-9]{6}" placeholder="輸入房間碼" /><button id="joinBtn">加入</button></div></article>
+                  <article class="game-mode-card normal-mode"><span class="mode-icon">VS</span><div><small>CASUAL</small><h3>一般配對</h3></div><button id="matchBtn" class="mode-play">開始配對 <b>→</b></button></article>
+                  <article class="game-mode-card ranked-mode"><span class="mode-icon">◆</span><div><small>RANKED</small><h3>牌位競技</h3></div><button id="rankedMatchBtn" class="mode-play">牌位配對 <b>→</b></button></article>
+                  <article class="game-mode-card ai-mode"><span class="mode-icon">1P</span><div><small>SOLO</small><h3>單人模式</h3><label class="difficulty-label">難度<select id="aiDifficulty"><option value="easy">簡單</option><option value="normal" selected>普通</option><option value="hard">困難</option><option value="expert">專家</option></select></label></div><button id="practiceBtn" class="mode-play">開始遊戲 <b>→</b></button></article>
+                  <article class="game-mode-card private-mode"><span class="mode-icon">#</span><div><small>PRIVATE</small><h3>好友房間</h3></div><button id="hostBtn" class="mode-play">建立房間 <b>＋</b></button><div class="join-row"><label for="roomInput" class="sr-only">房間代碼</label><input id="roomInput" maxlength="6" autocomplete="off" autocapitalize="characters" inputmode="text" spellcheck="false" pattern="[A-Za-z0-9]{6}" placeholder="輸入房間碼" /><button id="joinBtn">加入</button></div></article>
                 </div>
               </section>
             </div>

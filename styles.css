@@ -1,3 +1,4 @@
+@import url('https://fonts.googleapis.com/css2?family=DotGothic16&display=swap');
 :root {
   color-scheme: dark;
   --bg: #070a12;
@@ -277,3 +278,58 @@ body::before,.noise{display:none}
 .opponent-grid:not(.multi) .rival-wrap,.opponent-grid:not(.multi) .rival-frame,.opponent-grid:not(.multi) .rival-frame canvas{width:300px;height:auto;max-width:none}
 @media(max-width:900px){.battle-grid{grid-template-columns:1fr;max-width:620px}.opponent-grid:not(.multi){width:300px}.opponent-grid:not(.multi) .player-head{display:flex}}
 @media(max-width:600px){.private-chat-layout:not(.hidden){display:block}.private-chat-layout>aside{padding:0 0 10px;border-right:0;border-bottom:1px solid var(--line)}.private-friend-list{display:flex;max-height:none;overflow:auto;padding-bottom:3px}.private-friend{min-width:150px}.private-conversation{padding-top:12px}.opponent-grid:not(.multi){width:min(300px,88vw)}.opponent-grid:not(.multi) .rival-zone{display:block;width:min(300px,88vw);max-width:none}.opponent-grid:not(.multi) .rival-wrap,.opponent-grid:not(.multi) .rival-frame,.opponent-grid:not(.multi) .rival-frame canvas{width:min(300px,88vw);height:auto;max-width:none}}
+
+/* Arcade lobby: player HUD, open stage and four mode tiles. */
+:root .arcade-lobby{--arc-ink:#eaf7ff;--arc-panel:#152344;--arc-line:#52658b;color:var(--arc-ink);padding:16px 24px 106px;background:linear-gradient(180deg,rgba(10,18,39,.4),rgba(10,18,39,.9)),repeating-linear-gradient(0deg,transparent 0 3px,rgba(111,169,255,.035) 3px 4px),#0c142b;font-family:'DotGothic16',ui-monospace,monospace;min-height:calc(100dvh - 74px)}
+:root .arcade-lobby .lobby-shell{width:100%;max-width:1600px;min-height:calc(100dvh - 196px);gap:24px}
+:root .arcade-lobby .player-bar{background:#152344;border:3px solid #52658b;border-radius:0;padding:12px 18px;box-shadow:5px 5px 0 #050a19;min-height:88px}
+:root .arcade-lobby .profile-avatar{width:60px;height:60px;background:#233660;border:3px solid #8ca9d3;border-radius:0;font-size:28px}
+:root .arcade-lobby .player-bar h1{font-size:28px;line-height:1.2;color:#fff}
+:root .arcade-lobby .player-bar-main small{font:12px ui-monospace,monospace;color:#9fb5d9;letter-spacing:.08em}
+:root .arcade-lobby .profile-edit-compact{border:2px solid #52658b;border-radius:0;background:#233660;color:#d9e9ff;font-size:14px;height:36px}
+:root .arcade-lobby .currency-chip{min-width:180px;height:56px;background:#0b1631;border:2px solid #52658b;border-radius:0;grid-template-columns:36px 1fr 30px}
+:root .arcade-lobby .currency-chip small{font-size:11px;color:#9fb5d9}
+:root .arcade-lobby .currency-chip strong{font:900 24px ui-monospace,monospace;color:#fff}
+:root .arcade-lobby .currency-icon{border-radius:0;width:28px;height:28px;font-size:18px}
+:root .arcade-lobby .currency-chip button{border:0;border-radius:0;background:#ffda62;color:#17213c;width:28px;height:32px;font-size:24px}
+:root .arcade-lobby .lobby-dashboard{position:relative;display:grid;grid-template-columns:minmax(0,1fr) minmax(400px,480px);gap:40px;min-height:calc(100dvh - 318px);align-items:center}
+:root .arcade-lobby .lobby-side-card{align-self:start;max-width:245px;padding:0;background:transparent;border:0;box-shadow:none;border-radius:0;gap:16px}
+:root .arcade-lobby .side-card-heading,:root .arcade-lobby .season-progress,:root .arcade-lobby .profile-stats,:root .arcade-lobby .current-style{display:none}
+:root .arcade-lobby .rank-chip{margin:0;padding:12px 16px;background:#14213b;border:2px solid #52658b;border-left:6px solid #a89aff;border-radius:0;box-shadow:4px 4px 0 #050a19}
+:root .arcade-lobby .rank-chip small,:root .arcade-lobby .rank-chip span{color:#a6b9d8;font-size:12px}
+:root .arcade-lobby .rank-chip strong{color:#c7bbff;font-size:28px}
+:root .arcade-lobby .daily-mission{margin:0;background:#14213b;border:2px solid #52658b;border-radius:0;padding:12px;box-shadow:4px 4px 0 #050a19;color:#eaf7ff}
+:root .arcade-lobby .daily-mission>span{background:#ffda62;color:#14213b;border-radius:0}
+:root .arcade-lobby .daily-mission small,:root .arcade-lobby .daily-mission i{color:#a6b9d8;font-size:11px}
+:root .arcade-lobby .daily-mission strong{font-size:16px;color:#fff}
+:root .arcade-lobby .mode-hub{padding:0;background:transparent;border:0;box-shadow:none;border-radius:0}
+:root .arcade-lobby .lobby-section-head{margin:0 0 18px}
+:root .arcade-lobby .lobby-section-head .eyebrow{font:12px ui-monospace,monospace;color:#80e8ee;letter-spacing:.22em}
+:root .arcade-lobby .lobby-section-head h2{color:#fff;font-size:36px;letter-spacing:.08em;margin:4px 0;text-shadow:3px 3px 0 #050a19}
+:root .arcade-lobby .game-mode-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px}
+:root .arcade-lobby .game-mode-card{--tile:#85e6ef;position:relative;display:flex;flex-direction:column;align-items:stretch;gap:8px;min-height:210px;padding:16px;background:#173b52;border:3px solid var(--tile);border-radius:0;box-shadow:6px 6px 0 #050a19;overflow:hidden;transition:transform .12s}
+:root .arcade-lobby .ranked-mode{--tile:#c5a1ff;background:#382951}
+:root .arcade-lobby .ai-mode{--tile:#a6e477;background:#293c2a}
+:root .arcade-lobby .private-mode{--tile:#ffca6f;background:#473522}
+:root .arcade-lobby .game-mode-card:hover{transform:translate(-2px,-2px);border-color:#fff;box-shadow:8px 8px 0 #050a19}
+:root .arcade-lobby .game-mode-card::after{content:none}
+:root .arcade-lobby .mode-icon{position:absolute;right:10px;top:12px;background:transparent;color:var(--tile);font:900 32px ui-monospace,monospace;border-radius:0;opacity:.35;width:auto;height:auto}
+:root .arcade-lobby .game-mode-card small{font:11px ui-monospace,monospace;color:var(--tile);letter-spacing:.15em}
+:root .arcade-lobby .game-mode-card h3{font-size:27px;line-height:1.4;color:#fff;margin:6px 0 8px;text-shadow:2px 2px 0 #050a19}
+:root .arcade-lobby .mode-play{margin-top:auto;min-height:42px;padding:8px 12px;border:0;border-radius:0;background:var(--tile);color:#111b30;font-size:16px;font-weight:900;box-shadow:0 3px 0 rgba(0,0,0,.4)}
+:root .arcade-lobby .difficulty-label{display:flex;align-items:center;gap:10px;margin:0;color:#cae8b1;font-size:12px}
+:root .arcade-lobby .difficulty-label select{min-width:0;flex:1;background:#142519;color:#fff;border:1px solid #6b9454;border-radius:0;padding:5px;font-size:13px}
+:root .arcade-lobby .join-row{display:flex;gap:4px;margin:0}
+:root .arcade-lobby .join-row input{min-width:0;width:100%;height:32px;background:#241c16;border:1px solid #b49a66;border-radius:0;color:#fff;padding:5px;font-size:12px}
+:root .arcade-lobby .join-row button{border:0;border-radius:0;background:#ffca6f;color:#241c16;font-size:12px;white-space:nowrap;padding:0 10px}
+:root .arcade-lobby .lobby-dock{width:calc(100% - 48px);max-width:1600px;bottom:12px;min-height:76px;background:#152344;border:3px solid #52658b;border-radius:0;padding:4px;box-shadow:5px 5px 0 #050a19}
+:root .arcade-lobby .lobby-dock button{border-radius:0;color:#a8bde1;gap:4px;border-right:1px solid #34486d}
+:root .arcade-lobby .lobby-dock button span{font-size:24px;color:#8faee0}
+:root .arcade-lobby .lobby-dock button b{font-size:16px}
+:root .arcade-lobby .lobby-dock button.active{background:#ffda62;color:#152344}
+:root .arcade-lobby .lobby-dock button.active span{color:#152344}
+:root .arcade-lobby .lobby-panel{background:#152344;border:3px solid #52658b;border-radius:0;color:#eaf7ff;padding:24px}
+:root .arcade-lobby .panel-heading h2{font-size:30px;color:#fff}
+:root .arcade-lobby .lobby-message{color:#ffda62;font-size:14px}
+@media(max-width:900px){:root .arcade-lobby .lobby-dashboard{grid-template-columns:minmax(0,1fr) 380px;gap:24px}:root .arcade-lobby .currency-chip{min-width:140px}:root .arcade-lobby .game-mode-card h3{font-size:24px}:root .arcade-lobby .lobby-side-card{max-width:195px}}
+@media(max-width:680px){:root .arcade-lobby{padding:12px 12px 90px}:root .arcade-lobby .player-bar{flex-wrap:wrap;padding:10px;gap:8px}:root .arcade-lobby .player-bar h1{font-size:22px}:root .arcade-lobby .lobby-wallet{width:100%;margin:0}:root .arcade-lobby .currency-chip{flex:1;min-width:0}:root .arcade-lobby .lobby-dashboard{grid-template-columns:1fr;gap:28px;min-height:0}:root .arcade-lobby .lobby-side-card{max-width:none;display:grid;grid-template-columns:1fr 1fr;gap:12px}:root .arcade-lobby .rank-chip strong{font-size:22px}:root .arcade-lobby .daily-mission strong{font-size:13px}:root .arcade-lobby .mode-hub{padding-top:24px}:root .arcade-lobby .game-mode-card{min-height:195px;padding:12px}:root .arcade-lobby .game-mode-card h3{font-size:24px}:root .arcade-lobby .lobby-dock{bottom:0;width:100%;min-height:72px}:root .arcade-lobby .lobby-dock button b{font-size:10px}:root .arcade-lobby .lobby-dock button span{font-size:20px}}
