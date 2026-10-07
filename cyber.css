@@ -231,3 +231,68 @@
  :root body.cyber .lobby-section-head h2[data-en]{margin-bottom:4px}
  :root body.cyber .lobby-section-head h2[data-en]::before{font-size:46px}
 }
+/* INTERACTION / 03 */
+:root body.cyber[data-section=lobby] .site-header{display:none}
+:root body.cyber .player-bar .header-actions{margin-left:auto;gap:10px}
+:root body.cyber .player-bar .header-status,:root body.cyber .player-bar #userAvatar,:root body.cyber .player-bar #userName,:root body.cyber .player-bar #settingsBtn{display:none}
+:root body.cyber .player-bar .user-menu{padding:0;border:0}
+:root body.cyber .player-bar #signOutBtn{color:var(--ink)}
+:root body.cyber .currency-icon{border:0;border-radius:50%;font-family:system-ui,sans-serif}
+:root body.cyber .currency-icon.coin{color:#ffe17c;background:#604616;box-shadow:inset 0 0 0 2px #ba8732}
+:root body.cyber .currency-icon.gem{color:#a8fbff;background:#123f53;box-shadow:inset 0 0 0 1px #3b9db2}
+:root body.cyber .pattern-crystal i::before{inset:0;transform:none;border:0;box-shadow:none;width:100%;height:100%;background:repeating-linear-gradient(135deg,transparent 0 8px,#e6faff99 8px 11px,transparent 11px 22px),repeating-conic-gradient(#2563a533 0 25%,transparent 0 50%) 0 0/12px 12px;clip-path:polygon(0 0,100% 0,100% 100%,0 100%)}
+:root body.cyber .pattern-line i{box-shadow:inset 0 0 0 1px #888}
+:root body.cyber .game-mode-grid{height:440px;grid-template-columns:minmax(0,1fr) minmax(0,1fr);grid-template-rows:minmax(0,1fr) minmax(0,1fr);transition:grid-template-columns .32s ease,grid-template-rows .32s ease;gap:12px}
+:root body.cyber .game-mode-grid .game-mode-card{min-height:0;min-width:0;height:100%;padding:24px 14px 14px;transform:none;container-type:inline-size;transition:background .2s,border-color .2s,box-shadow .2s;justify-content:center;gap:6px}
+:root body.cyber .game-mode-card h3[data-en]::before{font-size:clamp(22px,19cqi,46px);white-space:nowrap;overflow-wrap:normal}
+:root body.cyber .game-mode-card h3[data-en]{margin:6px 0 8px;pointer-events:none}
+:root body.cyber .game-mode-card .mode-play[data-en]{position:absolute;inset:0;width:100%;height:100%;min-height:0;margin:0;padding:0;z-index:1;opacity:0;font-size:0;border:0;cursor:pointer}
+:root body.cyber .game-mode-card .mode-play[data-en]::before{content:none}
+:root body.cyber .game-mode-card:has(.mode-play:focus-visible){outline:3px solid var(--red);outline-offset:4px;box-shadow:0 0 0 6px var(--panel)}
+:root body.cyber .game-mode-card:has(.mode-play:active){box-shadow:inset 0 0 0 3px var(--red)}
+:root body.cyber .game-mode-card.pending{border-color:var(--red);opacity:.65}
+:root body.cyber .game-mode-card.pending::after{animation:pending-scan .8s linear infinite}
+:root body.cyber .game-mode-card :is(.difficulty-label,.join-row){position:relative;z-index:2;min-width:0}
+:root body.cyber .game-mode-card .join-row{margin-top:0;gap:4px}
+:root body.cyber .game-mode-card .join-row input{width:100%;min-width:0}
+:root body.cyber .game-mode-card .join-row button[data-en]{min-width:42px;padding-inline:5px;min-height:36px;font-size:10px}
+:root body.cyber .game-mode-card .join-row button[data-en]::before{font-size:18px}
+:root body.cyber .game-mode-card .difficulty-label{font-size:12px;flex-wrap:wrap;gap:4px}
+:root body.cyber .game-mode-card .difficulty-label select{min-width:0;max-width:100%}
+@media(hover:hover) and (pointer:fine){
+ :root body.cyber .game-mode-grid:has(.game-mode-card:nth-child(1):hover){grid-template-columns:minmax(0,1.25fr) minmax(0,.75fr);grid-template-rows:minmax(0,1.25fr) minmax(0,.75fr)}
+ :root body.cyber .game-mode-grid:has(.game-mode-card:nth-child(2):hover){grid-template-columns:minmax(0,.75fr) minmax(0,1.25fr);grid-template-rows:minmax(0,1.25fr) minmax(0,.75fr)}
+ :root body.cyber .game-mode-grid:has(.game-mode-card:nth-child(3):hover){grid-template-columns:minmax(0,1.25fr) minmax(0,.75fr);grid-template-rows:minmax(0,.75fr) minmax(0,1.25fr)}
+ :root body.cyber .game-mode-grid:has(.game-mode-card:nth-child(4):hover){grid-template-columns:minmax(0,.75fr) minmax(0,1.25fr);grid-template-rows:minmax(0,.75fr) minmax(0,1.25fr)}
+ :root body.cyber .game-mode-card:hover{box-shadow:inset 0 0 0 1px var(--red),4px 4px 0 var(--line);border-color:var(--red)}
+ :root body.cyber button:not(:disabled):not(.mode-play):hover{filter:brightness(1.12);box-shadow:inset 0 -3px 0 #0003}
+}
+:root body.cyber :is(button,input,select){transition:background .16s,color .16s,border-color .16s,box-shadow .16s,filter .16s}
+:root body.cyber button:not(:disabled):not(.mode-play):active{transform:translateY(1px);filter:brightness(.85);box-shadow:inset 0 2px 0 #0004}
+:root body.cyber :is(input,select):focus{border-color:var(--red);box-shadow:0 0 0 2px #e61e2b22}
+:root body.cyber button:disabled{cursor:not-allowed;filter:saturate(.3)}
+:root body.cyber :is(.panel-tabs button.active,.lobby-dock button.active){box-shadow:inset 0 -4px 0 #fff8}
+:root body.cyber .last-seen{display:block;margin-top:5px;font:12px/1.6 var(--pixel);color:var(--muted)}
+:root body.cyber [data-en]::before{overflow-wrap:normal;word-break:normal}
+:root body.cyber :is(.shop-item h3,.task-copy h3)[data-en]::before{font-size:clamp(17px,2vw,25px);text-wrap:balance}
+:root body.cyber .shop-item{container-type:inline-size}
+:root body.cyber .shop-item h3[data-en]::before{font-size:clamp(14px,11cqi,25px);white-space:nowrap}
+@keyframes pending-scan{50%{opacity:.25}}
+@media(max-width:680px){
+ :root body.cyber .player-bar .header-actions{order:3;width:100%;justify-content:flex-end}
+ :root body.cyber .player-bar .lobby-wallet{order:2}
+ :root body.cyber .game-mode-grid{height:460px;gap:10px}
+ :root body.cyber .game-mode-grid .game-mode-card{padding:22px 10px 10px}
+ :root body.cyber .game-mode-card h3[data-en]::before{font-size:clamp(22px,22cqi,36px)}
+ :root body.cyber h2[data-en]::before{font-size:clamp(28px,8vw,38px)}
+ :root body.cyber .party-title-actions{flex-wrap:wrap}
+ :root body.cyber .player-row{flex-wrap:wrap}
+}
+@media(prefers-reduced-motion:reduce){:root body.cyber *{transition:none!important;animation:none!important;scroll-behavior:auto!important}}
+:root body.cyber .game-mode-grid .game-mode-card{container-type:size;padding-top:20px;padding-bottom:10px}
+:root body.cyber .game-mode-card h3[data-en]::before{font-size:clamp(22px,min(19cqi,25cqb),46px)}
+:root body.cyber .game-mode-card h3[data-en]{margin:4px 0 6px}
+:root body.cyber .game-mode-card small{font-size:10px}
+:root body.cyber .player-row>div:not(.row-actions){flex:1;min-width:145px}
+:root body.cyber .last-seen{font-size:10px;white-space:nowrap}
+:root body.cyber .versus{white-space:nowrap;word-break:keep-all;font-size:32px;letter-spacing:-.04em}

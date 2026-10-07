@@ -8,7 +8,7 @@ const THEMES = {
   neon: {name:'霓虹經典',price:0,rarity:'免費',pattern:'glow',I:'#61eaf2',J:'#4d75f6',L:'#ff9f43',O:'#ffd84d',S:'#55df7d',T:'#b66cff',Z:'#ff5277',G:'#586176'},
   arcade: {name:'街機糖果',price:0,rarity:'免費',pattern:'pixel',I:'#ff79c6',J:'#7aa2ff',L:'#ff8f5a',O:'#ffe66d',S:'#8be28b',T:'#c792ea',Z:'#ff5f6d',G:'#604f67'},
   ice: {name:'冰晶藍',price:400,rarity:'稀有',pattern:'crystal',I:'#b8f3ff',J:'#74a9ff',L:'#89d6ff',O:'#e9fbff',S:'#62d6e8',T:'#9fa8ff',Z:'#4f8fff',G:'#40546f'},
-  mono: {name:'黑白極簡',price:450,rarity:'稀有',pattern:'line',I:'#f7f7f7',J:'#c9c9c9',L:'#e0e0e0',O:'#ffffff',S:'#b7b7b7',T:'#d8d8d8',Z:'#a8a8a8',G:'#555555'},
+  mono: {name:'黑白極簡',price:450,rarity:'稀有',pattern:'line',I:'#d4d4d4',J:'#242424',L:'#929292',O:'#ffffff',S:'#484848',T:'#b5b5b5',Z:'#6d6d6d',G:'#555555'},
   sunset: {name:'落日餘暉',price:550,rarity:'史詩',pattern:'sunset',I:'#ffcf8b',J:'#e47aff',L:'#ff713e',O:'#ffe170',S:'#ff9f68',T:'#c071ff',Z:'#ff4775',G:'#69435f'},
   forest: {name:'翡翠森林',price:550,rarity:'史詩',pattern:'leaf',I:'#94f5d5',J:'#4ca98b',L:'#d4c47a',O:'#f0e68c',S:'#50df83',T:'#8bcf7b',Z:'#d96b72',G:'#38584a'},
   magma: {name:'熔岩核心',price:700,rarity:'傳說',pattern:'crack',I:'#ffd36c',J:'#ff7a45',L:'#ff9b28',O:'#fff08a',S:'#f26d3d',T:'#e64d75',Z:'#ff3548',G:'#67332d'},
@@ -266,7 +266,13 @@ function drawCell(target, x, y, color, size, alpha = 1, themeId=playerProfile.bl
   target.save();target.globalAlpha=alpha;target.shadowColor='rgba(0,0,0,.2)';target.shadowBlur=Math.max(1,size*.055);target.shadowOffsetY=1;target.fillStyle=color;target.fillRect(px,py,w,w);target.shadowBlur=0;target.shadowOffsetY=0;
   const shine=target.createLinearGradient(px,py,px+w,py+w);shine.addColorStop(0,'rgba(255,255,255,.26)');shine.addColorStop(.48,'rgba(255,255,255,.025)');shine.addColorStop(1,'rgba(22,29,35,.13)');target.fillStyle=shine;target.fillRect(px,py,w,w);
   target.strokeStyle='rgba(255,255,255,.25)';target.lineWidth=Math.max(.65,size/28);
-  if(theme.pattern==='crystal'){target.beginPath();target.moveTo(px+w*.08,py+w*.7);target.lineTo(px+w*.48,py+w*.28);target.lineTo(px+w*.91,py+w*.62);target.moveTo(px+w*.48,py+w*.28);target.lineTo(px+w*.56,py+w*.92);target.stroke();}
+  if(theme.pattern==='crystal'){
+    // Original voxel ice: stepped glints and translucent blue pockets on an 8×8 grid.
+    const q=w/8;target.fillStyle='rgba(235,253,255,.55)';
+    [[0,2],[1,1],[2,0],[2,5],[3,4],[4,3],[5,2],[6,1],[5,7],[6,6],[7,5]].forEach(([cx,cy])=>target.fillRect(px+cx*q,py+cy*q,q,q));
+    target.fillStyle='rgba(34,93,170,.24)';[[0,6],[1,6],[1,7],[4,0],[5,0],[6,3],[7,3],[7,4],[3,6]].forEach(([cx,cy])=>target.fillRect(px+cx*q,py+cy*q,q,q));
+    target.strokeStyle='rgba(215,249,255,.65)';target.strokeRect(px+.5,py+.5,w-1,w-1);
+  }
   else if(theme.pattern==='pixel'){const q=w/5;target.fillStyle='rgba(255,255,255,.13)';target.fillRect(px+q,py+q,q,q);target.fillRect(px+q*3,py+q*3,q,q);}
   else if(theme.pattern==='line'){target.strokeStyle='rgba(255,255,255,.2)';target.strokeRect(px+w*.18,py+w*.18,w*.64,w*.64);}
   else if(theme.pattern==='sunset'){target.strokeStyle='rgba(255,245,201,.28)';target.beginPath();target.arc(px+w*.66,py+w*.46,w*.2,Math.PI,Math.PI*2);target.stroke();}
@@ -369,7 +375,7 @@ function showResult(won, reason) {
   ui.resultScore.textContent = score.toLocaleString(); ui.resultLines.textContent = lines; ui.resultRating.textContent=roomMode==='online'&&matchmakingMode==='ranked'?'結算中…':'—'; ui.resultSettlement.textContent=roomMode==='ai'?`AI：${aiScore.toLocaleString()} 分 · ${aiLines} 行`:partyState?'好友房間採最後存活者獲勝。':'';ui.againBtn.textContent=partyState?'結束並回大廳':'再來一場'; ui.resultModal.classList.remove('hidden');
 }
 
-function showSection(section) { ['auth','lobby','waiting','partyRoom','arena'].forEach(k=>ui[k].classList.toggle('hidden', k!==section)); }
+function showSection(section) { document.body.dataset.section=section; ['auth','lobby','waiting','partyRoom','arena'].forEach(k=>ui[k].classList.toggle('hidden', k!==section)); }
 function ensureSingleOpponent(){
   if(ui.opponentGrid.querySelector('#rivalCanvas'))return;
   ui.opponentGrid.classList.remove('multi');ui.opponentGrid.dataset.players='';ui.opponentGrid.innerHTML='<article class="player-zone rival-zone" data-opponent-slot="0"><div class="player-head"><span id="rivalAvatar" class="player-avatar rival-avatar">?</span><div><small>PLAYER 02</small><strong id="rivalName">等待中</strong></div><span id="rivalBadge" class="badge muted">OFFLINE</span></div><div class="rival-wrap"><div class="board-frame rival-frame"><canvas id="rivalCanvas" width="300" height="600" aria-label="對手的遊戲盤面"></canvas></div><div class="rival-stats"><span>SCORE <b id="rivalScore">0</b></span><span>LINES <b id="rivalLines">0</b></span></div></div></article>';
@@ -709,6 +715,15 @@ async function saveProfileSettings() {
   try { const next=await callRpc('save_profile',{p_avatar:selectedAvatar,p_block_theme:ui.themeSelect.value,p_battle_background:ui.backgroundSelect.value}); playerProfile={...playerProfile,...next}; renderProfile(); ui.profileModal.classList.add('hidden'); toast('個人設定已儲存'); await refreshSocial(); }
   catch(error){toast(error.message||'無法儲存設定');} finally {ui.saveProfileBtn.disabled=false;}
 }
+function friendLastSeen(friend, now=Date.now()) {
+  if(friend.online)return 'ONLINE · 目前在線';
+  const time=Date.parse(friend.last_seen_at);
+  if(!Number.isFinite(time))return 'LAST SEEN · 暫無上線紀錄';
+  const minutes=Math.max(1,Math.floor((now-time)/60000));
+  if(minutes<60)return `LAST SEEN · ${minutes} 分鐘前`;
+  if(minutes<1440)return `LAST SEEN · ${Math.floor(minutes/60)} 小時前`;
+  return `LAST SEEN · ${Math.min(7,Math.floor(minutes/1440))} 天${minutes>=10080?'以上':''}前`;
+}
 function renderSocial(state) {
   if(state.profile){ playerProfile={...playerProfile,...state.profile}; playerName=state.profile.username||playerName; ui.userName.textContent=playerName; renderProfile(); }
   const friends=state.friends||[], requests=state.requests||[];socialFriends=friends;
@@ -717,7 +732,7 @@ function renderSocial(state) {
   ui.friendNotice.classList.toggle('hidden',!requests.length&&!(state.invites||[]).length);
   ui.requestSection.classList.toggle('hidden',!requests.length);
   ui.incomingList.innerHTML=requests.map(item=>`<div class="player-row"><span class="row-avatar">${escapeHtml(item.avatar||'⚡')}</span><div><strong>${escapeHtml(item.username)}</strong><small>想加你為好友</small></div><div class="row-actions"><button data-action="accept-friend" data-id="${item.friendship_id}">接受</button><button class="danger" data-action="decline-friend" data-id="${item.friendship_id}">略過</button></div></div>`).join('');
-  ui.friendsList.innerHTML=friends.length?friends.map(friend=>`<div class="player-row"><span class="row-avatar">${escapeHtml(friend.avatar||'⚡')}</span><div><strong>${escapeHtml(friend.username)}</strong><small class="${friend.online?'online-dot':''}">${friend.online?'● 線上 · ':''}${rankFor(friend.rating).name} · ${winrate(friend.wins,friend.losses)}% 勝率</small></div><div class="row-actions"><button data-action="invite-friend" data-id="${friend.id}">邀請對戰</button></div></div>`).join(''):'<p class="empty-state">還沒有好友，搜尋角色帳號加入。</p>';
+  ui.friendsList.innerHTML=friends.length?friends.map(friend=>`<div class="player-row"><span class="row-avatar">${escapeHtml(friend.avatar||'⚡')}</span><div><strong>${escapeHtml(friend.username)}</strong><small class="${friend.online?'online-dot':''}">${friend.online?'● 線上 · ':''}${rankFor(friend.rating).name} · ${winrate(friend.wins,friend.losses)}% 勝率</small><small class="last-seen">${friendLastSeen(friend)}</small></div><div class="row-actions"><button data-action="invite-friend" data-id="${friend.id}">邀請對戰</button></div></div>`).join(''):'<p class="empty-state">還沒有好友，搜尋角色帳號加入。</p>';
   renderPrivateFriends();
   if(partyState)renderPartyInviteList();
   const invite=(state.invites||[])[0];
@@ -725,7 +740,15 @@ function renderSocial(state) {
 }
 async function refreshSocial() {
   if(!db||!session)return;
-  try { renderSocial(await callRpc('get_social_state')); } catch(error){console.warn('Social state unavailable',error.message);}
+  try {
+    const state=await callRpc('get_social_state');
+    const ids=(state.friends||[]).map(friend=>friend.id);
+    if(ids.length){
+      const {data,error}=await db.from('profiles').select('id,last_seen_at').in('id',ids);
+      if(!error){const seen=new Map(data.map(p=>[p.id,p.last_seen_at]));state.friends.forEach(friend=>{friend.last_seen_at=seen.get(friend.id);});}
+    }
+    renderSocial(state);
+  } catch(error){console.warn('Social state unavailable',error.message);}
 }
 async function sendFriendRequest() {
   const username=ui.friendSearchInput.value.trim(); if(!username){ui.friendMessage.textContent='請輸入角色帳號。';return;}

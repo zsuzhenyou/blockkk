@@ -93,3 +93,6 @@ MIT
 
 ### Typography / TYPE 02
 English display labels are paired with small Traditional Chinese labels across static and dynamic game panels. `typography.js` leaves game text/state intact. Traditional Chinese uses bundled [Ark Pixel Font](https://github.com/TakWolf/ark-pixel-font), 12px proportional zh-TW, under SIL OFL 1.1 (see `FONT-LICENSE.txt`).
+
+### Interaction / 03
+Whole-card mode controls use native buttons with independent difficulty and room-code inputs. Pointer hover redistributes a fixed 2×2 area; reduced-motion preferences disable transitions. The lobby has one combined account/currency bar. Friend last-seen labels read existing authenticated profile timestamps and range from one minute to seven days or more; unavailable timestamps are explicitly labeled. Mono uses seven separated gray levels, and Ice uses an original stepped voxel texture.
