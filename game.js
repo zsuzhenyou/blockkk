@@ -279,10 +279,10 @@ function drawCell(target, x, y, color, size, alpha = 1, themeId=playerProfile.bl
   else if(theme.pattern==='leaf'){target.beginPath();target.ellipse(px+w*.52,py+w*.52,w*.24,w*.105,-.62,0,Math.PI*2);target.stroke();target.beginPath();target.moveTo(px+w*.35,py+w*.66);target.lineTo(px+w*.69,py+w*.37);target.stroke();}
   else if(theme.pattern==='crack'){
     const q=w/8;target.fillStyle=color;target.fillRect(px,py,w,w);
-    target.fillStyle='#43251e';
+    target.fillStyle='rgba(121,80,59,.68)';
     [[0,0,3,2],[4,0,3,1],[1,3,2,3],[4,2,3,2],[5,5,3,2],[0,7,4,1]].forEach(([cx,cy,cw,ch])=>target.fillRect(px+cx*q,py+cy*q,cw*q,ch*q));
-    target.fillStyle='#6c3522';[[1,0],[4,2],[2,4],[6,5],[0,7]].forEach(([cx,cy])=>target.fillRect(px+cx*q,py+cy*q,q,q));
-    target.fillStyle='#ffdb72';[[3,1],[0,4],[4,5],[7,3],[3,6]].forEach(([cx,cy])=>target.fillRect(px+cx*q,py+cy*q,q,q));
+    target.fillStyle='rgba(146,87,53,.65)';[[1,0],[4,2],[2,4],[6,5],[0,7]].forEach(([cx,cy])=>target.fillRect(px+cx*q,py+cy*q,q,q));
+    target.fillStyle='#d89c59';[[3,1],[0,4],[4,5],[7,3],[3,6]].forEach(([cx,cy])=>target.fillRect(px+cx*q,py+cy*q,q,q));
   }
   else if(theme.pattern==='star'){target.fillStyle='rgba(255,255,255,.58)';target.fillRect(px+w*.26,py+w*.27,1.5,1.5);target.fillRect(px+w*.7,py+w*.62,1.5,1.5);target.fillRect(px+w*.48,py+w*.78,1,1);}
   else if(theme.pattern==='pearl'){const pearl=target.createRadialGradient(px+w*.38,py+w*.32,0,px+w*.48,py+w*.48,w*.55);pearl.addColorStop(0,'rgba(255,255,255,.3)');pearl.addColorStop(.5,'rgba(255,255,255,.05)');pearl.addColorStop(1,'rgba(116,92,101,.1)');target.fillStyle=pearl;target.fillRect(px,py,w,w);}
@@ -406,6 +406,10 @@ function ensureSingleOpponent(){
   ['rivalAvatar','rivalName','rivalBadge','rivalCanvas','rivalScore','rivalLines'].forEach(id=>ui[id]=$(id));rivalCtx=ui.rivalCanvas.getContext('2d');
 }
 function startPractice() { disconnect(false);ensureSingleOpponent(); roomMode='practice'; ui.matchMode.textContent='單人練習'; ui.matchRoom.textContent=''; ui.rivalName.textContent='你的紀錄'; ui.rivalBadge.textContent='SOLO'; ui.rivalBadge.classList.add('muted'); showSection('arena'); countdownAndStart(); }
+function openSoloSetup(){const modal=$('soloSetup');modal.classList.remove('hidden');ui.aiDifficulty.focus();}
+$('soloCancel').addEventListener('click',()=>{$('soloSetup').classList.add('hidden');ui.practiceBtn.focus();});
+$('soloStart').addEventListener('click',()=>{$('soloSetup').classList.add('hidden');startAiBattle();});
+$('soloSetup').addEventListener('keydown',event=>{if(event.key==='Escape'){$('soloSetup').classList.add('hidden');ui.practiceBtn.focus();}if(event.key==='Tab'){const first=ui.aiDifficulty,last=$('soloCancel');if(event.shiftKey&&document.activeElement===first){event.preventDefault();last.focus();}else if(!event.shiftKey&&document.activeElement===last){event.preventDefault();first.focus();}}});
 function startAiBattle() {
   disconnect(false);ensureSingleOpponent(); roomMode='ai'; aiDifficulty=ui.aiDifficulty?.value||'normal'; aiBoard=emptyBoard(); aiQueue=[]; aiTicks=0; aiScore=0; aiLines=0;
   ui.matchMode.textContent=`單人模式 · ${AI_LEVELS[aiDifficulty].name}`; ui.matchRoom.textContent='SOLO BATTLE'; ui.rivalName.textContent=`${AI_LEVELS[aiDifficulty].name} AI`; ui.rivalAvatar.textContent='🤖'; ui.rivalBadge.textContent=aiDifficulty.toUpperCase(); ui.rivalBadge.classList.remove('muted'); ui.rivalScore.textContent='0'; ui.rivalLines.textContent='0';
@@ -506,31 +510,34 @@ function setupConnection(conn) {
 }
 function partyHello(){return {type:'party-hello',userId:session.user.id,username:playerName,avatar:playerProfile.avatar,theme:playerProfile.block_theme,background:playerProfile.battle_background,rating:playerProfile.rating};}
 function setupPartyConnection(conn){
-  const tempKey=conn.metadata?.userId||conn.peer;connections.set(tempKey,conn);
-  if(!connection&&!isHost)connection=conn;
-  conn.on('open',()=>{peerReady=true;conn.send(partyHello());if(isHost)conn.send({type:'party-sync',party:partyState,chat:roomChat});});
+  conn._bsStarted=Date.now();
+  const tempKey=isHost?(conn.metadata?.userId||conn.peer):(partyState?.host_id||conn.peer);connections.set(tempKey,conn);
+  if(!isHost)connection=conn;
+  conn.on('open',()=>{peerReady=true;conn.send(partyHello());if(isHost)conn.send({type:'party-sync',party:partyState,chat:roomChat});if(roomMode==='online')sendState(true);renderPartyRoom();});
   conn.on('data',data=>handlePartyData(data,conn));
-  conn.on('close',()=>{for(const [id,item] of connections)if(item===conn){connections.delete(id);opponents.delete(id);}renderOpponentBoards();if(running&&isHost)checkPartyWinner();});
-  conn.on('error',()=>toast('有玩家連線發生問題'));
+  conn.on('close',()=>{conn._bsClosed=true;for(const [id,item] of connections)if(item===conn){connections.delete(id);}renderOpponentBoards();if(running&&isHost)checkPartyWinner();});
+  conn.on('error',()=>{conn._bsClosed=true;toast('玩家連線中斷，正在嘗試重新連線');});
 }
-function broadcastParty(data,except=null){connections.forEach(conn=>{if(conn!==except&&conn.open)conn.send(data);});}
+function broadcastParty(data,except=null){new Set(connections.values()).forEach(conn=>{if(conn!==except&&conn.open)conn.send(data);});}
 function connectionFor(userId){return connections.get(userId)||[...connections.values()].find(conn=>conn.memberId===userId);}
-function handlePartyData(data,conn){
+async function handlePartyData(data,conn){
   if(!data?.type)return;
   if(data.type==='party-hello'){
-    conn.memberId=data.userId;connections.delete(conn.peer);connections.set(data.userId,conn);opponents.set(data.userId,{...data,board:emptyBoard(),score:0,lines:0,alive:true});renderOpponentBoards();
+    if(isHost&&!partyState?.members?.some(m=>m.id===data.userId&&m.peer_id===conn.peer)){await refreshPartyRoom();}
+    const valid=isHost?partyState?.members?.some(m=>m.id===data.userId&&m.peer_id===conn.peer):data.userId===partyState?.host_id&&conn.peer===partyState?.host_peer_id;
+    if(!valid||!conn.open)return;conn.memberId=data.userId;for(const [key,value] of connections)if(value===conn)connections.delete(key);connections.set(data.userId,conn);opponents.set(data.userId,{board:emptyBoard(),score:0,lines:0,alive:true,...opponents.get(data.userId),...data});renderOpponentBoards();renderPartyRoom();
     if(isHost){conn.send({type:'party-sync',party:partyState,chat:roomChat});broadcastParty({type:'party-player',player:data},conn);}
   }
-  if(data.type==='party-sync'){partyState=data.party||partyState;roomChat=data.chat||roomChat;renderPartyRoom();renderRoomChat();}
+  if(data.type==='party-sync'&&!isHost){partyState=data.party||partyState;roomChat=data.chat||roomChat;renderPartyRoom();renderRoomChat();}
   if(data.type==='party-player'&&data.player?.userId){opponents.set(data.player.userId,{...data.player,board:emptyBoard(),score:0,lines:0,alive:true});renderOpponentBoards();}
   if(data.type==='state'){
-    const id=data.userId||conn.memberId;if(id&&id!==session.user.id){opponents.set(id,{...(opponents.get(id)||{}),...data,alive:!eliminatedPlayers.has(id)});renderOpponentBoards();if(isHost)broadcastParty({...data,userId:id},conn);}
+    const id=isHost?conn.memberId:data.userId;if(id&&id!==session.user.id){opponents.set(id,{...(opponents.get(id)||{}),...data,alive:!eliminatedPlayers.has(id)});renderOpponentBoards();if(isHost)broadcastParty({...data,userId:id},conn);}
   }
-  if(data.type==='attack'){if(isHost)routePartyAttack(data.from||conn.memberId,data.lines||0);}
-  if(data.type==='attack-target')receiveAttack(data.lines||0);
+  if(data.type==='attack'){if(isHost&&conn.memberId)routePartyAttack(conn.memberId,data.lines||0);}
+  if(data.type==='attack-target'&&!isHost)receiveAttack(data.lines||0);
   if(data.type==='party-chat'){if(isHost){appendRoomChat(data);broadcastParty(data);}else appendRoomChat(data);}
   if(data.type==='reaction'){if(isHost)broadcastParty(data);showReaction(data);}
-  if(data.type==='party-start'){partyState=data.party||partyState;startPartyMatch();}
+  if(data.type==='party-start'&&!isHost){partyState=data.party||partyState;startPartyMatch();}
   if(data.type==='party-ko'){if(isHost){eliminatedPlayers.add(data.userId);broadcastParty(data);checkPartyWinner();}else{eliminatedPlayers.add(data.userId);markOpponentEliminated(data.userId);}}
   if(data.type==='party-winner'){if(data.userId===session.user.id&&!gameEnded)endGame(true,'你是最後存活的玩家！',true);else if(!gameEnded)endGame(false,`${data.username||'對手'} 成為最後存活者。`,true);}
 }
@@ -570,9 +577,16 @@ function renderPartyRoom(){
   [ui.partyMaxPlayers,ui.partyTargetMode,ui.partyGarbageDelay].forEach(control=>control.disabled=!isHost);ui.partyHostNote.textContent=isHost?'你是房主，可調整每位玩家':'等待房主設定';
   ui.partyMembers.innerHTML=members.map(member=>{const host=member.id===hostId,self=member.id===session.user.id,disabled=!isHost;return `<div class="party-member" data-member-id="${member.id}"><span class="member-avatar">${escapeHtml(member.avatar||'⚡')}</span><div><strong>${escapeHtml(member.username)}${host?' · 房主':''}${self?'（你）':''}</strong><small>${rankFor(member.rating).name} · ${member.rating||1000} RP</small></div><span class="ready-state ${member.ready?'ready':''}">${member.ready?'已準備':'未準備'}</span><label class="handicap-control">鎖定列 <select data-handicap-id="${member.id}" ${disabled?'disabled':''}>${Array.from({length:7},(_,i)=>`<option value="${i}" ${Number(member.handicap_rows||0)===i?'selected':''}>${i}</option>`).join('')}</select></label></div>`;}).join('');
   renderPartyInviteList();
-  const self=members.find(member=>member.id===session.user.id);partyReady=Boolean(self?.ready);ui.partyReadyBtn.classList.toggle('hidden',isHost);ui.partyReadyBtn.textContent=partyReady?'取消準備':'我已準備';ui.partyStartBtn.classList.toggle('hidden',!isHost);ui.partyStartBtn.disabled=members.length<2||members.some(member=>!member.ready);ui.partyStatus.textContent=members.length<2?'至少還需要一位玩家。':members.some(member=>!member.ready)?'等待所有玩家準備。':'所有玩家已準備，可以開始遊戲。';
+  const self=members.find(member=>member.id===session.user.id);partyReady=Boolean(self?.ready);ui.partyReadyBtn.classList.toggle('hidden',isHost);ui.partyReadyBtn.textContent=partyReady?'取消準備':'我已準備';ui.partyStartBtn.classList.toggle('hidden',!isHost);ui.partyStartBtn.disabled=members.length<2||members.some(member=>!member.ready)||!partyLinksReady();ui.partyStatus.textContent=members.length<2?'至少還需要一位玩家。':members.some(member=>!member.ready)?'等待所有玩家準備。':!partyLinksReady()?'正在建立玩家盤面與攻擊資料連線…':'所有玩家已準備，可以開始遊戲。';
 }
-async function refreshPartyRoom(){if(!currentRoomId||!partyState)return;try{const next=await callRpc('get_party_room',{p_room_id:currentRoomId});partyState=next;renderPartyRoom();if(next.state==='playing'&&!running&&!gameEnded)startPartyMatch();}catch(error){console.warn('Party room unavailable',error.message);}}
+async function refreshPartyRoom(){if(!currentRoomId||!partyState)return;try{const next=await callRpc('get_party_room',{p_room_id:currentRoomId});partyState=next;ensurePartyLink();renderPartyRoom();if(next.state==='playing'&&!running&&!gameEnded)startPartyMatch();}catch(error){console.warn('Party room unavailable',error.message);}}
+function ensurePartyLink(){
+  if(isHost||!partyState||!peer||connection?.open)return;
+  if(connection&&!connection._bsClosed&&Date.now()-connection._bsStarted<10000)return;
+  if(connection)connection.close();
+  setupPartyConnection(peer.connect(partyState.host_peer_id,{reliable:true,metadata:{userId:session.user.id}}));
+}
+function partyLinksReady(){return isHost?(partyState?.members||[]).filter(m=>m.id!==session.user.id).every(m=>connectionFor(m.id)?.open&&connectionFor(m.id)?.memberId===m.id):Boolean(connection?.open);}
 function beginPartyPolling(){clearInterval(partyPoll);partyPoll=setInterval(refreshPartyRoom,1300);}
 async function savePartySettings(){
   if(!isHost||!partyState)return;const members=partyState.members||[],handicaps={};
@@ -580,8 +594,8 @@ async function savePartySettings(){
   try{partyState=await callRpc('update_party_settings',{p_room_id:currentRoomId,p_max_players:Number(ui.partyMaxPlayers.value),p_settings:{balance:false,target_mode:ui.partyTargetMode.value,garbage_delay:Number(ui.partyGarbageDelay.value)},p_handicaps:handicaps});renderPartyRoom();broadcastParty({type:'party-sync',party:partyState,chat:roomChat});}catch(error){toast(error.message||'無法更新房間設定');}
 }
 async function togglePartyReady(){try{partyState=await callRpc('set_party_ready',{p_room_id:currentRoomId,p_ready:!partyReady});renderPartyRoom();}catch(error){toast(error.message||'無法更新準備狀態');}}
-async function startPartyRoom(){try{await savePartySettings();partyState=await callRpc('start_party_room',{p_room_id:currentRoomId});clearInterval(partyPoll);broadcastParty({type:'party-start',party:partyState});startPartyMatch();}catch(error){toast(error.message||'目前還不能開始');}}
-function startPartyMatch(){if(running||ui.countdown&&!ui.countdown.classList.contains('hidden'))return;clearInterval(partyPoll);roomMode='online';matchmaking=false;lockedRows=Number((partyState?.members||[]).find(member=>member.id===session.user.id)?.handicap_rows||0);eliminatedPlayers.clear();opponents.clear();(partyState?.members||[]).filter(member=>member.id!==session.user.id).forEach(member=>opponents.set(member.id,{...member,userId:member.id,board:emptyBoard(),score:0,lines:0,theme:'neon',background:'void',alive:true}));ui.matchMode.textContent='好友多人對戰';ui.matchRoom.textContent=`ROOM ${activeRoom} · ${partyState.members.length}P`;showSection('arena');ui.battleSocial.classList.remove('hidden');renderOpponentBoards();countdownAndStart();}
+async function startPartyRoom(){try{await refreshPartyRoom();if(!partyLinksReady()){toast('玩家資料連線尚未完成，請稍候；若持續失敗，請重新加入房間。');return;}await savePartySettings();partyState=await callRpc('start_party_room',{p_room_id:currentRoomId});clearInterval(partyPoll);broadcastParty({type:'party-start',party:partyState});startPartyMatch();}catch(error){toast(error.message||'目前還不能開始');}}
+function startPartyMatch(){if(running||ui.countdown&&!ui.countdown.classList.contains('hidden'))return;clearInterval(partyPoll);partyPoll=setInterval(ensurePartyLink,1300);roomMode='online';matchmaking=false;lockedRows=Number((partyState?.members||[]).find(member=>member.id===session.user.id)?.handicap_rows||0);eliminatedPlayers.clear();opponents.clear();(partyState?.members||[]).filter(member=>member.id!==session.user.id).forEach(member=>opponents.set(member.id,{...member,userId:member.id,board:emptyBoard(),score:0,lines:0,theme:'neon',background:'void',alive:true}));ui.matchMode.textContent='好友多人對戰';ui.matchRoom.textContent=`ROOM ${activeRoom} · ${partyState.members.length}P`;showSection('arena');ui.battleSocial.classList.remove('hidden');renderOpponentBoards();countdownAndStart();}
 async function leavePartyRoom(){backToLobby();}
 function renderPartyInviteList(){
   if(!ui.partyInviteList)return;const memberIds=new Set((partyState?.members||[]).map(member=>member.id)),available=socialFriends.filter(friend=>!memberIds.has(friend.id));
@@ -826,7 +840,7 @@ async function initOnlineServices() {
   db=window.supabase.createClient(config.supabaseUrl,config.supabaseAnonKey); const {data}=await db.auth.getSession(); await applySession(data.session); db.auth.onAuthStateChange((_event,next)=>setTimeout(()=>applySession(next),0));
 }
 
-ui.hostBtn.addEventListener('click',hostRoom); ui.joinBtn.addEventListener('click',joinRoom); ui.matchBtn.addEventListener('click',()=>findOpponent('normal')); ui.rankedMatchBtn.addEventListener('click',()=>findOpponent('ranked')); ui.practiceBtn.addEventListener('click',startAiBattle); ui.guestPracticeBtn.addEventListener('click',startPractice);
+ui.hostBtn.addEventListener('click',hostRoom); ui.joinBtn.addEventListener('click',joinRoom); ui.matchBtn.addEventListener('click',()=>findOpponent('normal')); ui.rankedMatchBtn.addEventListener('click',()=>findOpponent('ranked')); ui.practiceBtn.addEventListener('click',openSoloSetup); ui.guestPracticeBtn.addEventListener('click',startPractice);
 ui.themeModeBtn.addEventListener('click',()=>setUiTheme(document.documentElement.dataset.uiTheme==='dark'?'light':'dark'));ui.cancelMatchBtn.addEventListener('click',cancelMatchmaking);
 ui.partyCode.addEventListener('click',async()=>{try{await navigator.clipboard.writeText(activeRoom);toast('房間碼已複製');}catch{toast(`房間碼：${activeRoom}`);}});ui.leavePartyBtn.addEventListener('click',leavePartyRoom);ui.partyReadyBtn.addEventListener('click',togglePartyReady);ui.partyStartBtn.addEventListener('click',startPartyRoom);[ui.partyMaxPlayers,ui.partyTargetMode,ui.partyGarbageDelay].forEach(control=>control.addEventListener('change',savePartySettings));ui.partyMembers.addEventListener('change',event=>{if(event.target.matches('[data-handicap-id]'))savePartySettings();});ui.roomChatForm.addEventListener('submit',sendRoomChat);ui.lobbyChatForm.addEventListener('submit',sendLobbyChat);ui.privateChatForm.addEventListener('submit',sendPrivateChat);ui.chatModeTabs.addEventListener('click',event=>{const button=event.target.closest('[data-chat-mode]');if(button)switchChatMode(button.dataset.chatMode);});ui.privateFriendList.addEventListener('click',event=>{const button=event.target.closest('[data-private-friend-id]');if(button)selectPrivateFriend(button.dataset.privateFriendId);});ui.lobbyChatToast.addEventListener('click',()=>switchLobbyView('chat'));document.querySelector('.reaction-bar').addEventListener('click',event=>{const button=event.target.closest('[data-reaction]');if(button)sendReaction(button.dataset.reaction);});
 ui.partyInviteToggleBtn.addEventListener('click',()=>{ui.partyInvitePanel.classList.toggle('hidden');renderPartyInviteList();});ui.partyInviteList.addEventListener('click',event=>{const button=event.target.closest('[data-party-invite-id]');if(button&&!button.disabled)inviteFriendToCurrentRoom(button.dataset.partyInviteId);});

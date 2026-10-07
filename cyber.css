@@ -365,3 +365,17 @@
  :root body.cyber #profileEditBtn{flex:0 0 64px}
  :root body.cyber .player-bar .lobby-wallet{flex:0 0 100%;width:100%;justify-content:flex-end}
 }
+:root body.cyber #soloSetup .modal-card{width:min(480px,calc(100vw - 32px))}
+:root body.cyber #soloSetup .difficulty-label{display:grid;gap:12px;margin:24px 0;color:var(--ink)}
+:root body.cyber #soloSetup select{padding:8px 12px;width:100%;height:48px;min-height:48px;font-size:16px}
+:root body.cyber #soloSetup .btn{width:100%;margin-bottom:12px}
+:root body.cyber .pattern-crack i{background:#cd8743;box-shadow:inset 0 0 0 1px #cf9c67}
+:root body.cyber .pattern-crack i::before{opacity:.5}
+:root body.cyber .game-mode-card h3[data-en]::before{transition:font-size .3s ease}
+:root body.cyber .game-mode-card small,:root body.cyber .game-mode-card .mode-icon{transition:transform .3s ease,opacity .3s ease}
+@media(hover:hover) and (pointer:fine){
+ :root body.cyber .game-mode-card:hover h3[data-en]::before{font-size:clamp(26px,min(28cqi,40cqb),72px)}
+ :root body.cyber .game-mode-card:hover small{display:block;text-align:right;transform:scale(.8);transform-origin:right}
+ :root body.cyber .game-mode-card:hover .mode-icon{transform:translateY(-10px) scale(.65);opacity:.25}
+ :root body.cyber .game-mode-card:hover h3[data-en]{font-size:10px}
+}
