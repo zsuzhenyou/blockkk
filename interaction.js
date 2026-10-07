@@ -9,6 +9,22 @@
  }
  new MutationObserver(mergeHeader).observe(document.body,{attributes:true,attributeFilter:['data-section']});
  mergeHeader();
+ const dock=document.querySelector('.lobby-dock');
+ const items=[...dock.querySelectorAll('button')];
+ let pinned=null,lastX=null,lastY=null;
+ const emphasize=button=>{dock.classList.toggle('has-emphasis',!!button);items.forEach(item=>item.classList.toggle('dock-expanded',item===button));};
+ dock.addEventListener('pointermove',event=>{
+   if(event.pointerType==='touch'||!matchMedia('(min-width:681px)').matches)return;
+   if(event.clientX===lastX&&event.clientY===lastY)return;
+   lastX=event.clientX;lastY=event.clientY;
+   const button=event.target.closest('button');if(items.includes(button))emphasize(button);
+ });
+ dock.addEventListener('pointerleave',()=>{lastX=null;lastY=null;emphasize(pinned);});
+ items.forEach(button=>{
+   button.addEventListener('click',()=>{pinned=button;emphasize(button);});
+   button.addEventListener('focus',()=>{if(button.matches(':focus-visible'))emphasize(button);});
+ });
+ dock.addEventListener('focusout',event=>{if(!dock.contains(event.relatedTarget))emphasize(pinned);});
  document.querySelectorAll('.game-mode-card').forEach(card=>{
    const button=card.querySelector('.mode-play');
    button.setAttribute('aria-label',card.querySelector('h3').textContent+(card.classList.contains('private-mode')?'：建立房間':''));
