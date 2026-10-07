@@ -336,3 +336,32 @@
  :root body.cyber .currency-chip{min-width:118px;flex:0 1 118px}
 }
 @media(prefers-reduced-motion:reduce){:root body.cyber *,:root body.cyber *::before{transition:none!important;animation:none!important}}
+/* TYPE / 06 — reserve the full-size line box; animate only ink inside it. */
+:root body.cyber .lobby-dock button{container-type:inline-size;padding:4px 8px;display:flex;align-items:center;justify-content:center}
+:root body.cyber .lobby-dock button b[data-en]{display:block;width:100%;min-width:0;overflow:visible;text-align:center;line-height:14px}
+:root body.cyber .lobby-dock button b[data-en]::before{display:flex;align-items:center;justify-content:center;width:100%;height:44px;margin:0;line-height:1.15;font-size:clamp(14px,15cqi,38px);transform:scale(.68);transform-origin:center;transition:transform .28s ease;white-space:nowrap}
+:root body.cyber .lobby-dock.has-emphasis button b[data-en]::before{transform:scale(.58)}
+:root body.cyber .lobby-dock button.dock-expanded b[data-en]::before{transform:scale(1)}
+:root body.cyber button[data-en]:not(.mode-play)::before,:root body.cyber #authSubmit>span[data-en]::before{line-height:1.15;transform:scale(.65);transform-origin:center;transition:transform .24s ease;max-width:100%;white-space:nowrap}
+:root body.cyber button:not([data-en]):not(.mode-play):not([data-lobby-view])>span{transform:none!important}
+@media(hover:hover) and (pointer:fine){
+ :root body.cyber button[data-en]:not(:disabled):not(.mode-play):hover::before,:root body.cyber #authSubmit:not(:disabled):hover>span[data-en]::before{transform:scale(1)}
+}
+:root body.cyber button[data-en]:not(:disabled):focus-visible::before,:root body.cyber #authSubmit:focus-visible>span[data-en]::before{transform:scale(1)}
+:root body.cyber :is(.panel-tabs,.auth-tabs) button.active[data-en]::before{transform:scale(1)}
+:root body.cyber button[data-en]:not(.mode-play){min-width:0}
+:root body.cyber .shop-item button[data-en]::before{font-size:clamp(16px,13cqi,26px)}
+@media(max-width:680px){
+ :root body.cyber .lobby-dock button{padding-inline:3px}
+ :root body.cyber .lobby-dock button b[data-en]::before{font-size:clamp(12px,26cqi,16px);height:34px}
+ :root body.cyber .lobby-dock button.dock-expanded b[data-en]::before{transform:scale(1)}
+ :root body.cyber .panel-tabs button[data-en]::before{font-size:16px}
+}
+@media(prefers-reduced-motion:reduce){:root body.cyber *::before{transition:none!important}}
+@media(max-width:680px){
+ :root body.cyber .player-bar-main{flex:1 1 calc(100% - 82px);min-width:0}
+ :root body.cyber .player-bar-main>div{min-width:0}
+ :root body.cyber .player-bar-main h1{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+ :root body.cyber #profileEditBtn{flex:0 0 64px}
+ :root body.cyber .player-bar .lobby-wallet{flex:0 0 100%;width:100%;justify-content:flex-end}
+}
